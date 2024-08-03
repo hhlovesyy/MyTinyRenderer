@@ -1,0 +1,8 @@
+﻿  graphics.cpp
+  image.cpp
+  main.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\win32.h(99,5): error C4996: 'mbstowcs': This function or variable may be unsafe. Consider using mbstowcs_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  (编译源文件“main.cpp”)
+  
+  maths.cpp
+  test_rasterization.cpp

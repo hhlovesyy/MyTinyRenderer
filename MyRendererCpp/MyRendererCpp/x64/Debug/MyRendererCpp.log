@@ -1,0 +1,5 @@
+﻿  test_rasterization.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_rasterization.cpp(37,33): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_rasterization.cpp(37,63): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_rasterization.cpp(37,93): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
+  MyRendererCpp.vcxproj -> D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\x64\Debug\MyRendererCpp.exe
