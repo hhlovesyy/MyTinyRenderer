@@ -1,5 +1,5 @@
-#ifndef TEST_BLINN_H
-#define TEST_BLINN_H
+#ifndef TEST_RAST_H
+#define TEST_RAST_H
 #include "graphics.h"
 
 void test_rasterization();

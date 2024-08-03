@@ -132,13 +132,16 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="maths.cpp" />
     <ClCompile Include="test_rasterization.cpp" />
+    <ClCompile Include="test_transform.cpp" />
     <ClCompile Include="win32.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="graphics.h" />
     <ClInclude Include="image.h" />
+    <ClInclude Include="macro.h" />
     <ClInclude Include="maths.h" />
     <ClInclude Include="test_rasterization.h" />
+    <ClInclude Include="test_transform.h" />
     <ClInclude Include="win32.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

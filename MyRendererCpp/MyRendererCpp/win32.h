@@ -7,10 +7,7 @@
 #include <windows.h>
 #include "image.h"
 #include "graphics.h"
-
-#define LINE_SIZE 256
-
-#define UNUSED_VAR(x) ((void)(x))
+#include "macro.h"
 
 #ifdef UNICODE
 static const wchar_t* const WINDOW_CLASS_NAME = L"Class";
