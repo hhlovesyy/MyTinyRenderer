@@ -23,6 +23,8 @@ vec2_t vec2_new(float x, float y);
 vec3_t vec3_new(float x, float y, float z);
 vec2_t vec2_min(vec2_t a, vec2_t b);
 vec2_t vec2_max(vec2_t a, vec2_t b);
+vec2_t vec2_add(vec2_t a, vec2_t b);
+vec2_t vec2_mul(vec2_t v, float factor);
 vec3_t vec3_add(vec3_t a, vec3_t b);
 vec3_t vec3_max(vec3_t a, vec3_t b);
 vec3_t vec3_min(vec3_t a, vec3_t b);

@@ -14,11 +14,12 @@ static const int WINDOW_HEIGHT = 600;
 
 int num_faces = 0;
 std::vector<Mesh::Vertex> vertices;
-
+//获取材质
+std::vector<TGAImage> img;
 void preLoadModel()
 {
 	//相对路径
-	const char* model_path = "test.obj";
+	const char* model_path = "combinePamu.obj";
 	Mesh* mesh = Mesh::load(model_path);
 	if (mesh == nullptr) 
 	{
@@ -29,6 +30,25 @@ void preLoadModel()
 	//获取模型的顶点数据
 	vertices = mesh->getVertices();
 	num_faces = mesh->getNumFaces();
+
+	
+	mesh->load_texture("assets/combinePamu", "_diffuse.tga", img);
+}
+
+vec4_t sample2D(TGAImage& image, vec2_t uv)
+{
+	int width = image.width();
+	int height = image.height();
+	int x = uv.x * width;
+	int y = uv.y * height;
+	if (x < 0) x = 0;
+	if (x >= width) x = width - 1;
+	if (y < 0) y = 0;
+	if (y >= height) y = height - 1;
+	TGAColor color = image.get(x, y);
+	/*std::cout << color.bgra[0] << " " << color.bgra[1] << " " << color.bgra[2] << " " << color.bgra[3] << std::endl;*/
+	return vec4_new(color.bgra[2], color.bgra[1], color.bgra[0], color.bgra[3]);
+
 }
 
 //传入顶点数据
@@ -60,6 +80,13 @@ void model_input_transform(framebuffer_t* framebuffer)
 			vec3_new(vertices[index * 3 + 1].position.x, vertices[index * 3 + 1].position.y, vertices[index * 3 + 1].position.z),
 			vec3_new(vertices[index * 3 + 2].position.x, vertices[index * 3 + 2].position.y, vertices[index * 3 + 2].position.z)
 		};
+		//纹理坐标
+		vec2_t uv[3] = {
+			vec2_new(vertices[index * 3].texcoord.x, vertices[index * 3].texcoord.y),
+			vec2_new(vertices[index * 3 + 1].texcoord.x, vertices[index * 3 + 1].texcoord.y),
+			vec2_new(vertices[index * 3 + 2].texcoord.x, vertices[index * 3 + 2].texcoord.y)
+		};
+		
 
 		vec4_t clip_abc[3];
 		vec3_t ndc_coords[3];
@@ -79,16 +106,23 @@ void model_input_transform(framebuffer_t* framebuffer)
 
 		bbox_t bbox = find_bounding_box(screen_coords, width, height);
 
-		//vec4_t color{ index,0.8,0.8,1 };
-		vec4_t color{ 1,1,1,1 };
+		
 		for (int i = bbox.min_x; i <= bbox.max_x; i++)
 		{
 			for (int j = bbox.min_y; j <= bbox.max_y; j++)
 			{
 				vec2_t p{ (float)(i + 0.5), (float)(j + 0.5) };
 				vec3_t result = calculate_weights(screen_coords, p);
+				
 
 				if (!(result.x > 0 && result.y > 0 && result.z > 0)) continue;
+				
+				//对UV做重心插值，而不是对颜色做重心插值
+				vec2_t uv_p = vec2_add(vec2_add(vec2_mul(uv[0], result.x), vec2_mul(uv[1], result.y)), vec2_mul(uv[2], result.z));
+				
+				vec4_t color = sample2D(img[0], vec2_t{ uv_p.x, 1.0f - uv_p.y });//纹理坐标的Y轴是反的
+				//vec4_t color = sample2D(img[0], uv[0]);
+				vec4_t finalColor = vec4_mul(color, 1.0f / 255.0f);
 
 				//Zbuffer test
 				float z = result.x * screen_depths[0] + result.y * screen_depths[1] + result.z * screen_depths[2];
@@ -101,7 +135,7 @@ void model_input_transform(framebuffer_t* framebuffer)
 				{
 					continue;
 				}
-				draw_fragment(framebuffer, j * width + i, color);
+				draw_fragment(framebuffer, j * width + i, finalColor);
 
 			}
 		}

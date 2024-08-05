@@ -138,6 +138,7 @@
     <ClCompile Include="test_rasterization.cpp" />
     <ClCompile Include="test_space_transform.cpp" />
     <ClCompile Include="test_transform.cpp" />
+    <ClCompile Include="tgaimage.cpp" />
     <ClCompile Include="win32.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -152,6 +153,7 @@
     <ClInclude Include="test_rasterization.h" />
     <ClInclude Include="test_space_transform.h" />
     <ClInclude Include="test_transform.h" />
+    <ClInclude Include="tgaimage.h" />
     <ClInclude Include="win32.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

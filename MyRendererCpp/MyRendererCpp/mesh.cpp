@@ -8,12 +8,15 @@
 #include "mesh.h"
 #include "private.h"
 
+
+//buildMesh的作用是根据顶点数据构建一个Mesh对象。
 static Mesh* buildMesh
 (
     std::vector<vec3_t>& positions, std::vector<vec2_t>& texcoords, std::vector<vec3_t>& normals,
     std::vector<int>& position_indices, std::vector<int>& texcoord_indices, std::vector<int>& normal_indices
 ) 
 {
+    //bbox_min和bbox_max分别表示模型的包围盒的最小和最大顶点坐标。
     vec3_t bbox_min = vec3_new(+1e6, +1e6, +1e6);
     vec3_t bbox_max = vec3_new(-1e6, -1e6, -1e6);
     int num_indices = position_indices.size();
@@ -27,7 +30,7 @@ static Mesh* buildMesh
     assert(texcoord_indices.size() == num_indices);
     assert(normal_indices.size() == num_indices);
 
-    // 填充顶点数据
+    // 遍历所有的面，构建顶点数据
     for (int i = 0; i < num_indices; i++) 
     {
         int position_index = position_indices[i];
@@ -39,7 +42,6 @@ static Mesh* buildMesh
         vertices[i].position = positions[position_index];
         vertices[i].texcoord = texcoords[texcoord_index];
         vertices[i].normal = normals[normal_index];
-
 
         bbox_min = vec3_min(bbox_min, vertices[i].position);
         bbox_max = vec3_max(bbox_max, vertices[i].position);
@@ -130,6 +132,7 @@ static Mesh* loadObj(const char* filename)
     return mesh;
 }
 
+//load函数用于加载模型文件，返回一个Mesh对象。
 Mesh* Mesh::load(const char* filename) 
 {
     std::string filename_str(filename);
@@ -167,4 +170,23 @@ const std::vector<Mesh::Vertex>& Mesh::getVertices() const
 vec3_t Mesh::getCenter() const 
 {
     return center;
+}
+
+//加载纹理
+
+void Mesh::load_texture(std::string filename, const std::string suffix, std::vector<TGAImage>& img) 
+{
+    TGAImage tmp;
+    //std::string texfile = filename  + suffix;
+    std::string texfile = "combinePamu_diffuse.tga";
+    if (tmp.read_tga_file(texfile.c_str()))
+    {
+        std::cout << "load texture file " << texfile << " success" << std::endl;
+        img.push_back(tmp);
+    }
+    else
+    {
+        std::cerr << "load texture file " << texfile << " failed" << std::endl;
+    }
+    return;
 }

@@ -10,6 +10,8 @@
 
 
 
+## 1、知识点
+
 我们拿一个obj模型文件打开来进行查看
 
 `v(x,y,z)` :以v开头的表示的是顶点，后面三个值表示xyz。例如：
@@ -68,6 +70,8 @@ f 5/5/5 1/1/1 7/10/7
 ```
 
 
+
+## 2、代码
 
 了解了obj文件格式如何进行解析之后，我们来动手实现一下对于obj格式的解析：
 
@@ -144,7 +148,7 @@ static Mesh* loadObj(const char* filename)
         UNUSED_VAR(items);
     }
     fclose(file);
-    mesh=后续解析
+    mesh=后续使用从obj中解析出来的顶点，面等数据进行mesh的构建
     return mesh;
 }
 
@@ -158,6 +162,157 @@ static Mesh* loadObj(const char* filename)
 >strncmp(line, "v ", 2) == 0用于检查字符串line的前两个字符是否与字符串"v "相等。如果相等，表示该行是以字符"v "开头的。
 
 
+
+将buildMesh和loadObj作为两个函数存在并不是多此一举，既是为了更好的解耦，即将这两个职责分开，可以使代码更清晰、更易于维护，也有考虑到代码复用的问题，如果以后需要从其他格式的文件中加载数据（例如 .ply 文件），可以复用 buildMesh 函数，而不需要重复编写构建 Mesh 对象的代码。同时，可以确保顶点数据的顺序与面（face）的顺序一致，方便后续更所功能增加。
+
+```C++
+//buildMesh的作用是根据顶点数据构建一个Mesh对象。
+static Mesh* buildMesh
+(
+    std::vector<vec3_t>& positions, std::vector<vec2_t>& texcoords, std::vector<vec3_t>& normals,
+    std::vector<int>& position_indices, std::vector<int>& texcoord_indices, std::vector<int>& normal_indices
+) 
+{
+    //bbox_min和bbox_max分别表示模型的包围盒的最小和最大顶点坐标。
+    vec3_t bbox_min = vec3_new(+1e6, +1e6, +1e6);
+    vec3_t bbox_max = vec3_new(-1e6, -1e6, -1e6);
+    int num_indices = position_indices.size();
+    int num_faces = num_indices / 3;
+    std::vector<Mesh::Vertex> vertices(num_indices);
+    Mesh* mesh = new Mesh();//buildMesh是Mesh 类的友元函数，这样它就可以访问私有构造函数
+
+    // 断言检查
+    assert(num_faces > 0 && num_faces * 3 == num_indices);
+    assert(position_indices.size() == num_indices);
+    assert(texcoord_indices.size() == num_indices);
+    assert(normal_indices.size() == num_indices);
+
+    // 遍历所有的面，构建顶点数据
+    for (int i = 0; i < num_indices; i++) 
+    {
+        int position_index = position_indices[i];
+        int texcoord_index = texcoord_indices[i];
+        int normal_index = normal_indices[i];
+        assert(position_index >= 0 && position_index < positions.size());
+        assert(texcoord_index >= 0 && texcoord_index < texcoords.size());
+        assert(normal_index >= 0 && normal_index < normals.size());
+        vertices[i].position = positions[position_index];
+        vertices[i].texcoord = texcoords[texcoord_index];
+        vertices[i].normal = normals[normal_index];
+
+        bbox_min = vec3_min(bbox_min, vertices[i].position);
+        bbox_max = vec3_max(bbox_max, vertices[i].position);
+    }
+
+    // 设置 Mesh 对象的属性
+    mesh->num_faces = num_faces;
+    mesh->vertices = std::move(vertices);
+    mesh->center = vec3_div(vec3_add(bbox_min, bbox_max), 2);
+
+    return mesh;
+}
+```
+
+
+
+剩下的就提供函数入口和相关get函数等
+
+```c++
+
+//load函数用于加载模型文件，返回一个Mesh对象。
+Mesh* Mesh::load(const char* filename) 
+{
+    std::string filename_str(filename);
+    std::string extension_str = private_get_extension(filename_str);
+    const char* extension = extension_str.c_str();
+
+    if (strcmp(extension, "obj") == 0) 
+    {
+        return loadObj(filename);
+    }
+    else 
+    {
+        assert(0);
+        return nullptr;
+    }
+}
+
+void Mesh::release() 
+{
+    delete this;
+}
+
+/* vertex retrieving */
+
+int Mesh::getNumFaces() const 
+{
+    return num_faces;
+}
+
+const std::vector<Mesh::Vertex>& Mesh::getVertices() const 
+{
+    return vertices;
+}
+
+vec3_t Mesh::getCenter() const 
+{
+    return center;
+}
+```
+
+
+
+## 二、将模型光栅化到场景中
+
+test_model_input.cpp中，我们暂时将模型提前load出来，其他部分结合上一节课的光栅化就可以完成。
+
+```C++
+int num_faces = 0;
+std::vector<Mesh::Vertex> vertices;
+
+void preLoadModel()
+{
+	//相对路径
+	const char* model_path = "test.obj";
+	Mesh* mesh = Mesh::load(model_path);
+	if (mesh == nullptr) 
+	{
+		std::cerr << "Failed to load model: " << model_path << std::endl;
+		return;
+	}
+
+	//获取模型的顶点数据
+	vertices = mesh->getVertices();
+	num_faces = mesh->getNumFaces();
+}
+```
+
+注意，我们要在在Debug和Release中增加assets，并在其中加入obj模型
+
+![image-20240805173022720](lesson4_模型解析与导入.assets/image-20240805173022720-1722860295503-1.png)
+
+
+
+##### 时序图
+
+```mermaid
+sequenceDiagram
+    test_model_input->>Mesh: load(const char* filename) 
+    Mesh->>Mesh: loadObj(filename)
+    Mesh->>Mesh:buildMesh(positions, texcoords, normals...);
+    Mesh->>test_model_input:getVertices()
+    Mesh->>test_model_input:mesh->getNumFaces()
+```
+
+
+
+这时候，可以看到，场景中就可以出现我们的模型了。
+
+![image-20240805202137927](lesson4_模型解析与导入.assets/image-20240805202137927.png)
+
+随意给点颜色更能看出是3D
+
+![image-20240805202801737](lesson4_模型解析与导入.assets/image-20240805202801737.png)
 
 
 
