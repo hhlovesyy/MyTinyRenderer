@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="camera.cpp" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="main.cpp" />
@@ -135,10 +136,12 @@
     <ClCompile Include="private.cpp" />
     <ClCompile Include="test_model_input.cpp" />
     <ClCompile Include="test_rasterization.cpp" />
+    <ClCompile Include="test_space_transform.cpp" />
     <ClCompile Include="test_transform.cpp" />
     <ClCompile Include="win32.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="camera.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="macro.h" />
@@ -147,6 +150,7 @@
     <ClInclude Include="private.h" />
     <ClInclude Include="test_model_input.h" />
     <ClInclude Include="test_rasterization.h" />
+    <ClInclude Include="test_space_transform.h" />
     <ClInclude Include="test_transform.h" />
     <ClInclude Include="win32.h" />
   </ItemGroup>

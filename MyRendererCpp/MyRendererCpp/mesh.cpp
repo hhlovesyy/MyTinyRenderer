@@ -1,18 +1,16 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
 #include "macro.h"
-#include "maths.h"
 #include "mesh.h"
-#include "private.h"
-#include "maths.cpp"
 #include "private.h"
 
 static Mesh* buildMesh
 (
     std::vector<vec3_t>& positions, std::vector<vec2_t>& texcoords, std::vector<vec3_t>& normals,
-    std::vector<vec4_t>& tangents, 
     std::vector<int>& position_indices, std::vector<int>& texcoord_indices, std::vector<int>& normal_indices
 ) 
 {
@@ -42,18 +40,6 @@ static Mesh* buildMesh
         vertices[i].texcoord = texcoords[texcoord_index];
         vertices[i].normal = normals[normal_index];
 
-        if (!tangents.empty()) 
-        {
-            int tangent_index = position_index;
-            assert(tangent_index >= 0 && tangent_index < tangents.size());
-            vertices[i].tangent = tangents[tangent_index];
-        }
-        else 
-        {
-            vertices[i].tangent = vec4_new(1, 0, 0, 1);
-        }
-
-        
 
         bbox_min = vec3_min(bbox_min, vertices[i].position);
         bbox_max = vec3_max(bbox_max, vertices[i].position);
@@ -72,7 +58,6 @@ static Mesh* loadObj(const char* filename)
     std::vector<vec3_t> positions;
     std::vector<vec2_t> texcoords;
     std::vector<vec3_t> normals;
-    std::vector<vec4_t> tangents;
     std::vector<int> position_indices;
     std::vector<int> texcoord_indices;
     std::vector<int> normal_indices;
@@ -80,7 +65,8 @@ static Mesh* loadObj(const char* filename)
     Mesh* mesh;
     FILE* file;
 
-    file = fopen(filename, "rb");
+    file = fopen(filename, "r");
+    std::cout << "filename: " << filename << std::endl;
     assert(file != NULL);
     while (1) 
     {
@@ -89,8 +75,10 @@ static Mesh* loadObj(const char* filename)
         {
             break;
         }
+        //strncmp比较两个字符串的前n个字符是否相等。
+        //strncmp(line, "v ", 2) == 0用于检查字符串line的前两个字符是否与字符串"v "相等。如果相等，表示该行是以字符"v "开头的。
         else if (strncmp(line, "v ", 2) == 0) 
-        {               /* position */
+        {              
             vec3_t position;
             items = sscanf(line, "v %f %f %f",
                 &position.x, &position.y, &position.z);
@@ -98,7 +86,7 @@ static Mesh* loadObj(const char* filename)
             positions.push_back(position);
         }
         else if (strncmp(line, "vt ", 3) == 0) 
-        {              /* texcoord */
+        {             
             vec2_t texcoord;
             items = sscanf(line, "vt %f %f",
                 &texcoord.x, &texcoord.y);
@@ -106,7 +94,7 @@ static Mesh* loadObj(const char* filename)
             texcoords.push_back(texcoord);
         }
         else if (strncmp(line, "vn ", 3) == 0)
-        {              /* normal */
+        {             
             vec3_t normal;
             items = sscanf(line, "vn %f %f %f",
                 &normal.x, &normal.y, &normal.z);
@@ -114,7 +102,7 @@ static Mesh* loadObj(const char* filename)
             normals.push_back(normal);
         }
         else if (strncmp(line, "f ", 2) == 0) 
-        {               /* face */
+        {               
             int i;
             int pos_indices[3], uv_indices[3], n_indices[3];
             items = sscanf(line, "f %d/%d/%d %d/%d/%d %d/%d/%d",
@@ -124,25 +112,19 @@ static Mesh* loadObj(const char* filename)
             assert(items == 9);
             for (i = 0; i < 3; i++) 
             {
+                //position_indices、texcoord_indices、normal_indices分别存储了顶点的位置、纹理坐标和法线的索引。
                 position_indices.push_back(pos_indices[i] - 1);
                 texcoord_indices.push_back(uv_indices[i] - 1);
                 normal_indices.push_back(n_indices[i] - 1);
             }
         }
-        else if (strncmp(line, "# ext.tangent ", 14) == 0)
-        {  /* tangent */
-            vec4_t tangent;
-            items = sscanf(line, "# ext.tangent %f %f %f %f",
-                &tangent.x, &tangent.y, &tangent.z, &tangent.w);
-            assert(items == 4);
-            tangents.push_back(tangent);
-        }
-
+        
+        //告诉编译器，我们在这里声明了一个变量items，但是我们并没有在后续的代码中使用它，防止产生不必要的警告信息。
         UNUSED_VAR(items);
     }
     fclose(file);
 
-    mesh = buildMesh(positions, texcoords, normals, tangents, 
+    mesh = buildMesh(positions, texcoords, normals, 
         position_indices, texcoord_indices, normal_indices);
 
     return mesh;

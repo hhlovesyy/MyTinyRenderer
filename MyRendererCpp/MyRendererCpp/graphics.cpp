@@ -83,3 +83,15 @@ framebuffer_t* framebuffer_create(int width, int height)
 
 	return framebuffer;
 }
+
+/*
+ * for viewport transformation, see subsection 2.12.1 of
+ * https://www.khronos.org/registry/OpenGL/specs/es/2.0/es_full_spec_2.0.pdf
+ */
+vec3_t viewport_transform(int width, int height, vec3_t ndc_coord)
+{
+	float x = (ndc_coord.x + 1) * 0.5f * (float)width;   /* [-1, 1] -> [0, w] */
+	float y = (ndc_coord.y + 1) * 0.5f * (float)height;  /* [-1, 1] -> [0, h] */
+	float z = (ndc_coord.z + 1) * 0.5f;                  /* [-1, 1] -> [0, 1] */
+	return vec3_new(x, y, z);
+}

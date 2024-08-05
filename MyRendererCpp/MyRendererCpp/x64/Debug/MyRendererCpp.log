@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 ﻿  test_model_input.cpp
   MyRendererCpp.vcxproj -> D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\x64\Debug\MyRendererCpp.exe
+=======
+﻿  camera.cpp
+  MyRendererCpp.vcxproj -> D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\x64\Debug\MyRendererCpp.exe
+>>>>>>> d8df2118653ee8a15ce6699caf31f918ca786baf

@@ -36,6 +36,7 @@
     <ClCompile Include="test_transform.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="test_model_input.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -43,6 +44,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="private.cpp">
+=======
+    <ClCompile Include="test_space_transform.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cpp">
+>>>>>>> d8df2118653ee8a15ce6699caf31f918ca786baf
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,6 +75,7 @@
     <ClInclude Include="macro.h">
       <Filter>头文件</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="test_model_input.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -75,6 +83,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="private.h">
+=======
+    <ClInclude Include="test_space_transform.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+>>>>>>> d8df2118653ee8a15ce6699caf31f918ca786baf
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
