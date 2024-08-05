@@ -6,6 +6,7 @@
 //#include "test_rasterization.h"
 #include "test_transform.h"
 #include "test_rasterization.h"
+#include "test_space_transform.h"
 #include "win32.h"
 
 typedef void testfunc_t();
@@ -15,14 +16,15 @@ static testcase_t g_testcases[] =
 {
     {"test_rasterization", test_rasterization},
     {"test_transform2", test_transform2},
+    {"test_space_transform", test_space_transform},
 };
 
 int main(int argc, char* argv[])
 {
     platform_initialize();
     //now we test rasterization
-    const char* testname = g_testcases[1].testname;
-    testfunc_t* testfunc = g_testcases[1].testfunc;
+    const char* testname = g_testcases[2].testname;
+    testfunc_t* testfunc = g_testcases[2].testfunc;
     if (testfunc)
     {
         testfunc();

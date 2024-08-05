@@ -81,7 +81,8 @@ void rasterization_triangle2(framebuffer_t* framebuffer)
 	int height = framebuffer->height;
 	vec2_t abc[3] = { vec2_new(100 , 300), vec2_new(200 , 600), vec2_new(300, 100) };
 	//matrix_translate(abc);
-	matrix_scale(abc);
+	matrix_rotateZ(abc);
+	//matrix_scale(abc);
 	bbox_t bbox = find_bounding_box(abc, width, height);
 	vec4_t color1{ 1,0,0,1 };
 	vec4_t color2{ 0,1,0,1 };
