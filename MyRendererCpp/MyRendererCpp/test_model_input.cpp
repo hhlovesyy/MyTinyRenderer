@@ -4,13 +4,10 @@
 #include <iostream>
 #include "mesh.h"
 #include "camera.h"
+#include "test_helper.h"
 using namespace std;
 
-typedef void tickfunc_t(framebuffer_t* framebuffer);
-
-static const char* const WINDOW_TITLE = "Lesson1";
-static const int WINDOW_WIDTH = 800;
-static const int WINDOW_HEIGHT = 600;
+typedef void tickfunc_t(framebuffer_t* framebuffer, Camera* camera);
 
 int num_faces = 0;
 std::vector<Mesh::Vertex> vertices;
@@ -52,7 +49,7 @@ vec4_t sample2D(TGAImage& image, vec2_t uv)
 }
 
 //传入顶点数据
-void model_input_transform(framebuffer_t* framebuffer)
+void model_input_transform(framebuffer_t* framebuffer,Camera* camera)
 {
 	vec4_t default_color = { 0, 0, 0, 1 };
 	framebuffer_clear_color(framebuffer, default_color); //请注意，在每tick绘制之前，先清空一下framebuffer
@@ -65,14 +62,10 @@ void model_input_transform(framebuffer_t* framebuffer)
 	{
 		zbuffer[i] = FLT_MAX;
 	}
-	vec3_t camera_pos = vec3_new(-1, 0, 1.5f);
-	vec3_t target_pos = vec3_new(0, 0, 0);
 
-	Camera camera(camera_pos, target_pos, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT);
-	mat4_t view_matrix = camera_get_view_matrix(camera);
-	mat4_t proj_matrix = camera_get_proj_matrix(camera);
+	mat4_t view_matrix = camera_get_view_matrix(*camera);
+	mat4_t proj_matrix = camera_get_proj_matrix(*camera);
 
-	
 	for (int index = 0; index < num_faces; index++)
 	{
 		vec3_t abc_3d[3] = {
@@ -140,18 +133,59 @@ void model_input_transform(framebuffer_t* framebuffer)
 			}
 		}
 	}
-
+	delete[] zbuffer;
 }
 void test_enter_mainloop_model_input(tickfunc_t* tickfunc)
 {
 	window_t* window;
 	framebuffer_t* framebuffer;
+
+	float prev_time;
+	float print_time;
+	int num_frames;
+
 	window = window_create(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT);
 	framebuffer = framebuffer_create(WINDOW_WIDTH, WINDOW_HEIGHT);
-	while (1)
+
+	Camera* camera = new Camera(CAMERA_POSITION, CAMERA_TARGET, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT);
+	callbacks_t callbacks;
+	record_t record;
+	memset(&callbacks, 0, sizeof(callbacks_t));
+	memset(&record, 0, sizeof(record_t));
+	callbacks.button_callback = button_callback;
+	callbacks.scroll_callback = scroll_callback;
+	window->userdata = &record;
+	window->callbacks = callbacks;
+
+	num_frames = 0;
+	prev_time = platform_get_time();
+	print_time = prev_time;
+
+	while (!window->should_close)
 	{
-		tickfunc(framebuffer);
+		float curr_time = platform_get_time();
+		float delta_time = curr_time - prev_time; //与帧率有关的值
+		update_camera(window, camera, &record);
+		update_click(curr_time, &record);
+
+		tickfunc(framebuffer, camera);
 		window_draw_buffer(window, framebuffer);
+		num_frames += 1;
+		if (curr_time - print_time >= 1) {
+			int sum_millis = (int)((curr_time - print_time) * 1000);
+			int avg_millis = sum_millis / num_frames;
+			printf("fps: %3d, avg: %3d ms\n", num_frames, avg_millis);
+			num_frames = 0;
+			print_time = curr_time;
+		}
+		prev_time = curr_time;
+
+		record.orbit_delta = vec2_new(0, 0);
+		record.pan_delta = vec2_new(0, 0);
+		record.dolly_delta = 0;
+		record.single_click = 0;
+		record.double_click = 0;
+		input_poll_events();
 	}
 	
 }

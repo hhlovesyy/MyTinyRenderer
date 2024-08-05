@@ -1,17 +1,9 @@
 #include "win32.h"
+#include <iostream>
 
-static LRESULT CALLBACK process_message(HWND hWnd, UINT uMsg,
-    WPARAM wParam, LPARAM lParam)
+void* window_get_userdata(window_t* window) 
 {
-    window_t* window = (window_t*)GetProp(hWnd, WINDOW_ENTRY_NAME);
-    if (window == NULL)
-    {
-        return DefWindowProc(hWnd, uMsg, wParam, lParam);
-    }
-    else
-    {
-        return 0;
-    }
+    return window->userdata;
 }
 
 static void register_class(void)
@@ -195,4 +187,134 @@ void window_destroy(window_t* window)
     window->surface->color_buffer = NULL;
     //maybe we need image release: image_release(window->surface);
     free(window);
+}
+
+/* misc platform functions */
+
+static double get_native_time(void) 
+{
+    static double period = -1;
+    LARGE_INTEGER counter;
+    if (period < 0) {
+        LARGE_INTEGER frequency;
+        QueryPerformanceFrequency(&frequency);
+        period = 1 / (double)frequency.QuadPart;
+    }
+    QueryPerformanceCounter(&counter);
+    return counter.QuadPart * period;
+}
+
+float platform_get_time(void)
+{
+    static double initial = -1;
+    if (initial < 0) {
+        initial = get_native_time();
+    }
+    return (float)(get_native_time() - initial);
+}
+
+/* input related functions */
+
+/*
+ * for virtual-key codes, see
+ * https://docs.microsoft.com/en-us/windows/desktop/inputdev/virtual-key-codes
+ */
+static void handle_key_message(window_t* window, WPARAM virtual_key,
+    char pressed) 
+{
+    std::cout<<"key message"<<std::endl;
+    keycode_t key;
+    switch (virtual_key) 
+    {
+        case 'A':      key = KEY_A;     break;
+        case 'D':      key = KEY_D;     break;
+        case 'S':      key = KEY_S;     break;
+        case 'W':      key = KEY_W;     break;
+        case VK_SPACE: key = KEY_SPACE; break;
+        case VK_ESCAPE: window->should_close = 1; return;
+        default:       key = KEY_NUM;   break;
+    }
+    if (key < KEY_NUM) 
+    {
+        window->keys[key] = pressed;
+        if (window->callbacks.key_callback)
+        {
+            window->callbacks.key_callback(window, key, pressed);
+        }
+    }
+}
+
+static void handle_button_message(window_t* window, button_t button,
+    char pressed) 
+{
+    window->buttons[button] = pressed;
+    if (window->callbacks.button_callback)
+    {
+        window->callbacks.button_callback(window, button, pressed);
+    }
+}
+
+static void handle_scroll_message(window_t* window, float offset) 
+{
+    if (window->callbacks.scroll_callback) 
+    {
+        window->callbacks.scroll_callback(window, offset);
+    }
+}
+
+static LRESULT CALLBACK process_message(HWND hWnd, UINT uMsg,
+    WPARAM wParam, LPARAM lParam) 
+{
+    window_t* window = (window_t*)GetProp(hWnd, WINDOW_ENTRY_NAME);
+    if (window == NULL) {
+        return DefWindowProc(hWnd, uMsg, wParam, lParam);
+    }
+    else if (uMsg == WM_KEYDOWN) {
+        handle_key_message(window, wParam, 1);
+        return 0;
+    }
+    else if (uMsg == WM_KEYUP) {
+        handle_key_message(window, wParam, 0);
+        return 0;
+    }
+    else if (uMsg == WM_LBUTTONDOWN) {
+        handle_button_message(window, BUTTON_L, 1);
+        return 0;
+    }
+    else if (uMsg == WM_RBUTTONDOWN) {
+        handle_button_message(window, BUTTON_R, 1);
+        return 0;
+    }
+    else if (uMsg == WM_LBUTTONUP) {
+        handle_button_message(window, BUTTON_L, 0);
+        return 0;
+    }
+    else if (uMsg == WM_RBUTTONUP) {
+        handle_button_message(window, BUTTON_R, 0);
+        return 0;
+    }
+    else if (uMsg == WM_MOUSEWHEEL) {
+        float offset = GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
+        handle_scroll_message(window, offset);
+        return 0;
+    }
+    else {
+        return DefWindowProc(hWnd, uMsg, wParam, lParam);
+    }
+}
+
+
+void input_poll_events(void) 
+{
+    MSG message;
+    while (PeekMessage(&message, NULL, 0, 0, PM_REMOVE)) {
+        TranslateMessage(&message);
+        DispatchMessage(&message);
+    }
+}
+
+int input_key_pressed(window_t* window, keycode_t key) 
+{
+    assert(key >= 0 && key < KEY_NUM);
+    return window->keys[key];
 }

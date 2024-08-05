@@ -16,13 +16,33 @@ static const wchar_t* const WINDOW_ENTRY_NAME = L"Entry";
 static const char* const WINDOW_CLASS_NAME = "Class";
 static const char* const WINDOW_ENTRY_NAME = "Entry";
 #endif
+typedef enum { KEY_A, KEY_D, KEY_S, KEY_W, KEY_SPACE, KEY_NUM } keycode_t;
+typedef enum { BUTTON_L, BUTTON_R, BUTTON_NUM } button_t;
+
+struct window_t;
+
+typedef struct
+{
+	void (*key_callback)(window_t* window, keycode_t key, int pressed);
+	void (*button_callback)(window_t* window, button_t button, int pressed);
+	void (*scroll_callback)(window_t* window, float offset);
+} callbacks_t;
 
 struct window_t
 {
 	HWND handle;
 	HDC memory_dc;
 	image_t* surface;
+	/* common data */
+	int should_close;
+	char keys[KEY_NUM];
+    char buttons[BUTTON_NUM];
+	callbacks_t callbacks;
+	void* userdata;
 };
+
+void* window_get_userdata(window_t* window);
+
 
 /* window related functions */
 static int g_initialized = 0;
@@ -54,3 +74,9 @@ void window_draw_buffer(window_t* window, framebuffer_t* buffer);
 window_t* window_create(const char* title, int width, int height);
 
 void window_destroy(window_t* window);
+
+float platform_get_time(void);
+
+void input_poll_events(void);
+
+int input_key_pressed(window_t* window, keycode_t key);
