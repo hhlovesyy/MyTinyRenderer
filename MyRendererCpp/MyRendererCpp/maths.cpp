@@ -62,6 +62,43 @@ vec2_t vec2_max(vec2_t a, vec2_t b)
     return vec2_new(x, y);
 }
 
+
+vec3_t vec3_min(vec3_t a, vec3_t b) 
+{
+    float x = float_min(a.x, b.x);
+    float y = float_min(a.y, b.y);
+    float z = float_min(a.z, b.z);
+    return vec3_new(x, y, z);
+}
+
+vec3_t vec3_max(vec3_t a, vec3_t b)
+{
+    float x = float_max(a.x, b.x);
+    float y = float_max(a.y, b.y);
+    float z = float_max(a.z, b.z);
+    return vec3_new(x, y, z);
+}
+
+vec3_t vec3_add(vec3_t a, vec3_t b) 
+{
+    return vec3_new(a.x + b.x, a.y + b.y, a.z + b.z);
+}
+
+vec3_t vec3_sub(vec3_t a, vec3_t b) 
+{
+    return vec3_new(a.x - b.x, a.y - b.y, a.z - b.z);
+}
+
+vec3_t vec3_mul(vec3_t v, float factor) 
+{
+    return vec3_new(v.x * factor, v.y * factor, v.z * factor);
+}
+
+vec3_t vec3_div(vec3_t v, float divisor) 
+{
+    return vec3_mul(v, 1 / divisor);
+}
+
 vec4_t vec4_new(float x, float y, float z, float w) 
 {
     vec4_t v;

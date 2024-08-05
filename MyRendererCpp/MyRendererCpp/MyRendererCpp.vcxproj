@@ -131,6 +131,9 @@
     <ClCompile Include="image.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="maths.cpp" />
+    <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="private.cpp" />
+    <ClCompile Include="test_model_input.cpp" />
     <ClCompile Include="test_rasterization.cpp" />
     <ClCompile Include="test_transform.cpp" />
     <ClCompile Include="win32.cpp" />
@@ -140,6 +143,9 @@
     <ClInclude Include="image.h" />
     <ClInclude Include="macro.h" />
     <ClInclude Include="maths.h" />
+    <ClInclude Include="mesh.h" />
+    <ClInclude Include="private.h" />
+    <ClInclude Include="test_model_input.h" />
     <ClInclude Include="test_rasterization.h" />
     <ClInclude Include="test_transform.h" />
     <ClInclude Include="win32.h" />
