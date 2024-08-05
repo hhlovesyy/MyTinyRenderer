@@ -14,22 +14,30 @@ typedef struct { float m[4][4]; } mat4_t;
 
 float float_min(float a, float b);
 float float_max(float a, float b);
+
+float float_clamp(float f, float min, float max);
 int min_integer(int a, int b);
 
 int max_integer(int a, int b);
 unsigned char float_to_uchar(float value);
 vec2_t vec2_sub(vec2_t a, vec2_t b);
+float vec2_length(vec2_t v);
 vec2_t vec2_new(float x, float y);
 vec3_t vec3_new(float x, float y, float z);
 vec2_t vec2_min(vec2_t a, vec2_t b);
 vec2_t vec2_max(vec2_t a, vec2_t b);
 
+vec2_t vec2_add(vec2_t a, vec2_t b);
 
+vec2_t vec2_div(vec2_t v, float divisor);
+vec2_t vec2_mul(vec2_t v, float factor);
 vec3_t vec3_sub(vec3_t a, vec3_t b);
 vec3_t vec3_cross(vec3_t a, vec3_t b);
 vec4_t vec4_new(float x, float y, float z, float w);
 vec4_t vec4_from_vec3(vec3_t v, float w);
 vec3_t vec3_from_vec4(vec4_t v);
+
+vec3_t vec3_add(vec3_t a, vec3_t b);
 
 vec4_t vec4_mul(vec4_t v, float factor);
 vec4_t vec4_div(vec4_t v, float divisor);

@@ -1,12 +1,7 @@
-﻿  test_transform.cpp
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_transform.cpp(34,54): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_transform.cpp(34,36): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_transform.cpp(63,97): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_transform.cpp(63,64): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_transform.cpp(63,32): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+﻿  test_helper.cpp
   正在生成代码
-  4 of 43 functions ( 9.3%) were compiled, the rest were copied from previous compilation.
+  0 of 109 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+    0 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   MyRendererCpp.vcxproj -> D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\x64\Release\MyRendererCpp.exe

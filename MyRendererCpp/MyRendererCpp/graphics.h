@@ -8,6 +8,7 @@ public:
     unsigned char* color_buffer;
     framebuffer_t() : width(0), height(0), color_buffer(nullptr) {}
     framebuffer_t(int width, int height, int color_buffer_size) : width(width), height(height), color_buffer(new unsigned char[color_buffer_size]()) {}
+    ~framebuffer_t() { delete[] color_buffer; }
 };
 
 struct bbox_t

@@ -42,6 +42,12 @@
     <ClCompile Include="camera.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="test_camera_move.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="test_helper.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="test_rasterization.h">
@@ -69,6 +75,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="camera.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="test_camera_move.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="test_helper.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

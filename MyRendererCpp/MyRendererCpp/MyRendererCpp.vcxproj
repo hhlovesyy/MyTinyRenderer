@@ -132,6 +132,8 @@
     <ClCompile Include="image.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="maths.cpp" />
+    <ClCompile Include="test_camera_move.cpp" />
+    <ClCompile Include="test_helper.cpp" />
     <ClCompile Include="test_rasterization.cpp" />
     <ClCompile Include="test_space_transform.cpp" />
     <ClCompile Include="test_transform.cpp" />
@@ -143,6 +145,8 @@
     <ClInclude Include="image.h" />
     <ClInclude Include="macro.h" />
     <ClInclude Include="maths.h" />
+    <ClInclude Include="test_camera_move.h" />
+    <ClInclude Include="test_helper.h" />
     <ClInclude Include="test_rasterization.h" />
     <ClInclude Include="test_space_transform.h" />
     <ClInclude Include="test_transform.h" />

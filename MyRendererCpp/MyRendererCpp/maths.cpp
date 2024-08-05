@@ -11,6 +11,11 @@ float float_max(float a, float b)
     return a > b ? a : b;
 }
 
+float float_clamp(float f, float min, float max) 
+{
+    return f < min ? min : (f > max ? max : f);
+}
+
 int min_integer(int a, int b) 
 {
     return a < b ? a : b;
@@ -31,6 +36,21 @@ vec2_t vec2_sub(vec2_t a, vec2_t b)
     return vec2_new(a.x - b.x, a.y - b.y);
 }
 
+vec2_t vec2_mul(vec2_t v, float factor)
+{
+    return vec2_new(v.x * factor, v.y * factor);
+}
+
+vec2_t vec2_div(vec2_t v, float divisor)
+{
+    return vec2_mul(v, 1 / divisor);
+}
+
+float vec2_length(vec2_t v) 
+{
+    return (float)sqrt(v.x * v.x + v.y * v.y);
+}
+
 vec3_t vec3_sub(vec3_t a, vec3_t b)
 {
     return vec3_new(a.x - b.x, a.y - b.y, a.z - b.z);
@@ -44,6 +64,11 @@ vec2_t vec2_new(float x, float y)
     return v;
 }
 
+vec2_t vec2_add(vec2_t a, vec2_t b)
+{
+    return vec2_new(a.x + b.x, a.y + b.y);
+}
+
 vec3_t vec3_new(float x, float y, float z) 
 {
     vec3_t v;
@@ -51,6 +76,11 @@ vec3_t vec3_new(float x, float y, float z)
     v.y = y;
     v.z = z;
     return v;
+}
+
+vec3_t vec3_add(vec3_t a, vec3_t b)
+{
+    return vec3_new(a.x + b.x, a.y + b.y, a.z + b.z);
 }
 
 vec2_t vec2_min(vec2_t a, vec2_t b)

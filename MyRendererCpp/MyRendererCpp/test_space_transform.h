@@ -2,6 +2,6 @@
 #define TEST_SPACE_TRANSFORM_H
 #include "graphics.h"
 
+void space_transform(framebuffer_t* framebuffer);
 void test_space_transform();
-void rasterization_triangle3(framebuffer_t* framebuffer);
 #endif
