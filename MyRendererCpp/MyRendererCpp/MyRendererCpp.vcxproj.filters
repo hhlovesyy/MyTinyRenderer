@@ -1,87 +1,109 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="源文件">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="头文件">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="资源文件">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="test_rasterization.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="image.cpp">
-      <Filter>源文件</Filter>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="camera.cpp">
+      <Filter>core\source</Filter>
     </ClCompile>
     <ClCompile Include="graphics.cpp">
-      <Filter>源文件</Filter>
+      <Filter>core\source</Filter>
+    </ClCompile>
+    <ClCompile Include="image.cpp">
+      <Filter>core\source</Filter>
     </ClCompile>
     <ClCompile Include="maths.cpp">
-      <Filter>源文件</Filter>
+      <Filter>core\source</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh.cpp">
+      <Filter>core\source</Filter>
+    </ClCompile>
+    <ClCompile Include="private.cpp">
+      <Filter>core\source</Filter>
     </ClCompile>
     <ClCompile Include="win32.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="test_transform.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="test_space_transform.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="camera.cpp">
-      <Filter>源文件</Filter>
+      <Filter>core\source</Filter>
     </ClCompile>
     <ClCompile Include="test_camera_move.cpp">
-      <Filter>源文件</Filter>
+      <Filter>test_unit\source</Filter>
     </ClCompile>
     <ClCompile Include="test_helper.cpp">
-      <Filter>源文件</Filter>
+      <Filter>test_unit\source</Filter>
+    </ClCompile>
+    <ClCompile Include="test_model_input.cpp">
+      <Filter>test_unit\source</Filter>
+    </ClCompile>
+    <ClCompile Include="test_rasterization.cpp">
+      <Filter>test_unit\source</Filter>
+    </ClCompile>
+    <ClCompile Include="test_space_transform.cpp">
+      <Filter>test_unit\source</Filter>
+    </ClCompile>
+    <ClCompile Include="test_transform.cpp">
+      <Filter>test_unit\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="test_rasterization.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="camera.h">
+      <Filter>core\header</Filter>
     </ClInclude>
     <ClInclude Include="graphics.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="win32.h">
-      <Filter>头文件</Filter>
+      <Filter>core\header</Filter>
     </ClInclude>
     <ClInclude Include="image.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="maths.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="test_transform.h">
-      <Filter>头文件</Filter>
+      <Filter>core\header</Filter>
     </ClInclude>
     <ClInclude Include="macro.h">
-      <Filter>头文件</Filter>
+      <Filter>core\header</Filter>
     </ClInclude>
-    <ClInclude Include="test_space_transform.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="maths.h">
+      <Filter>core\header</Filter>
     </ClInclude>
-    <ClInclude Include="camera.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="mesh.h">
+      <Filter>core\header</Filter>
+    </ClInclude>
+    <ClInclude Include="private.h">
+      <Filter>core\header</Filter>
+    </ClInclude>
+    <ClInclude Include="win32.h">
+      <Filter>core\header</Filter>
     </ClInclude>
     <ClInclude Include="test_camera_move.h">
-      <Filter>头文件</Filter>
+      <Filter>test_unit\header</Filter>
     </ClInclude>
     <ClInclude Include="test_helper.h">
-      <Filter>头文件</Filter>
+      <Filter>test_unit\header</Filter>
     </ClInclude>
+    <ClInclude Include="test_model_input.h">
+      <Filter>test_unit\header</Filter>
+    </ClInclude>
+    <ClInclude Include="test_rasterization.h">
+      <Filter>test_unit\header</Filter>
+    </ClInclude>
+    <ClInclude Include="test_space_transform.h">
+      <Filter>test_unit\header</Filter>
+    </ClInclude>
+    <ClInclude Include="test_transform.h">
+      <Filter>test_unit\header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="core">
+      <UniqueIdentifier>{cfa5790a-8f64-4019-a893-4bde4592d445}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test_unit">
+      <UniqueIdentifier>{60b18fba-f38f-400a-8343-b5dc5d15015b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\header">
+      <UniqueIdentifier>{fce2969f-6d21-4fd9-af20-093780869f81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\source">
+      <UniqueIdentifier>{a52637b2-84ec-444f-94a3-d9ad2efeb109}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test_unit\header">
+      <UniqueIdentifier>{54b97a8c-f0f0-48b2-b407-60695f99e40b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test_unit\source">
+      <UniqueIdentifier>{95cf4780-b876-47a9-9889-98e55d85552e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>
