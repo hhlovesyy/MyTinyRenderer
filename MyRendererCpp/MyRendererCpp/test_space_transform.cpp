@@ -88,9 +88,12 @@ void space_transform(framebuffer_t* framebuffer)
 		vec2_t screen_coords[3];
 		float screen_depths[3];
 
+		float recip_w[3];
+
 		for (int i = 0; i < 3; i++)
 		{
 			clip_abc[i] = mat4_mul_vec4(proj_matrix, mat4_mul_vec4(view_matrix, vec4_from_vec3(abc_3d[i], 1)));
+			recip_w[i] = 1 / clip_abc[i].w;
 			vec3_t clip_coord = vec3_from_vec4(clip_abc[i]);
 			ndc_coords[i] = vec3_div(clip_coord, clip_abc[i].w);  //这一步是做透视除法
 			vec3_t window_coord = viewport_transform(width, height, ndc_coords[i]); //这一步是做视口变换
@@ -113,26 +116,23 @@ void space_transform(framebuffer_t* framebuffer)
 				vec2_t p{ (float)(i + 0.5), (float)(j + 0.5) };
 				vec3_t result = calculate_weights(screen_coords, p);
 				
-				if (!(result.x > 0 && result.y > 0 && result.z > 0)) continue;
-				//对颜色进行重心插值
-				vec4_t color = vec4_new(
-					color1.x * result.x + color2.x * result.y + color3.x * result.z,
-					color1.y * result.x + color2.y * result.y + color3.y * result.z,
-					color1.z * result.x + color2.z * result.y + color3.z * result.z,
-					1
-				);
+				if (!(result.x > -EPSILON && result.y > -EPSILON && result.z > -EPSILON)) continue; //考虑一下浮点数精度可能带来的问题
+				float depth = interpolate_depth(screen_depths, result);
 				//Zbuffer test
-				float z = result.x * screen_depths[0] + result.y * screen_depths[1] + result.z * screen_depths[2];
 				int screen_index = j * width + i;
-				if (z < zbuffer[screen_index])
+				if (depth < zbuffer[screen_index])
 				{
-					zbuffer[screen_index] = z;
+					zbuffer[screen_index] = depth;
 				}
 				else
 				{
 					continue;
 				}
-				draw_fragment(framebuffer, j * width + i, color);
+				vec3_t new_weights = interpolate_varyings_weights(result, recip_w);
+				vec4_t color =vec4_add(vec4_mul(color1,new_weights.x), vec4_add(vec4_mul(color2, new_weights.y),vec4_mul(color3,new_weights.z)));
+				vec4_t zBufferValue{ zbuffer[screen_index],zbuffer[screen_index], zbuffer[screen_index], zbuffer[screen_index] };
+				//std::cout << zbuffer[screen_index] << std::endl;
+				draw_fragment(framebuffer, j* width + i, color);
 		
 			}
 		}

@@ -36,6 +36,8 @@ vec3_t vec3_from_vec4(vec4_t v);
 vec4_t vec4_mul(vec4_t v, float factor);
 vec4_t vec4_div(vec4_t v, float divisor);
 
+vec4_t vec4_add(vec4_t a, vec4_t b);
+
 mat4_t mat4_identity(void);
 /* transformation matrices */
 mat4_t mat4_translate(float tx, float ty, float tz);

@@ -3,6 +3,18 @@
 #include <assert.h>
 #include <math.h>
 
+/*
+ * for depth interpolation, see subsection 3.5.1 of
+ * https://www.khronos.org/registry/OpenGL/specs/es/2.0/es_full_spec_2.0.pdf
+ */
+float interpolate_depth(float screen_depths[3], vec3_t weights) 
+{
+	float depth0 = screen_depths[0] * weights.x;
+	float depth1 = screen_depths[1] * weights.y;
+	float depth2 = screen_depths[2] * weights.z;
+	return depth0 + depth1 + depth2;
+}
+
 bbox_t find_bounding_box(vec2_t abc[3], int width, int height)
 {
 	vec2_t min = vec2_min(vec2_min(abc[0], abc[1]), abc[2]);
@@ -94,4 +106,13 @@ vec3_t viewport_transform(int width, int height, vec3_t ndc_coord)
 	float y = (ndc_coord.y + 1) * 0.5f * (float)height;  /* [-1, 1] -> [0, h] */
 	float z = (ndc_coord.z + 1) * 0.5f;                  /* [-1, 1] -> [0, 1] */
 	return vec3_new(x, y, z);
+}
+
+vec3_t interpolate_varyings_weights(vec3_t& weights, float recip_w[3])
+{
+	float weight0 = recip_w[0] * weights.x;
+	float weight1 = recip_w[1] * weights.y;
+	float weight2 = recip_w[2] * weights.z;
+	float normalizer = 1 / (weight0 + weight1 + weight2);
+	return vec3_t{ weight0 * normalizer, weight1 * normalizer, weight2 * normalizer };
 }

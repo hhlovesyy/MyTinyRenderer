@@ -131,6 +131,12 @@ vec4_t vec4_new(float x, float y, float z, float w)
     return v;
 }
 
+
+vec4_t vec4_add(vec4_t a, vec4_t b) 
+{
+    return vec4_new(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
+}
+
 vec4_t vec4_from_vec3(vec3_t v, float w)
 {
     return vec4_new(v.x, v.y, v.z, w);

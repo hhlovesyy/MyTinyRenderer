@@ -684,3 +684,67 @@ else
 
 这里有一个很容易出错的地方，而在我们前面的实现中也是错误的（虽然结果好像没看出来），那就是**我们不能直接拿屏幕空间重心插值得到的结果对模型空间的属性进行插值（例如顶点颜色、法线等）**。这里可以参考如下所示的一篇博客：https://blog.csdn.net/Motarookie/article/details/124284471，讲解的会比较清晰一些。以下记录重点：
 
+在https://registry.khronos.org/OpenGL/specs/es/2.0/es_full_spec_2.0.pdf这篇文章中的3.5.1小节，有这样一段话：
+
+![image-20240805144815292](./assets/image-20240805144815292.png)
+
+## 1.插值深度（有点不确定对错，参照OpenGL）
+
+也就是说，针对深度，我们可以这样插值：
+
+```c++
+for (int i = 0; i < 3; i++)
+{
+	clip_abc[i] = mat4_mul_vec4(proj_matrix, mat4_mul_vec4(view_matrix, vec4_from_vec3(abc_3d[i], 1)));
+	vec3_t clip_coord = vec3_from_vec4(clip_abc[i]);
+	ndc_coords[i] = vec3_div(clip_coord, clip_abc[i].w);  //这一步是做透视除法
+	vec3_t window_coord = viewport_transform(width, height, ndc_coords[i]); //这一步是做视口变换
+	screen_coords[i] = vec2_new(window_coord.x, window_coord.y);
+	screen_depths[i] = window_coord.z;
+}
+for (x = bbox.min_x; x <= bbox.max_x; x++) {
+    for (y = bbox.min_y; y <= bbox.max_y; y++) {
+        vec2_t point = vec2_new((float)x + 0.5f, (float)y + 0.5f);
+        vec3_t weights = calculate_weights(screen_coords, point);
+        int weight0_okay = weights.x > -EPSILON;
+		int weight1_okay = weights.y > -EPSILON;
+		int weight2_okay = weights.z > -EPSILON;
+		if (weight0_okay && weight1_okay && weight2_okay) {
+    		int index = y * width + x;
+    		float depth = interpolate_depth(screen_depths, weights);
+            //...
+        }
+```
+
+> 这里似乎是在深度插值中直接对Z以屏幕空间三角形的重心坐标做重心插值。这跟https://blog.csdn.net/Motarookie/article/details/124284471这篇链接中讲到的重心插值不太一样，感觉针对重心插值的情况还是按照OpenGL官方的报告书上的来写会比较合适。
+
+
+
+## 2.插值其他任意属性
+
+对应的代码如下（参考上面的公式）：
+
+```c++
+float recip_w[3];
+for (int i = 0; i < 3; i++)
+{
+	clip_abc[i] = mat4_mul_vec4(proj_matrix, mat4_mul_vec4(view_matrix, vec4_from_vec3(abc_3d[i], 1)));
+	recip_w[i] = 1 / clip_abc[i].w;
+    //...
+}
+vec3_t interpolate_varyings(vec3_t& weights, float recip_w[3])  //weights是屏幕空间求解出来的重心坐标，recip_w存储的是齐次坐标的w项
+{
+	float weight0 = recip_w[0] * weights.x;
+	float weight1 = recip_w[1] * weights.y;
+	float weight2 = recip_w[2] * weights.z;
+	float normalizer = 1 / (weight0 + weight1 + weight2);
+	return vec3_t{ weight0 * normalizer, weight1 * normalizer, weight2 * normalizer };
+}
+vec4_t color =vec4_add(vec4_mul(color1,new_weights.x), vec4_add(vec4_mul(color2, new_weights.y),vec4_mul(color3,new_weights.z)));  //这里代码写的比较丑，其实就是求出新的重心坐标权重，然后对三个顶点的color做加权平均
+```
+
+做了相关的改动之后，`test_space_transform.cpp`包含了或许正确的重心坐标插值公式，读者可以去对应仓库的提交记录进行查看。
+
+------
+
+至此，本课时暂时完成。接下来我们会用一个课时的时间来对相机进行平移、旋转、缩放操作，使用回调函数处理鼠标和键盘的监听事件，这样也方便我们实时查看渲染器的视觉效果的正确与否。
