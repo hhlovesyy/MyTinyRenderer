@@ -16,7 +16,10 @@ std::vector<TGAImage> img;
 void preLoadModel()
 {
 	//Ïà¶ÔÂ·¾¶
-	const char* model_path = "combinePamu.obj";
+	//std::string model_name = "combinePamu";
+	std::string model_name = "test";
+	std::string model_name_obj = model_name + ".obj";
+	const char* model_path = (model_name_obj).c_str();
 	Mesh* mesh = Mesh::load(model_path);
 	if (mesh == nullptr) 
 	{
@@ -28,8 +31,8 @@ void preLoadModel()
 	vertices = mesh->getVertices();
 	num_faces = mesh->getNumFaces();
 
-	
-	mesh->load_texture("assets/combinePamu", "_diffuse.tga", img);
+	std::string model_texture_path =  model_name;
+	mesh->load_texture(model_texture_path, "_diffuse.tga", img);
 }
 
 vec4_t sample2D(TGAImage& image, vec2_t uv)

@@ -301,7 +301,7 @@ sequenceDiagram
     Mesh->>Mesh: loadObj(filename)
     Mesh->>Mesh:buildMesh(positions, texcoords, normals...);
     Mesh->>test_model_input:getVertices()
-    Mesh->>test_model_input:mesh->getNumFaces()
+    Mesh->>test_model_input:getNumFaces()
 ```
 
 
@@ -316,3 +316,8 @@ sequenceDiagram
 
 
 
+接下来上纹理
+
+ git commit -m “给3d模型增加纹理贴图相关代码"
+
+![image-20240805232053399](lesson4_模型解析与导入.assets/image-20240805232053399.png)

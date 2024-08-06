@@ -1,36 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-<<<<<<< HEAD
-    <ClCompile Include="camera.cpp" />
-    <ClCompile Include="graphics.cpp" />
-    <ClCompile Include="image.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="maths.cpp" />
-    <ClCompile Include="mesh.cpp" />
-    <ClCompile Include="private.cpp" />
-    <ClCompile Include="test_model_input.cpp" />
-    <ClCompile Include="test_rasterization.cpp" />
-    <ClCompile Include="test_space_transform.cpp" />
-    <ClCompile Include="test_transform.cpp" />
-    <ClCompile Include="win32.cpp" />
-    <ClCompile Include="tgaimage.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="camera.h" />
-    <ClInclude Include="graphics.h" />
-    <ClInclude Include="image.h" />
-    <ClInclude Include="macro.h" />
-    <ClInclude Include="maths.h" />
-    <ClInclude Include="mesh.h" />
-    <ClInclude Include="private.h" />
-    <ClInclude Include="test_model_input.h" />
-    <ClInclude Include="test_rasterization.h" />
-    <ClInclude Include="test_space_transform.h" />
-    <ClInclude Include="test_transform.h" />
-    <ClInclude Include="win32.h" />
-    <ClInclude Include="tgaimage.h" />
-=======
     <ClCompile Include="main.cpp" />
     <ClCompile Include="camera.cpp">
       <Filter>core\source</Filter>
@@ -70,6 +40,9 @@
     </ClCompile>
     <ClCompile Include="test_transform.cpp">
       <Filter>test_unit\source</Filter>
+    </ClCompile>
+    <ClCompile Include="tgaimage.cpp">
+      <Filter>core\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -115,7 +88,9 @@
     <ClInclude Include="test_transform.h">
       <Filter>test_unit\header</Filter>
     </ClInclude>
->>>>>>> 49add441157621c959ff20cc7e84bd85d63efb9c
+    <ClInclude Include="tgaimage.h">
+      <Filter>core\header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">

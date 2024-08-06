@@ -177,8 +177,8 @@ vec3_t Mesh::getCenter() const
 void Mesh::load_texture(std::string filename, const std::string suffix, std::vector<TGAImage>& img) 
 {
     TGAImage tmp;
-    //std::string texfile = filename  + suffix;
-    std::string texfile = "combinePamu_diffuse.tga";
+    std::string texfile = filename  + suffix;
+    //std::string texfile = "combinePamu_diffuse.tga";
     if (tmp.read_tga_file(texfile.c_str()))
     {
         std::cout << "load texture file " << texfile << " success" << std::endl;
