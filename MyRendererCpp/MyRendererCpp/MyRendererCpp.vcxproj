@@ -132,6 +132,8 @@
     <ClCompile Include="image.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="maths.cpp" />
+    <ClCompile Include="scene.cpp" />
+    <ClCompile Include="scene_helper.cpp" />
     <ClCompile Include="test_camera_move.cpp" />
     <ClCompile Include="test_helper.cpp" />
     <ClCompile Include="mesh.cpp" />
@@ -149,6 +151,8 @@
     <ClInclude Include="image.h" />
     <ClInclude Include="macro.h" />
     <ClInclude Include="maths.h" />
+    <ClInclude Include="scene.h" />
+    <ClInclude Include="scene_helper.h" />
     <ClInclude Include="test_camera_move.h" />
     <ClInclude Include="test_helper.h" />
     <ClInclude Include="mesh.h" />
