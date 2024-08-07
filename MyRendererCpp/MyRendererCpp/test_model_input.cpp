@@ -5,6 +5,7 @@
 #include "mesh.h"
 #include "camera.h"
 #include "test_helper.h"
+#include "scene_helper.h"
 using namespace std;
 
 typedef void tickfunc_t(framebuffer_t* framebuffer, Camera* camera);
@@ -15,6 +16,8 @@ std::vector<Mesh::Vertex> vertices;
 std::vector<TGAImage> img;
 void preLoadModel()
 {
+	//加载模型(新)
+	Scene* scene = scene_from_file("combinePamu.scene");
 	//相对路径
 	//std::string model_name = "combinePamu";
 	std::string model_name = "test";

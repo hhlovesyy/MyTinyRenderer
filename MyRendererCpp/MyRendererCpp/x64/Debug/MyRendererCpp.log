@@ -1,4 +1,6 @@
-﻿  test_model_input.cpp
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_model_input.cpp(42,8): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_model_input.cpp(43,8): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-  MyRendererCpp.vcxproj -> D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\x64\Debug\MyRendererCpp.exe
+﻿  scene_helper.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\scene_helper.cpp(145,20): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\scene_helper.cpp(146,21): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\scene_helper.cpp(147,17): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\scene_helper.cpp(160,9): warning C4101: “model”: 未引用的局部变量
+  MyRendererCpp.vcxproj -> D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\x64\Debug\MyRendererCpp.exe
