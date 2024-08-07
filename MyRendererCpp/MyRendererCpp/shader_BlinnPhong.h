@@ -4,6 +4,8 @@
 #include "maths.h"
 #include "mesh.h"
 #include "graphics.h"
+#include "scene.h"
+
 /* low-level api */
 
 struct attribs_blinnphong 
@@ -31,7 +33,7 @@ struct uniforms_blinnphong
     mat4_t camera_vp_matrix;
     
     vec4_t basecolor;
-    std::string diffuse_map;
+    TGAImage diffuse_map;
 };
 
 
@@ -43,7 +45,7 @@ struct material_blinnphong
 
 
 /* high-level api */
-void shader_BlinnPhong_create_model(std::string mesh, mat4_t transform);
+Model* shader_BlinnPhong_create_model(std::string mesh, mat4_t transform, material_blinnphong& material);
 
 vec4_t blinnphong_vertex_shader(void* attribs_, void* varyings_, void* uniforms_);
 

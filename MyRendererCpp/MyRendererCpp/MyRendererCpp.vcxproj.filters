@@ -47,6 +47,18 @@
     <ClCompile Include="shader_BlinnPhong.cpp">
       <Filter>core\source</Filter>
     </ClCompile>
+    <ClCompile Include="scene_helper.cpp">
+      <Filter>core\source</Filter>
+    </ClCompile>
+    <ClCompile Include="scene.cpp">
+      <Filter>core\source</Filter>
+    </ClCompile>
+    <ClCompile Include="rasterization.cpp">
+      <Filter>core\source</Filter>
+    </ClCompile>
+    <ClCompile Include="texture2D.cpp">
+      <Filter>core\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -95,6 +107,18 @@
       <Filter>core\header</Filter>
     </ClInclude>
     <ClInclude Include="shader_BlinnPhong.h">
+      <Filter>core\header</Filter>
+    </ClInclude>
+    <ClInclude Include="scene_helper.h">
+      <Filter>core\header</Filter>
+    </ClInclude>
+    <ClInclude Include="scene.h">
+      <Filter>core\header</Filter>
+    </ClInclude>
+    <ClInclude Include="rasterization.h">
+      <Filter>core\header</Filter>
+    </ClInclude>
+    <ClInclude Include="texture2D.h">
       <Filter>core\header</Filter>
     </ClInclude>
   </ItemGroup>

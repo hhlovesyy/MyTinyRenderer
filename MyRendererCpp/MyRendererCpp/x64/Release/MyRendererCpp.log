@@ -1,9 +1,7 @@
-﻿  test_model_input.cpp
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_model_input.cpp(43,8): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_model_input.cpp(44,8): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+﻿  shader_BlinnPhong.cpp
   正在生成代码
-  0 of 632 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+  4 of 846 functions ( 0.5%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    2 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   MyRendererCpp.vcxproj -> D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\x64\Release\MyRendererCpp.exe

@@ -224,6 +224,11 @@ vec4_t vec4_div(vec4_t v, float divisor)
     return vec4_mul(v, 1 / divisor);
 }
 
+vec4_t vec4_mul_vec4(vec4_t a, vec4_t b)
+{
+	return vec4_new(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
+}
+
 mat4_t mat4_identity(void)
 {
     mat4_t m =

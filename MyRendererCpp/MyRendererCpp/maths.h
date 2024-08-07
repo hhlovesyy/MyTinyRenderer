@@ -44,6 +44,7 @@ vec4_t vec4_mul(vec4_t v, float factor);
 vec4_t vec4_div(vec4_t v, float divisor);
 
 vec4_t vec4_add(vec4_t a, vec4_t b);
+vec4_t vec4_mul_vec4(vec4_t a, vec4_t b);
 
 mat4_t mat4_identity(void);
 /* transformation matrices */

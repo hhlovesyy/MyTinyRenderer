@@ -56,7 +56,8 @@ void* Program::get_attribs(int nth_vertex) {
 	return shader_attribs_[nth_vertex];
 }
 
-void* Program::get_uniforms() {
+void* Program::get_uniforms() 
+{
 	return shader_uniforms_;
 }
 
@@ -133,6 +134,16 @@ void framebuffer_clear_color(framebuffer_t* framebuffer, vec4_t color)
 		framebuffer->color_buffer[i * 4 + 1] = float_to_uchar(color.y);
 		framebuffer->color_buffer[i * 4 + 2] = float_to_uchar(color.z);
 		framebuffer->color_buffer[i * 4 + 3] = float_to_uchar(color.w);
+	}
+}
+
+void framebuffer_clear_depth(framebuffer_t* framebuffer, float depth)
+{
+	int num_pixels = framebuffer->width * framebuffer->height;
+	int i;
+	for (i = 0; i < num_pixels; i++) 
+	{
+		framebuffer->depth_buffer[i] = depth;
 	}
 }
 

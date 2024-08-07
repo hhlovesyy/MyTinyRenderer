@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include <vector>
 #include "shader_BlinnPhong.h"
+#include "texture2D.h"
+#include <iostream>
 
 //返回模型矩阵，将模型从模型空间变换到世界空间
 static mat4_t get_model_matrix(attribs_blinnphong* attribs, uniforms_blinnphong* uniforms)
@@ -48,48 +50,26 @@ vec4_t blinnphong_vertex_shader(void* attribs_, void* varyings_, void* uniforms_
     return common_vertex_shader(attribs, varyings, uniforms);
 }
 
-
 static vec4_t common_fragment_shader(varyings_blinnphong* varyings,
     uniforms_blinnphong* uniforms,
     int* discard,
     int backface)  
 {
-    /*material_t material = get_material(varyings, uniforms, backface);
-        vec3_t color = material.emission;*/
+    //sample texture
+    vec2_t texcoord = varyings->texcoord;
+    vec4_t albedo = sample2D(uniforms->diffuse_map, texcoord);
 
-        //vec3_t ambient = material.diffuse;
-        //float intensity = uniforms->ambient_intensity;
-        //color = vec3_add(color, vec3_mul(ambient, intensity));
+    //实现一个简单的blinn-phong模型
+    vec3_t light_dir = vec3_normalize(uniforms->light_dir);
+    vec3_t normal = varyings->normal;
+    float n_dot_l = vec3_dot(normal, light_dir);
+    if (n_dot_l < 0) n_dot_l = 0;
+    vec4_t diffuse = vec4_mul(uniforms->basecolor, n_dot_l);
 
+    diffuse = vec4_mul_vec4(diffuse, albedo);
+    //diffuse = vec4_t{ 1, 1, 1, 1 };
 
-        //先test
-        /*vec3_t ambient = 
-        float intensity = uniforms->ambient_intensity;
-        color = vec3_add(color, vec3_mul(ambient, intensity));*/
-
-        //if (uniforms->punctual_intensity > 0) 
-        //{
-        //    vec3_t light_dir = vec3_negate(uniforms->light_dir);
-        //    float n_dot_l = vec3_dot(material.normal, light_dir);
-        //    if (n_dot_l > 0 && !is_in_shadow(varyings, uniforms, n_dot_l)) {
-        //        vec3_t view_dir = get_view_dir(varyings, uniforms);
-        //        vec3_t specular = get_specular(light_dir, view_dir, material);
-        //        vec3_t diffuse = vec3_mul(material.diffuse, n_dot_l);
-        //        vec3_t punctual = vec3_add(diffuse, specular);
-        //        float intensity = uniforms->punctual_intensity;
-        //        color = vec3_add(color, vec3_mul(punctual, intensity));
-        //    }
-        //}
-
-        //实现一个简单的blinn-phong模型
-        vec3_t light_dir = vec3_normalize(uniforms->light_dir);
-        vec3_t normal = varyings->normal;
-        float n_dot_l = vec3_dot(normal, light_dir);
-        if (n_dot_l < 0) n_dot_l = 0;
-        vec4_t diffuse = vec4_mul(uniforms->basecolor, n_dot_l);
-
-
-        return diffuse;
+    return diffuse;
         
 }
 
@@ -101,21 +81,35 @@ vec4_t blinnphong_fragment_shader(void* varyings_, void* uniforms_, int* discard
     return common_fragment_shader(varyings, uniforms, discard, backface);
 }
 
-void shader_BlinnPhong_create_model(std::string mesh, mat4_t transform)
+Model* shader_BlinnPhong_create_model(std::string mesh_path, mat4_t transform, material_blinnphong& material)
 {
     int sizeof_attribs = sizeof(attribs_blinnphong);
     int sizeof_varyings = sizeof(varyings_blinnphong);
     int sizeof_uniforms = sizeof(uniforms_blinnphong);
     uniforms_blinnphong* uniforms;
     Program* program;
+    
 
     program = new Program(blinnphong_vertex_shader, blinnphong_fragment_shader,
         sizeof_attribs, sizeof_varyings, sizeof_uniforms);
 
     uniforms = static_cast<uniforms_blinnphong*>(program->get_uniforms());
 
-    uniforms->diffuse_map = "_diffuse.tga";
+    Mesh* mesh = Mesh::load(mesh_path);
+    if (mesh == nullptr)
+    {
+        std::cerr << "Failed to load model: " << (mesh_path) << std::endl;
+        return nullptr;
+    }
+    Model* model = new Model();
+    model->program = program;
+    model->mesh = mesh;
+    model->transform = transform;
 
-    return;
+    uniforms->diffuse_map = mesh->load_texture(material.diffuse_map);
+    uniforms->basecolor = material.basecolor;
+    uniforms->model_matrix = transform;
+
+    return model;
 }
 

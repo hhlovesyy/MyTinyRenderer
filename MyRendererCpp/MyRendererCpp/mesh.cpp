@@ -55,7 +55,7 @@ static Mesh* buildMesh
     return mesh;
 }
 
-static Mesh* loadObj(const char* filename) 
+static Mesh* loadObj(std::string filename) 
 {
     std::vector<vec3_t> positions;
     std::vector<vec2_t> texcoords;
@@ -67,7 +67,7 @@ static Mesh* loadObj(const char* filename)
     Mesh* mesh;
     FILE* file;
 
-    file = fopen(filename, "r");
+    file = fopen(filename.c_str(), "r");
     std::cout << "filename: " << filename << std::endl;
     assert(file != NULL);
     while (1) 
@@ -133,10 +133,9 @@ static Mesh* loadObj(const char* filename)
 }
 
 //load函数用于加载模型文件，返回一个Mesh对象。
-Mesh* Mesh::load(const char* filename) 
+Mesh* Mesh::load(std::string filename) 
 {
-    std::string filename_str(filename);
-    std::string extension_str = private_get_extension(filename_str);
+    std::string extension_str = private_get_extension(filename);
     const char* extension = extension_str.c_str();
 
     if (strcmp(extension, "obj") == 0) 
@@ -174,19 +173,19 @@ vec3_t Mesh::getCenter() const
 
 //加载纹理
 
-void Mesh::load_texture(std::string filename, const std::string suffix, std::vector<TGAImage>& img) 
+TGAImage Mesh::load_texture(std::string filename) 
 {
     TGAImage tmp;
-    std::string texfile = filename  + suffix;
+    std::string texfile = filename;
     //std::string texfile = "combinePamu_diffuse.tga";
     if (tmp.read_tga_file(texfile.c_str()))
     {
         std::cout << "load texture file " << texfile << " success" << std::endl;
-        img.push_back(tmp);
+        textures.push_back(tmp);
     }
     else
     {
         std::cerr << "load texture file " << texfile << " failed" << std::endl;
     }
-    return;
+    return tmp;
 }

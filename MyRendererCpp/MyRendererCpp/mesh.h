@@ -17,7 +17,7 @@ public:
     };
 
     //加载模型
-    static Mesh* load(const char* filename);
+    static Mesh* load(std::string  filename);
     //释放模型
     void release();
 
@@ -28,7 +28,8 @@ public:
     //获取模型的中心点
     vec3_t getCenter() const;
 
-    void load_texture(std::string filename, const std::string suffix, std::vector<TGAImage>& img);
+    std::vector<TGAImage> textures;
+    TGAImage load_texture(std::string filename);
 
 private:
     Mesh() = default;

@@ -316,8 +316,76 @@ sequenceDiagram
 
 
 
+
+
+
+# 三、场景文件的解析
+
+## 1.定义scene文件	
+
+​	通过刚才的尝试，我们已经能够加载一个Obj格式的文件并显示在屏幕上了，不过如果我们想要更复杂的场景暂时就不行了，所以我们希望能够定义一个scene文件，同时用代码对其进行解析，从而能够对渲染有更高的可控性。
+
+​	首先，定义一个scene文件，我们把他放到与对应模型同级的目录下面，比如帕姆，创建一个`CombinePamu.scene`文件，在文件中我们先写入以下的内容：
+
+```c
+type: blinn
+
+materials 1:
+    material 0:
+        basecolor: 1 1 1 1
+        diffuse_map: combinePamu_diffuse.tga
+
+transforms 1:
+    transform 0:
+        1  0  0  0
+        0  1  0  0
+        0  0  1  0
+        0  0  0  1
+
+models 1:
+    model 0:
+        mesh: combinePamu.obj
+        material: 0
+        transform: 0
+```
+
+​	很好理解，这里的diffuse_map是基础的albedo贴图，transform则用来存储模型空间下的变换，这里如果是帕姆的话直接identity矩阵表示即可。后续我们也会完善更复杂的scene场景文件并给出对应更新。
+
+
+
+## 2.创建Scene类，Model类和Texture类
+
+### （1）scene类
+
+创建一个scene.h和对应的cpp文件，scene类的定义如下：
+
+```c++
+```
+
+其中Model类存储的是模型有关的信息，以及对应的逻辑，这个一会会说。Scene类在scene.h当中
+
+
+
+### （2）Model类
+
+Model类的定义在scene.h当中
+
+
+
+
+
+## 3.解析scene文件
+
+​	有了刚才的scene文件和对应的类之后，接下来的步骤就是对其进行解析。创建一个scene_helper.h文件和其对应的cpp文件。
+
+
+
+
+
+
 接下来上纹理
 
  git commit -m “给3d模型增加纹理贴图相关代码"
 
 ![image-20240805232053399](lesson4_模型解析与导入.assets/image-20240805232053399.png)
+>>>>>>> 33208cd785d664dda3437421d70d7d1242708ab8
