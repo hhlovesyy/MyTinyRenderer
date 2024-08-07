@@ -1,4 +1,4 @@
 ﻿  test_model_input.cpp
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_model_input.cpp(42,8): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_model_input.cpp(43,8): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_model_input.cpp(44,8): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
   MyRendererCpp.vcxproj -> D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\x64\Debug\MyRendererCpp.exe

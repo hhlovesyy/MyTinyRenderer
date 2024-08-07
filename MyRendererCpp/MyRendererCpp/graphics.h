@@ -1,6 +1,34 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 #include "maths.h"
+
+using vertex_shader_t = vec4_t(*)(void* attribs, void* varyings, void* uniforms);//函数指针。返回值为vec4_t，参数为void* attribs, void* varyings, void* uniforms
+using fragment_shader_t = vec4_t(*)(void* varyings, void* uniforms, int* discard, int backface);
+
+class Program {
+public:
+	Program(vertex_shader_t vertex_shader, fragment_shader_t fragment_shader,
+		int sizeof_attribs, int sizeof_varyings, int sizeof_uniforms);
+	~Program();
+
+	void* get_attribs(int nth_vertex);
+	void* get_uniforms();
+
+private:
+	vertex_shader_t vertex_shader_;
+	fragment_shader_t fragment_shader_;
+	int sizeof_attribs_;
+	int sizeof_varyings_;
+	int sizeof_uniforms_;
+
+	void* shader_attribs_[3];
+	void* shader_varyings_;
+	void* shader_uniforms_;
+	void* in_varyings_[10];
+	void* out_varyings_[10];
+};
+
+
 class framebuffer_t
 {
 public:

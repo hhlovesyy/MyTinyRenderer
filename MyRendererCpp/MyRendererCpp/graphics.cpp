@@ -2,11 +2,66 @@
 #include "maths.h"
 #include <assert.h>
 #include <math.h>
+#include <vcruntime_string.h>
 
 /*
  * for depth interpolation, see subsection 3.5.1 of
  * https://www.khronos.org/registry/OpenGL/specs/es/2.0/es_full_spec_2.0.pdf
  */
+
+/* program management */
+
+/* program management */
+
+#define MAX_VARYINGS 10
+
+Program::Program(vertex_shader_t vertex_shader, fragment_shader_t fragment_shader,
+	int sizeof_attribs, int sizeof_varyings, int sizeof_uniforms)
+	: vertex_shader_(vertex_shader), fragment_shader_(fragment_shader),
+	sizeof_attribs_(sizeof_attribs), sizeof_varyings_(sizeof_varyings),
+	sizeof_uniforms_(sizeof_uniforms){
+	assert(sizeof_attribs > 0 && sizeof_varyings > 0 && sizeof_uniforms > 0);
+	assert(sizeof_varyings % sizeof(float) == 0);
+
+	for (int i = 0; i < 3; i++) {
+		shader_attribs_[i] = new char[sizeof_attribs];
+		memset(shader_attribs_[i], 0, sizeof_attribs);
+	}
+	shader_varyings_ = new char[sizeof_varyings];
+	memset(shader_varyings_, 0, sizeof_varyings);
+	shader_uniforms_ = new char[sizeof_uniforms];
+	memset(shader_uniforms_, 0, sizeof_uniforms);
+	for (int i = 0; i < MAX_VARYINGS; i++) {
+		in_varyings_[i] = new char[sizeof_varyings];
+		memset(in_varyings_[i], 0, sizeof_varyings);
+		out_varyings_[i] = new char[sizeof_varyings];
+		memset(out_varyings_[i], 0, sizeof_varyings);
+	}
+}
+
+Program::~Program() {
+	for (int i = 0; i < 3; i++) {
+		delete[] shader_attribs_[i];
+	}
+	delete[] shader_varyings_;
+	delete[] shader_uniforms_;
+	for (int i = 0; i < MAX_VARYINGS; i++) {
+		delete[] in_varyings_[i];
+		delete[] out_varyings_[i];
+	}
+}
+
+void* Program::get_attribs(int nth_vertex) {
+	assert(nth_vertex >= 0 && nth_vertex < 3);
+	return shader_attribs_[nth_vertex];
+}
+
+void* Program::get_uniforms() {
+	return shader_uniforms_;
+}
+
+
+
 float interpolate_depth(float screen_depths[3], vec3_t weights) 
 {
 	float depth0 = screen_depths[0] * weights.x;

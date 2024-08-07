@@ -49,7 +49,6 @@ mat4_t mat4_identity(void);
 /* transformation matrices */
 mat4_t mat4_translate(float tx, float ty, float tz);
 
-vec4_t mat4_mul_vec4(mat4_t m, vec4_t v);
 mat4_t mat4_rotate(float angle, float vx, float vy, float vz);
 mat4_t mat4_rotate_x(float angle);
 mat4_t mat4_rotate_y(float angle);
@@ -61,6 +60,7 @@ float vec3_dot(vec3_t a, vec3_t b);
 float vec3_length(vec3_t v);
 vec3_t vec3_mul(vec3_t v, float factor);
 vec3_t vec3_div(vec3_t v, float divisor);
+vec3_t mat3_mul_vec3(mat3_t m, vec3_t v);
 
 mat4_t mat4_lookat(vec3_t eye, vec3_t target, vec3_t up);
 mat4_t mat4_ortho(float left, float right, float bottom, float top, float near, float far);
@@ -69,5 +69,6 @@ mat4_t mat4_orthographic(float right, float top, float near, float far);
 mat4_t mat4_frustum(float left, float right, float bottom, float top,
 	float near, float far);
 mat4_t mat4_perspective(float fovy, float aspect, float near, float far);
-
+vec4_t mat4_mul_vec4(mat4_t m, vec4_t v);
+mat4_t mat4_mul_mat4(mat4_t a, mat4_t b);
 #endif

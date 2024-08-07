@@ -44,6 +44,9 @@
     <ClCompile Include="tgaimage.cpp">
       <Filter>core\source</Filter>
     </ClCompile>
+    <ClCompile Include="shader_BlinnPhong.cpp">
+      <Filter>core\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -89,6 +92,9 @@
       <Filter>test_unit\header</Filter>
     </ClInclude>
     <ClInclude Include="tgaimage.h">
+      <Filter>core\header</Filter>
+    </ClInclude>
+    <ClInclude Include="shader_BlinnPhong.h">
       <Filter>core\header</Filter>
     </ClInclude>
   </ItemGroup>

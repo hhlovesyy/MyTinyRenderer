@@ -1,4 +1,5 @@
 #include "test_model_input.h"
+#include "shader_BlinnPhong.h"
 #include "win32.h"
 #include "graphics.h"
 #include <iostream>
@@ -16,8 +17,8 @@ std::vector<TGAImage> img;
 void preLoadModel()
 {
 	//相对路径
-	//std::string model_name = "combinePamu";
-	std::string model_name = "test";
+	std::string model_name = "combinePamu";
+	//std::string model_name = "test";
 	std::string model_name_obj = model_name + ".obj";
 	const char* model_path = (model_name_obj).c_str();
 	Mesh* mesh = Mesh::load(model_path);
@@ -69,20 +70,44 @@ void model_input_transform(framebuffer_t* framebuffer,Camera* camera)
 	mat4_t view_matrix = camera_get_view_matrix(*camera);
 	mat4_t proj_matrix = camera_get_proj_matrix(*camera);
 
+	//--
+
+	uniforms_blinnphong uniforms;
+	uniforms.light_dir = vec3_new(0.5f, 0.8f, 0.9f);
+	uniforms.camera_pos = camera->position;
+	uniforms.model_matrix = mat4_identity();
+	//uniforms.normal_matrix =
+
+	uniforms.camera_vp_matrix = mat4_mul_mat4(camera_get_proj_matrix(*camera), camera_get_view_matrix(*camera));
+	uniforms.basecolor = vec4_new(0.6f, 0.8f, 0.8f, 1.0f);
+	uniforms.diffuse_map = "path/to/your/texture.tga";
+	/*uniforms.ambient_intensity = 0.1f;
+	uniforms.punctual_intensity = 1.0f;*/
+	
+	//--
+
+
 	for (int index = 0; index < num_faces; index++)
 	{
-		vec3_t abc_3d[3] = {
+		vec3_t abc_3d[3] = 
+		{
 			vec3_new(vertices[index * 3].position.x, vertices[index * 3].position.y, vertices[index * 3].position.z),
 			vec3_new(vertices[index * 3 + 1].position.x, vertices[index * 3 + 1].position.y, vertices[index * 3 + 1].position.z),
 			vec3_new(vertices[index * 3 + 2].position.x, vertices[index * 3 + 2].position.y, vertices[index * 3 + 2].position.z)
 		};
 		//纹理坐标
-		vec2_t uv[3] = {
+		vec2_t uv[3] = 
+		{
 			vec2_new(vertices[index * 3].texcoord.x, vertices[index * 3].texcoord.y),
 			vec2_new(vertices[index * 3 + 1].texcoord.x, vertices[index * 3 + 1].texcoord.y),
 			vec2_new(vertices[index * 3 + 2].texcoord.x, vertices[index * 3 + 2].texcoord.y)
 		};
-		
+		vec3_t normal[3] = 
+		{
+			vec3_new(vertices[index * 3].normal.x, vertices[index * 3].normal.y, vertices[index * 3].normal.z),
+			vec3_new(vertices[index * 3 + 1].normal.x, vertices[index * 3 + 1].normal.y, vertices[index * 3 + 1].normal.z),
+			vec3_new(vertices[index * 3 + 2].normal.x, vertices[index * 3 + 2].normal.y, vertices[index * 3 + 2].normal.z)
+		};
 
 		vec4_t clip_abc[3];
 		vec3_t ndc_coords[3];
@@ -90,8 +115,21 @@ void model_input_transform(framebuffer_t* framebuffer,Camera* camera)
 		vec2_t screen_coords[3];
 		float screen_depths[3];
 
+		varyings_blinnphong varyings;//--
 		for (int i = 0; i < 3; i++)
 		{
+			//--
+			attribs_blinnphong attribs;
+			attribs.position = abc_3d[i];
+			attribs.texcoord = uv[i];
+			attribs.normal = normal[i];
+
+			
+			vec4_t clip_position = blinnphong_vertex_shader(&attribs, &varyings, &uniforms);
+			//
+
+
+
 			clip_abc[i] = mat4_mul_vec4(proj_matrix, mat4_mul_vec4(view_matrix, vec4_from_vec3(abc_3d[i], 1)));
 			vec3_t clip_coord = vec3_from_vec4(clip_abc[i]);
 			ndc_coords[i] = vec3_div(clip_coord, clip_abc[i].w);  //这一步是做透视除法
@@ -116,9 +154,33 @@ void model_input_transform(framebuffer_t* framebuffer,Camera* camera)
 				//对UV做重心插值，而不是对颜色做重心插值
 				vec2_t uv_p = vec2_add(vec2_add(vec2_mul(uv[0], result.x), vec2_mul(uv[1], result.y)), vec2_mul(uv[2], result.z));
 				
+				//--
+				// 对法线做重心插值
+				vec3_t normal_p = vec3_add(vec3_add(vec3_mul(normal[0], result.x), vec3_mul(normal[1], result.y)), vec3_mul(normal[2], result.z));
+
+				// 对位置做重心插值
+				vec3_t position_p = vec3_add(vec3_add(vec3_mul(abc_3d[0], result.x), vec3_mul(abc_3d[1], result.y)), vec3_mul(abc_3d[2], result.z));
+
+				// 传递插值后的属性给片元着色器
+				varyings_blinnphong varyings;
+				varyings.texcoord = uv_p;
+				varyings.normal = normal_p;
+				varyings.world_position = position_p;
+				//
+
+
 				vec4_t color = sample2D(img[0], vec2_t{ uv_p.x, 1.0f - uv_p.y });//纹理坐标的Y轴是反的
 				//vec4_t color = sample2D(img[0], uv[0]);
 				vec4_t finalColor = vec4_mul(color, 1.0f / 255.0f);
+
+				//--
+				vec4_t color1 = blinnphong_fragment_shader(&varyings, &uniforms, nullptr, 0);
+				vec4_t finalColor1 = vec4_new(color1.x*finalColor.x,
+					color1.y*finalColor.y,
+					color1.z*finalColor.z,
+					color1.w*finalColor.w);
+
+				//--
 
 				//Zbuffer test
 				float z = result.x * screen_depths[0] + result.y * screen_depths[1] + result.z * screen_depths[2];
@@ -131,7 +193,8 @@ void model_input_transform(framebuffer_t* framebuffer,Camera* camera)
 				{
 					continue;
 				}
-				draw_fragment(framebuffer, j * width + i, finalColor);
+				//draw_fragment(framebuffer, j * width + i, finalColor1);
+				draw_fragment(framebuffer, j * width + i, finalColor1);
 
 			}
 		}
@@ -195,6 +258,10 @@ void test_enter_mainloop_model_input(tickfunc_t* tickfunc)
 
 void test_model_input()
 {
+	//创建模型
+
+
+
 	preLoadModel();
 	//进入主循环并渲染模型,传入顶点数据
 	test_enter_mainloop_model_input(model_input_transform);

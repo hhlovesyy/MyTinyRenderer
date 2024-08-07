@@ -148,6 +148,20 @@ vec3_t vec3_cross(vec3_t a, vec3_t b)
     return vec3_new(x, y, z);
 }
 
+vec3_t mat3_mul_vec3(mat3_t m, vec3_t v) 
+{
+    float product[3];
+    int i;
+    for (i = 0; i < 3; i++) 
+    {
+        float a = m.m[i][0] * v.x;
+        float b = m.m[i][1] * v.y;
+        float c = m.m[i][2] * v.z;
+        product[i] = a + b + c;
+    }
+    return vec3_new(product[0], product[1], product[2]);
+}
+
 vec4_t vec4_new(float x, float y, float z, float w) 
 {
     vec4_t v;
@@ -179,6 +193,32 @@ vec4_t vec4_mul(vec4_t v, float factor)
     return vec4_new(v.x * factor, v.y * factor, v.z * factor, v.w * factor);
 }
 
+vec4_t mat4_mul_vec4(mat4_t m, vec4_t v) {
+    float product[4];
+    int i;
+    for (i = 0; i < 4; i++) {
+        float a = m.m[i][0] * v.x;
+        float b = m.m[i][1] * v.y;
+        float c = m.m[i][2] * v.z;
+        float d = m.m[i][3] * v.w;
+        product[i] = a + b + c + d;
+    }
+    return vec4_new(product[0], product[1], product[2], product[3]);
+}
+
+mat4_t mat4_mul_mat4(mat4_t a, mat4_t b) {
+    mat4_t m = { {{0}} };
+    int i, j, k;
+    for (i = 0; i < 4; i++) {
+        for (j = 0; j < 4; j++) {
+            for (k = 0; k < 4; k++) {
+                m.m[i][j] += a.m[i][k] * b.m[k][j];
+            }
+        }
+    }
+    return m;
+}
+
 vec4_t vec4_div(vec4_t v, float divisor)
 {
     return vec4_mul(v, 1 / divisor);
@@ -203,21 +243,6 @@ mat4_t mat4_translate(float tx, float ty, float tz)
     m.m[1][3] = ty;
     m.m[2][3] = tz;
     return m;
-}
-
-vec4_t mat4_mul_vec4(mat4_t m, vec4_t v) 
-{
-    float product[4];
-    int i;
-    for (i = 0; i < 4; i++) 
-    {
-        float a = m.m[i][0] * v.x;
-        float b = m.m[i][1] * v.y;
-        float c = m.m[i][2] * v.z;
-        float d = m.m[i][3] * v.w;
-        product[i] = a + b + c + d;
-    }
-    return vec4_new(product[0], product[1], product[2], product[3]);
 }
 
 /*
