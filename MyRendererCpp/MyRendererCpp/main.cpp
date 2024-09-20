@@ -11,7 +11,7 @@ typedef struct { const char* testname; testfunc_t* testfunc; } testcase_t;
 
 static testcase_t g_testcases[] = 
 {
-    {"blinn", test_rasterization},
+    {"rasterization", test_rasterization},
 };
 
 int main(int argc, char* argv[])

@@ -5,12 +5,18 @@
 
 bbox_t find_bounding_box(vec2_t abc[3], int width, int height)
 {
+	//min的x和y分别取abc[0]、abc[1]、abc[2]的x和y的分别的最小值，即最小的 x 和 y 坐标值
 	vec2_t min = vec2_min(vec2_min(abc[0], abc[1]), abc[2]);
+	//max的x和y分别取abc[0]、abc[1]、abc[2]的x和y的分别的最大值，即最大的 x 和 y 坐标值
 	vec2_t max = vec2_max(vec2_max(abc[0], abc[1]), abc[2]);
 	bbox_t bbox;
+	//确保最小 x 坐标不小于0，即不会超出图像的左边界。
 	bbox.min_x = max_integer((int)floor(min.x), 0);
+	//确保最小 y 坐标不小于0，即不会超出图像的上边界。
 	bbox.min_y = max_integer((int)floor(min.y), 0);
+	//确保最大 x 坐标不超过图像的宽度减1，即不会超出图像的右边界。
 	bbox.max_x = min_integer((int)ceil(max.x), width - 1);
+	//确保最大 y 坐标不超过图像的高度减1，即不会超出图像的下边界。
 	bbox.max_y = min_integer((int)ceil(max.y), height - 1);
 	return bbox;
 }
@@ -52,7 +58,7 @@ vec3_t calculate_weights(vec2_t abc[3], vec2_t& p)
 	vec2_t pa = vec2_sub(a, p);
 	float factor = 1 / (ab.x * ac.y - ab.y * ac.x);
 	float s = (ac.x * pa.y - ac.y * pa.x) * factor;
-	float t = (ab.y * pa.x - ab.x * pa.y) * factor;
+	float t = -(ab.x * pa.y - ab.y * pa.x) * factor;
 	vec3_t weights = vec3_new(1 - s - t, s, t);
 	return weights;
 }

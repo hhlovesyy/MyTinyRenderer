@@ -1,0 +1,19 @@
+type: blinn
+
+materials 1:
+    material 0:
+        basecolor: 1 1 1 1
+        diffuse_map: combinePamu_diffuse.tga
+
+transforms 1:
+    transform 0:
+        1  0  0  0
+        0  1  0  0
+        0  0  1  0
+        0  0  0  1
+
+models 1:
+    model 0:
+        mesh: combinePamu.obj
+        material: 0
+        transform: 0

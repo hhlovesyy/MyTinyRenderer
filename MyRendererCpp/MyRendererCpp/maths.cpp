@@ -46,7 +46,7 @@ vec3_t vec3_new(float x, float y, float z)
     v.z = z;
     return v;
 }
-
+//返回一个vec2_t，其中的x和y分别取两个vec2_t的x和y的最小值
 vec2_t vec2_min(vec2_t a, vec2_t b)
 {
     float x = float_min(a.x, b.x);
