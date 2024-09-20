@@ -8,11 +8,13 @@
 
 屏幕上的图像是如何显示出来的呢？我们都知道，一块屏幕由像素点构成，那么从简单的问题说起：一个三角形，如何显示在由像素构成的屏幕中呢？
 
-<img src="D:\MRenderer\TinyRenderer\MyTinyRenderer\notes\assets\image-20240919172148912.png" alt="image-20240919172148912" style="zoom:67%;" />
+<img src="lesson1_三角形的光栅化.assets/image-20240919172148912.png" alt="image-20240919172148912" style="zoom:67%;" />
+
+
 
 假设我们此时要绘制一个纯色的三角形，我们是不是可以通过询问屏幕中每一个像素点，看它是否在三角形中，如果在，那么我们就为其涂上颜色，这样一来三角形就绘制出来了。
 
-<img src="D:\MRenderer\TinyRenderer\MyTinyRenderer\notes\assets\image-20240919172219463.png" alt="image-20240919172219463" style="zoom:67%;" />
+<img src="lesson1_三角形的光栅化.assets/image-20240919172219463.png" alt="image-20240919172219463" style="zoom:67%;" />
 
 （此时画一个图 一个网格+三角形，有多个过程/gif，一行一行问，不断打勾打叉，来渲染三角形）
 
@@ -44,7 +46,9 @@ $P=w*A+u*B+v*C$
 
 $w:u:v = S(PBC):S(PCA):S(PAB)$
 
-![image-20240919173325490](D:\MRenderer\TinyRenderer\MyTinyRenderer\notes\assets\image-20240919173325490.png)
+
+
+<img src="lesson1_三角形的光栅化.assets/image-20240919173325490.png" alt="image-20240919173325490" style="zoom:67%;" />
 
 
 
@@ -163,7 +167,7 @@ for (int i = 0; i < width; i++)
 
 实际上，我们并不需要在渲染每个三角形的时候遍历整个屏幕的所有像素，只需要找到包住三角形的所有像素遍历即可，这里就涉及到AABB求交的问题，可以用下面这张图形象的表现出来：
 
-![image-20240919174119877](D:\MRenderer\TinyRenderer\MyTinyRenderer\notes\assets\image-20240919174119877.png)
+![image-20240919174119877](lesson1_三角形的光栅化.assets/image-20240919174119877.png)
 
 也就是说，一个能想到的加速方法是只遍历上图当中绿色矩形的区域，也就是三角形的包围盒（AABB）
 
@@ -513,7 +517,7 @@ void rasterization_triangle(framebuffer_t* framebuffer)
 
 渲染得到的结果如下：
 
-<img src="./assets/image-20240803200333860.png" alt="image-20240803200333860" style="zoom:67%;" />
+![image-20240803200333860](lesson1_三角形的光栅化.assets/image-20240803200333860.png)
 
 至此，我们渲染出了第一个三角形！
 
@@ -525,7 +529,7 @@ void rasterization_triangle(framebuffer_t* framebuffer)
 
 上文已经讲解了AABB的作用,我们通过这个图来复习一下:
 
-![image-20240919174913857](D:\MRenderer\TinyRenderer\MyTinyRenderer\notes\assets\image-20240919174913857.png)
+![image-20240919174913857](lesson1_三角形的光栅化.assets/image-20240919174913857.png)
 
 我们求解时需要寻找包裹住这个三角形的最小的矩形区域,我们发现这个矩形区域的左下角,就是取三角形3个顶点中最小的x,然后再取出3个顶点中最小的y形成的.同理,右上角就是由三个顶点中的最大的x和最大的y坐标值构成
 
@@ -632,7 +636,7 @@ void draw_fragment(framebuffer_t* framebuffer, int index, vec4_t& color)
 
 【1】三角形的重心坐标在图形学中有很多应用，比方说我们拿到了重心坐标a，b，c，那么就可以通过重心坐标插值得到三角形内部某个像素的颜色。尝试对Github上的仓库代码进行修改，以实现下面的效果：
 
-<img src="./assets/image-20240803201843112.png" alt="image-20240803201843112" style="zoom:67%;" />
+![image-20240803201843112](lesson1_三角形的光栅化.assets/image-20240803201843112.png)
 
 【2】尝试绘制一个属于你的三角形，并让三角形沿着水平方向向右平移。提示：引入一个与时间有关的变量，你可以把代码写的不那么优雅（例如直接暴力设置一个全局变量），能够实现效果即可。
 
