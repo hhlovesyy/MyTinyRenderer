@@ -1,18 +1,419 @@
 # 课时2——空间变换
 
-**暂时先主要讲解实现，矩阵的推导放在真正做教程的时候再来做。**
-
-现在我们在屏幕上绘制出了第一个三角形，但这个三角形是静止的（也许你完成了上一课时的作业，但三角形依然变换的比较无聊）。通过这个课时的学习和实践，我们希望能够把这个三角形变得“立体化”，像是一个三维的三角形，并绘制属于我们的第一个箱子模型（一个box，从obj格式的文件中读取）
+现在我们在屏幕上绘制出了第一个三角形，但这个三角形是静止的（也许你完成了上一课时的作业，但三角形依然变换的比较无聊）。通过这个课时的学习和实践，我们希望能够把这个三角形变得“立体化”，像是一个三维的三角形，并绘制属于我们的第一个立方体
 
 > 注意：我们实现的是OpenGL标准，这就意味着都是矩阵乘向量这种形式，如果要对向量旋转，需要把旋转矩阵乘在左边。
 
 
 
-# 一、平移、旋转、缩放
+# 一、旋转、缩放、平移
 
-这里直接给出对应的矩阵链接，暂时不讲推导，等到真正需要教学的时候再推导。
+第一步，我们希望上一节课绘制出来的三角形能够旋转，缩放和平移。
 
-## （1）平移矩阵
+## （1）旋转矩阵
+
+如果此时我们需要让第一节课的三角形围绕着某个轴旋转，我们需要将其左乘一个旋转矩阵。
+
+#### 围绕Z轴旋转
+
+根据右手法则，$\overrightarrow{X} \times \overrightarrow{Y} = \overrightarrow{Z} $
+
+![image-20240920173917441](lesson2_空间变换.assets/image-20240920173917441.png)
+
+假设旋转矩阵为：
+$$
+\begin{bmatrix}a&b&0\\c&d&0\\0&0&1\end{bmatrix}
+$$
+旋转后的点可以由原来的点左乘旋转矩阵得到：
+$$
+\begin{bmatrix}X\\Y\\Z\end{bmatrix}=\begin{bmatrix}a&b&0\\c&d&0\\0&0&1\end{bmatrix}\begin{bmatrix}x\\y\\z\end{bmatrix}
+$$
+
+我们假设以下这个情景，有一个三角形围绕着Z轴旋转
+
+![image-20240920171318822](lesson2_空间变换.assets/image-20240920171318822.png)
+
+三角形中的点$(x,0,0)$旋转后成为点$(xcos\theta,xsin\theta,0)$
+$$
+\begin{bmatrix}
+xcos\theta\\xsin\theta\\0
+\end{bmatrix}=
+\begin{bmatrix}
+i&j&0\\k&l&0\\0&0&1
+\end{bmatrix}
+\begin{bmatrix}
+x\\0\\0
+\end{bmatrix}
+$$
+
+$$
+\begin{numcases}{}
+x*cos\theta = x*i \\
+x*sin\theta = x*k  \\
+\end{numcases}
+$$
+
+$$
+\begin{numcases}{}
+i= cos\theta \\
+k= sin\theta
+\end{numcases}
+$$
+
+
+
+三角形中的顶点$(0,y,0)$旋转后成为点$(-ysin\theta,ycos\theta,0)$
+$$
+\begin{bmatrix}-ysin\theta\\ycos\theta\\0\end{bmatrix}=\begin{bmatrix}i&j&0\\k&l&0\\0&0&1\end{bmatrix}\begin{bmatrix}0\\y\\0\end{bmatrix}
+$$
+
+$$
+\begin{numcases}{}
+-y*sin\theta = y*j \\
+y*cos\theta = y*l  \\
+\end{numcases}
+$$
+
+$$
+\begin{numcases}{}
+j= -sin\theta  \\
+l= cos\theta
+\end{numcases}
+$$
+
+因此我们得到绕着z轴旋转的旋转矩阵为：
+$$
+\begin{bmatrix}cos\theta&-sin\theta&0\\sin\theta&cos\theta&0\\0&0&1\end{bmatrix}
+$$
+
+#### 围绕X轴旋转
+
+根据右手法则，$\overrightarrow{Y} \times \overrightarrow{Z} = \overrightarrow{X} $
+
+![image-20240920174050986](lesson2_空间变换.assets/image-20240920174050986.png)
+
+参考上面的围绕Z轴旋转的旋转矩阵不难想出，如果是绕着x轴旋转，则
+$$
+\begin{bmatrix}Y\\Z\end{bmatrix}=
+\begin{bmatrix}
+	cos\theta&-sin\theta\\
+	sin\theta&cos\theta
+\end{bmatrix}
+\begin{bmatrix}y\\z\end{bmatrix}
+$$
+
+因此我们得到绕着x轴旋转的旋转矩阵为：
+
+$$
+\begin{bmatrix}X\\Y\\Z\end{bmatrix}=
+\begin{bmatrix}
+	1&0&0\\
+	0&cos\theta&-sin\theta\\
+	0&sin\theta&cos\theta
+\end{bmatrix}
+\begin{bmatrix}x\\y\\z\end{bmatrix}
+$$
+
+#### 围绕Y轴旋转
+
+![image-20240920174148413](lesson2_空间变换.assets/image-20240920174148413.png)
+
+如果是绕着y旋转，
+
+根据右手法则，$\overrightarrow{Z} \times \overrightarrow{X} = \overrightarrow{Y} $
+
+则
+
+
+$$
+\begin{bmatrix}Z\\X\end{bmatrix}=
+\begin{bmatrix}
+	cos\theta&-sin\theta\\
+	sin\theta&cos\theta
+\end{bmatrix}
+\begin{bmatrix}z\\x\end{bmatrix}
+$$
+但是我们在旋转矩阵中，z向x旋转 $\theta$ 角度 等价于x向z旋转 $-\theta$ 角度
+
+因此
+$$
+\begin{bmatrix}X\\Z\end{bmatrix}=
+\begin{bmatrix}
+	cos(-\theta)&-sin(-\theta)\\
+	sin(-\theta)&cos(-\theta)
+\end{bmatrix}
+\begin{bmatrix}X\\Z\end{bmatrix}
+$$
+
+$$
+\begin{bmatrix}X\\Z\end{bmatrix}=
+\begin{bmatrix}
+	cos\theta&sin\theta\\
+	-sin\theta&cos\theta
+\end{bmatrix}
+\begin{bmatrix}X\\Z\end{bmatrix}
+$$
+因此我们得到绕着y轴旋转的旋转矩阵为：
+$$
+\begin{bmatrix}X\\Y\\Z\end{bmatrix}=
+\begin{bmatrix}
+	cos\theta&0&sin\theta\\
+	0&1&0\\
+	-sin\theta&0&cos\theta
+\end{bmatrix}
+\begin{bmatrix}x\\y\\z\end{bmatrix}
+$$
+
+
+
+实践代码如下：
+
+```c++
+/*
+ * angle: 旋转角度，以弧度为单位
+ *
+ *  1  0  0  0
+ *  0  c -s  0
+ *  0  s  c  0
+ *  0  0  0  1
+ */
+mat4_t mat4_rotate_x(float angle) //传入的angle是弧度，意味着90度是PI/2.0
+{
+    float c = (float)cos(angle);
+    float s = (float)sin(angle);
+    mat4_t m = mat4_identity();
+    m.m[1][1] = c;
+    m.m[1][2] = -s;
+    m.m[2][1] = s;
+    m.m[2][2] = c;
+    return m;
+}
+
+/*
+ * angle: 旋转角度，以弧度为单位
+ *
+ *  c  0  s  0
+ *  0  1  0  0
+ * -s  0  c  0
+ *  0  0  0  1
+ */
+mat4_t mat4_rotate_y(float angle)
+{
+    float c = (float)cos(angle);
+    float s = (float)sin(angle);
+    mat4_t m = mat4_identity();
+    m.m[0][0] = c;
+    m.m[0][2] = s;
+    m.m[2][0] = -s;
+    m.m[2][2] = c;
+    return m;
+}
+
+/*
+ * angle: 旋转角度，以弧度为单位
+ *
+ *  c -s  0  0
+ *  s  c  0  0
+ *  0  0  1  0
+ *  0  0  0  1
+ */
+mat4_t mat4_rotate_z(float angle)
+{
+    float c = (float)cos(angle);
+    float s = (float)sin(angle);
+    mat4_t m = mat4_identity();
+    m.m[0][0] = c;
+    m.m[0][1] = -s;
+    m.m[1][0] = s;
+    m.m[1][1] = c;
+    return m;
+}
+```
+
+在提供的Github代码中，有测试绕着Z轴旋转的相关的测试函数，读者可以进行测试，查看旋转矩阵的执行效果。
+
+------
+
+
+
+####  绕任意轴旋转
+
+第一种情况是这个任意轴过原点，那么我们按照以下步骤操作
+
+（提一下不过原点情况）
+
+1. 将旋转轴P旋转至XOZ平面=>图中的R轴
+2. 将旋转轴旋转至于Z轴重合=>图中的T轴/Z轴
+3. 绕Z轴旋转θ度
+4. 执行步骤2的逆过程
+5. 执行步骤1的逆过程
+
+<img src="lesson2_空间变换.assets/image-20240923165436441.png" alt="image-20240923165436441" style="zoom:50%;" /><img src="lesson2_空间变换.assets/image-20240923165445546.png" alt="image-20240923165445546" style="zoom:50%;" />
+
+
+
+##### 绕X轴旋转，旋转至XOZ平面
+
+<img src="lesson2_空间变换.assets/image-20240922163504450.png" alt="image-20240922163504450" style="zoom:50%;" />
+
+假设P绕着X轴旋转$\alpha$得到R，我们将P投影到YOZ上得到P1点（0,b,c）,
+
+
+
+<img src="lesson2_空间变换.assets/image-20240922163521232.png" alt="image-20240922163521232" style="zoom:50%;" />
+
+<img src="lesson2_空间变换.assets/image-20240925133010417.png" alt="image-20240925133010417" style="zoom: 50%;" />
+
+<img src="lesson2_空间变换.assets/image-20240922161754636.png" alt="image-20240922161754636" style="zoom:50%;" />
+
+从图中不难看出，$cos\alpha =\frac{c}{\sqrt{b^2+c^2}}$,$sin\alpha =\frac{b}{\sqrt{b^2+c^2}}$
+
+根据一.1中”围绕X轴旋转“对应的公式，我们得到围绕X轴旋转的公式为
+
+$$Rx(\alpha)=\begin{bmatrix}1&0&0&0\\0&cos\alpha&-sin\alpha&0\\0&sin\alpha&cos\alpha&0\\0&0&0&1\end{bmatrix}=\begin{bmatrix}1&0&0&0\\0&\frac{c}{\sqrt{b^2+c^2}}&-\frac{b}{\sqrt{b^2+c^2}}&0\\0&\frac{b}{\sqrt{b^2+c^2}}&\frac{c}{\sqrt{b^2+c^2}}&0\\0&0&0&1\end{bmatrix}$$
+
+
+
+##### 绕Y轴旋转，旋转至与Z轴重合
+
+<img src="lesson2_空间变换.assets/image-20240922164421249.png" alt="image-20240922164421249" style="zoom: 67%;" />
+
+我们将R**绕Y轴旋转**至与Z轴重台，顺时针旋转的角度为$\beta$,则逆时针旋转角度为$-\beta$
+
+$$cos(-\beta)=cos\beta=\frac{\sqrt{b^{2}+c^{2}}}{\sqrt{a^{2}+b^{2}+c^{2}}},\quad sin(-\beta)=-sin\beta=-\frac{a}{\sqrt{a^{2}+b^{2}+c^{2}}}$$
+
+根据一.2中”围绕Y轴旋转“对应的公式，我们得到围绕Y轴旋转的公式为
+$$
+Ry(-\beta)=\begin{bmatrix}cos\beta&0&sin(-\beta)&0\\0&1&0&0\\-sin(-\beta)&0&cos\beta&0\\0&0&0&1\end{bmatrix}=\begin{bmatrix}\frac{\sqrt{b^2+c^2}}{\sqrt{a^2+b^2+c^2}}&0&-\frac{a}{\sqrt{a^2+b^2+c^2}}&0\\0&1&0&0\\\frac{a}{\sqrt{a^2+b^2+c^2}}&0&\frac{\sqrt{b^2+c^2}}{\sqrt{a^2+b^2+c^2}}&0\\0&0&0&1\end{bmatrix}
+$$
+
+
+##### 绕Z轴旋转
+
+根据一.1中”围绕Z轴旋转“对应的公式，我们得到围绕Z轴旋转的公式为
+$$
+Rx(\theta)=\begin{bmatrix}
+cos\theta&-sin\theta&0&0
+\\sin\theta&cos\theta&0&0
+\\0&0&1&0
+\\0&0&0&1
+\end{bmatrix}
+$$
+
+
+##### 整合
+
+我们按照步骤将以上的矩阵相乘(不断左乘),得到：
+
+$$M=R_{x}(-\alpha)\cdot R_{y}(\beta)\cdot R_{z}(\theta)\cdot R_{y}(-\beta)\cdot R_{x}(\alpha)$$
+
+即
+
+$$\begin{bmatrix}a^2+(1-a^2)cos\theta&ab(1-cos\theta)+csin\theta&ac(1-cos\theta)-bsin\theta&0\\ab(1-cos\theta)-csin\theta&b^2+(1-b^2)cos\theta&bc(1-cos\theta)+asin\theta&0\\ac(1-cos\theta)+bsin\theta&bc(1-cos\theta)-asin\theta&c^2+(1-c^2)cos\theta&0\\0&0&0&1\end{bmatrix}$$
+
+> 后续可以写一个作图工具 a.rotateTowarsds(axis, 60, 3).wait(2s).translate().wait()   
+
+## （2）缩放矩阵
+
+以原点为中心进行缩放
+
+<img src="lesson2_空间变换.assets/image-20240920180452302.png" alt="image-20240920180452302" style="zoom:67%;" /> <img src="lesson2_空间变换.assets/image-20240920180240567.png" alt="image-20240920180240567" style="zoom: 67%;" /><img src="lesson2_空间变换.assets/image-20240920180544509.png" alt="image-20240920180544509" style="zoom:67%;" />
+$$
+\begin{bmatrix}X\\Y\\Z\end{bmatrix}=
+\begin{bmatrix}
+	sx&0&0\\
+	0&sy&0\\
+	0&0&sz
+\end{bmatrix}
+\begin{bmatrix}x\\y\\z\end{bmatrix}
+$$
+
+
+```c++
+/*
+ * sx, sy, sz: scale factors along the x, y, and z axes, respectively
+ *
+ * sx  0  0  0
+ *  0 sy  0  0
+ *  0  0 sz  0
+ *  0  0  0  1
+ *
+ * see http://docs.gl/gl2/glScale
+ */
+mat4_t mat4_scale(float sx, float sy, float sz) 
+{
+    mat4_t m = mat4_identity();
+    assert(sx != 0 && sy != 0 && sz != 0);
+    m.m[0][0] = sx;
+    m.m[1][1] = sy;
+    m.m[2][2] = sz;
+    return m;
+}
+```
+
+
+
+## （3）平移矩阵
+
+![image-20240920110519766](lesson2_空间变换.assets/image-20240920110519766.png)
+
+将上图拓展到三维也是一样的，平移后的每个点
+$$
+\begin{numcases}{}
+X=x+dx
+\\
+Y=y+dy
+\\
+Z=z+dz
+\end{numcases}
+$$
+
+ 则
+$$
+\begin{bmatrix}
+X\\Y\\Z
+\end{bmatrix}=
+\begin{bmatrix}
+x\\y\\z
+\end{bmatrix}+
+\begin{bmatrix}dx\\dy\\dz
+\end{bmatrix}
+$$
+
+如何将以上公式表示为矩阵相乘的形式呢，我们发现是无法使用3×3的矩阵表示的，因此我们引入齐次坐标
+
+#### 齐次坐标
+
+在齐次坐标系统中，一个点不是通过常规的笛卡尔坐标（即非齐次坐标）来表示，而是通过添加一个额外的维度来表示。
+
+在二维空间中，一个点由三个坐标而不是两个来表示，形式为 (x, y, w)。
+在三维空间中，一个点由四个坐标来表示，形式为 (x, y, z, w)。
+
+**表示点**：当 `w` 为 1 时，表示普通点。
+
+**表示无穷远点/向量**：在齐次坐标系统中，可以用有限的坐标表示无穷远的点。当 `w` 为 0 时，表示的是无穷远的点。即对于向量来说w=0。
+
+
+
+回到如何表示平移矩阵的问题，此时我们使用齐次坐标就可以表示出平移矩阵了。
+$$
+\begin{bmatrix}X\\Y\\Z\\1\end{bmatrix}=
+\begin{bmatrix}
+1&0&0&dx
+\\0&1&0&dy
+\\0&0&1&dz
+\\0&0&0&1
+\end{bmatrix}
+
+\begin{bmatrix}x\\y\\z\\1\end{bmatrix}
+= 
+\begin{bmatrix}
+x+dx\\y+dy\\z+dz\\1
+\end{bmatrix}
+$$
+
+
+
 
 ```c++
 mat4_t mat4_translate(float tx, float ty, float tz)
@@ -44,7 +445,7 @@ void matrix_translate(vec2_t* abc)
 	abc[2] = vec2_new(c.x, c.y);
 }
 vec2_t abc[3] = { vec2_new(100 , 300), vec2_new(200 , 600), vec2_new(300, 100) };
-matrix_rotateZ(abc);
+matrix_translate(abc);
 ```
 
 修改之后再运行，可以看到三角形在屏幕上看到三角形平移运动。
@@ -53,134 +454,35 @@ matrix_rotateZ(abc);
 
 
 
-## （2）旋转矩阵
-
-```c++
-/*
- * angle: the angle of rotation, in radians
- *
- *  1  0  0  0
- *  0  c -s  0
- *  0  s  c  0
- *  0  0  0  1
- *
- * see http://www.songho.ca/opengl/gl_anglestoaxes.html
- */
-mat4_t mat4_rotate_x(float angle) //传入的angle是弧度，意味着90度是PI/2.0
-{
-    float c = (float)cos(angle);
-    float s = (float)sin(angle);
-    mat4_t m = mat4_identity();
-    m.m[1][1] = c;
-    m.m[1][2] = -s;
-    m.m[2][1] = s;
-    m.m[2][2] = c;
-    return m;
-}
-
-/*
- * angle: the angle of rotation, in radians
- *
- *  c  0  s  0
- *  0  1  0  0
- * -s  0  c  0
- *  0  0  0  1
- *
- * see http://www.songho.ca/opengl/gl_anglestoaxes.html
- */
-mat4_t mat4_rotate_y(float angle)
-{
-    float c = (float)cos(angle);
-    float s = (float)sin(angle);
-    mat4_t m = mat4_identity();
-    m.m[0][0] = c;
-    m.m[0][2] = s;
-    m.m[2][0] = -s;
-    m.m[2][2] = c;
-    return m;
-}
-
-/*
- * angle: the angle of rotation, in radians
- *
- *  c -s  0  0
- *  s  c  0  0
- *  0  0  1  0
- *  0  0  0  1
- *
- * see http://www.songho.ca/opengl/gl_anglestoaxes.html
- */
-mat4_t mat4_rotate_z(float angle)
-{
-    float c = (float)cos(angle);
-    float s = (float)sin(angle);
-    mat4_t m = mat4_identity();
-    m.m[0][0] = c;
-    m.m[0][1] = -s;
-    m.m[1][0] = s;
-    m.m[1][1] = c;
-    return m;
-}
-```
-
-在提供的Github代码中，有测试绕着Z轴旋转的相关的测试函数，读者可以进行测试，查看旋转矩阵的执行效果。
-
-------
-
-
-
-## （3）缩放矩阵
-
-```c++
-/*
- * sx, sy, sz: scale factors along the x, y, and z axes, respectively
- *
- * sx  0  0  0
- *  0 sy  0  0
- *  0  0 sz  0
- *  0  0  0  1
- *
- * see http://docs.gl/gl2/glScale
- */
-mat4_t mat4_scale(float sx, float sy, float sz) 
-{
-    mat4_t m = mat4_identity();
-    assert(sx != 0 && sy != 0 && sz != 0);
-    m.m[0][0] = sx;
-    m.m[1][1] = sy;
-    m.m[2][2] = sz;
-    return m;
-}
-```
-
-
-
-## （4）绕着任意轴旋转
-
-这里有一个罗德里格斯公式，有兴趣的话可以了解一下，根据https://docs.gl/gl2/glRotate即OpenGL的官方文档，这个矩阵如下：
-
-![image-20240805105211180](./assets/image-20240805105211180.png)
-
-这里的c指的是cos（angle）， s指的是sin（angle），xyz则是归一化的向量（意味着||x，y，z||==1）。读者可以在`mat4_t mat4_rotate(float angle, float vx, float vy, float vz)`这个函数中找到对应的实现。
-
-
-
-------
-
-
-
 # 二、空间变换
+
+现在，我们的三角形能够实现平移、旋转和缩放了，于是我们可以思考，能否不仅仅是绘制二维的图形，而是进一步绘制出三维的图形比如立方体呢？
+
+在屏幕中绘制立方体的某个视角图像，就类似于拍一张照片的过程。首先，我们需要拜访场景，比如将立方体等物体摆放到相应的位置，接下来摆放照相机的位置，并确定这个照相机该往哪里去看，比如朝着立方体去看。按下快门后，我们要根据镜头来裁剪场景，最终形成一张照片，显示出了立方体的某一个角度的照片。
+
+![image-20240923214303697](lesson2_空间变换.assets/image-20240923214303697.png)
 
 在图形学的管线中，需要经过模型空间->世界空间->相机空间->裁剪空间->屏幕空间的过程，读者可以在test_space_transform这个文件中找到对应这几个空间变换的函数。
 
+![image-20240925151034757](lesson2_空间变换.assets/image-20240925151034757.png)
+
 ## 1.模型空间->世界空间
+
+(看入门精要将三个轴竖着放那个讲解)TODO：
+
+假设此时我们要渲染世界中的一个三角形，我们首先要找到这个三角形在这个世界上什么位置呢？它相对于世界的中心有多远？因此我们需要把它从模型空间转到世界空间。
 
 > 模型空间转世界空间，对应矩阵为世界空间下模型空间XYZ三个轴竖着放。
 
 首先我们定义一下要渲染的三角形的三个顶点的坐标，因为这里要做空间变换因此此时定义的坐标是三维的，比如下面的这个例子：
 
 ```c++
-vec3_t abc_3d[3] = { vec3_new(-0.2, 0.3, 0.2), vec3_new(0.2, 0.6, -0.2), vec3_new(0.3, 0.1, 0) };
+vec3_t abc_3d[3] = 
+{ 
+    vec3_new(-0.2, 0.3, 0.2), 
+    vec3_new(0.2, 0.6, -0.2), 
+    vec3_new(0.3, 0.1, 0) 
+};
 ```
 
 这里接下来需要左乘的是model矩阵，将三角形转到世界空间，这里我们可以先跳过这个矩阵（因为我们只有一个三角形），在后面载入属于我们的obj模型的时候会继续完善这个函数；
@@ -189,7 +491,67 @@ vec3_t abc_3d[3] = { vec3_new(-0.2, 0.3, 0.2), vec3_new(0.2, 0.6, -0.2), vec3_ne
 
 ## 2.世界空间->相机空间
 
-一般定义相机位姿的时候，需要提供一个相机的camera_position（对应下图的向量e）和相机看向的物体的中心方向，即look_at方向（对应下图的向量g），
+提供绿皮子算计图形学P27那个图
+
+​	放置完场景中的物体，接下来我们需要放置照相机的位置，并确定这个照相机该往哪里去看。要决定照相机“往哪里去看”这件事，也就是说我们需要知道相机此时的朝向，即相机的向上，向右和向前方向分别是哪三个向量。
+
+![image-20240924170551037](lesson2_空间变换.assets/image-20240924170551037.png)
+
+​	我们首先在世界坐标中选择一个位置$P_0=(x_0,y_0,z_0)$作为相机位置。将相机看向的物体的中心方向，作为向前方向$\overrightarrow{f}$。并且我们在一开始假设相机的向上方向是平行于Y轴的方向$\overrightarrow{u} = (0,1,0)$.那么根据相机的向上，向右和向前方向应该相互垂直，我们得到相机的向右方向 $\overrightarrow{r} = \overrightarrow{f} \times \overrightarrow{u}$
+
+​	此时，只保证了r与f垂直以及r与u垂直，还不能保证f与u垂直，所以我们来修正一下u ，让新的 $\overrightarrow{u} = \overrightarrow{r} \times \overrightarrow{f}$   
+
+​	这样一来，我们得到了相机位置和相机的向前方向f，向右方向r，和向上方向u，得到了相机空间/观察空间的坐标系。接下来我们就要拍照了，需要将相机移动到原点的位置，
+
+
+
+将观察坐标系原点移动到世界坐标系原点的平移变换矩阵是：
+$$
+T=
+\begin{bmatrix}
+1&0&0&-x_0
+\\0&1&0&-y_0
+\\0&0&1&-z_0
+\\0&0&0&1
+\end{bmatrix}
+$$
+我们希望将相机坐标旋转到与世界空间坐标系重合，让相机向上方向u与世界空间y轴重合，向右方向与世界坐标x轴重合，但是要注意的是，向前方向是与世界坐标的-z方向重合。将观察坐标系旋转到与世界坐标系三个轴重合的组合旋转变换矩阵是R：??
+$$
+R^{-1}=
+\begin{bmatrix}
+r_x&u_x&-f_x&0\\
+r_y&u_y&-f_y&0\\
+r_z&u_z&-f_z&0\\
+0&0&0&1
+\end{bmatrix}
+$$
+转置
+
+$$
+R=
+\begin{bmatrix}
+r_x&r_y&r_z&0\\
+u_x&u_y&u_z&0\\
+-f_x&-f_y&-f_z&0\\
+0&0&0&1
+\end{bmatrix}
+$$
+
+将平移矩阵和旋转矩阵乘起来，获得最终的坐标变换矩阵 RT ??([[]【书上和这里不一样 后面看看】])
+$$
+R\cdot  T=
+\begin{bmatrix}
+r_x&r_y&r_z&-x_0\\
+u_x&u_y&u_z&-y_0\\
+-f_x&-f_y&-f_z&-z_0\\
+0&0&0&1
+\end{bmatrix}
+$$
+
+
+
+
+（做出类似下图）
 
 ![image-20240805112249746](./assets/image-20240805112249746.png)
 
@@ -268,9 +630,64 @@ mat4_t camera_get_view_matrix(Camera& camera)
 
 ## 3.相机空间->裁剪空间
 
-这一步往往需要经过投影变换，这里包括正交投影和透视投影。同样地，我们暂时不做矩阵的推导（后面应该会做补充，读者感兴趣可以自己先去看下推导），而是直接给出这两种矩阵。
+经过上面的步骤，我们的眼睛已经对准了相机，可以按下快门，将场景记录在照片上了。这就是说，这一阶段我们需要将物体投影到观察平面上，可以通过正交投影和透视投影等的方式进行。
+
+（类似下图的图画一个 就是下图的正方体是照相机可见的渲染的场景区域）
+
+![image-20240924172339675](lesson2_空间变换.assets/image-20240924172339675.png)
+
+
+
+
+
+
 
 ### （1）正交投影矩阵：
+
+#### 裁剪窗口
+
+不同的镜头类型决定了相片中能看到场景的多少，比如广角镜头就能看到更多的场景信息。正交相机能看到的三维区域可以用一个立方体框起来，立方体中的物体就是相机能看到的，立方体外的物体就是相机看不到的。而这个立方体中的场景信息会被投影到裁剪窗口，对应被相机洗出照片。
+
+这个立方体我们称为正交投影观察体。
+
+![image-20240924173924958](lesson2_空间变换.assets/image-20240924173924958.png)
+
+对于任意一个点$(x,y,z)$,它进行正交投影变换后等于$(x',y',z')$，其中$x$与$y$是不会改变的，等于$(x,y,z')$。
+
+（做一个类似以上的图）
+
+我们还需要将正交投影观察体规范化，让x,y,z 的范围规范到-1到1.
+
+如下图所示，正交投影观察体中的点（xmin，ymin，znear）规范化后成为点（-1，-1，-1），点（xmax，ymax，zfar）规范化后成为点（1，1，1）
+
+![image-20240924174219922](lesson2_空间变换.assets/image-20240924174219922.png)
+
+（做一个类似以上的图）
+
+图中我们很明显能够知道，正交投影的规范化变化首先使用平移矩阵将正交投影观察体平移到原点，接着使用缩放矩阵将观察体规范化到-1到1之间。????[]
+$$
+\mathbf{M_{ortho}}=\mathbf{R\cdot T}=
+ \begin{bmatrix} 
+ \frac{2}{r - l} & 0 & 0 & 0 \\
+ 0 & \frac{2}{t - b} & 0 & 0 \\
+ 0 & 0 & -\frac{2}{ f-n} & 0 \\
+ 0 & 0 & 0 & 1 \\
+ \end{bmatrix} 
+ \begin{bmatrix} 
+ 1 & 0 & 0 & -\frac{r + l}{2} \\
+ 0 & 1 & 0 & -\frac{t + b}{2} \\
+ 0 & 0 & 1 & -\frac{n + f}{2} \\ 
+ 0 & 0 & 0 & 1 \\ 
+ \end{bmatrix}
+ =
+  \begin{bmatrix} 
+ \frac{2}{r - l} & 0 & 0 & -\frac{r + l}{r - l} \\
+ 0 & \frac{2}{t - b} & 0 & -\frac{t + b}{t - b} \\
+ 0 & 0 & -\frac{2}{ f-n} & \frac{n + f}{f-n} \\ 
+ 0 & 0 & 0 & 1 \\
+ \end{bmatrix} 
+$$
+（上下和图统一一下）
 
 ```c++
 /*
@@ -311,6 +728,8 @@ mat4_t mat4_ortho(float left, float right, float bottom, float top,
 
 这一版其实就是上一部分的简化版本。因为很多时候我们的投影矩阵有如下规律：left=-right，bottom=-top，因此可以对矩阵进行简化：
 
+
+
 ```c++
 /*
  * right: the coordinates for the right clipping planes (left == -right)
@@ -348,6 +767,92 @@ mat4_t mat4_orthographic(float right, float top, float near, float far) {
 
 
 ### （3）透视投影矩阵
+
+真实世界中，我们看到的东西实际上会符合近大远小的特点，是透视投影而不是正交投影。
+
+![image-20240924194419132](lesson2_空间变换.assets/image-20240924194419132.png)
+
+在透视投影中，观察体就不再是立方体而是棱台。
+
+透视投影可以拆分为两个子步骤，第一步，先将观察体棱台压缩到一个立方体内，第二步，将立方体做一次正交投影。
+
+![image-20240924200018476](lesson2_空间变换.assets/image-20240924200018476.png)
+
+
+
+在这个压缩过程中，我们规定：
+
+1. 近平面上的点经过压缩后坐标不会变
+2. 远平面上的点的 z 坐标不会随着压缩而变化
+3. 压缩后原来远平面的中心依然是中心
+
+
+
+我们从压缩前的棱台观察体中随机取一个点$A(x,y,z)$,将它与相机连线，与近平面相交于$C(x',y',n)$这个点上。由于进行正交投影变换后$x'$与$y'$是不会改变的，因此点A压缩后对应的点$B(x',y',z')$的$x'$与$y'$与C是一致的。
+
+换言之，点A对应到压缩后的立方体中是点$B(x',y',z')$，在立方体中，我们将点B进行正交投影，投影到近平面上，进行正交投影变换后$x'$与$y'$是不会改变的，得到点$C(x',y',n)$。
+
+则由相似三角形我们计算出压缩后的x'和y'值，但是我们注意到，此时我们是还需要得到压缩后的z'
+$$
+y^\prime = \frac{z}{n}y \space\space\space\space\space\space\space\space\space\space\space\space x^\prime = \frac{z}{n}x
+$$
+
+
+![image-20240924215913830](lesson2_空间变换.assets/image-20240924215913830.png)
+
+因此，对于棱台观察体中的每一个点，我们做成M矩阵，可以将其压缩变换为立方体中的点，符合如下计算：
+
+（下面这几个拆开（或者写清楚哪个是压缩后哪个是之前））
+$$
+M\begin{bmatrix} x \\ y \\ z \\ 1 \\ \end{bmatrix}=
+\begin{bmatrix} \frac{nx}{z} \\  \frac{ny}{z}\\ p \\ 1 \\ \end{bmatrix} = 
+\begin{bmatrix} nx \\ ny \\ q \\ z \\ \end{bmatrix} = 
+\begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ a & b & c & d \\ 0 & 0 & 1 & 0 \\ \end{bmatrix} \begin{bmatrix} x \\ y \\ z \\ 1 \\ \end{bmatrix}
+$$
+根据压缩过程中的第一条规定：近平面上的点经过压缩后坐标不会变。而近平面中所有点的z为n，我们将z=n带入以上式子得到：
+$$
+M\begin{bmatrix} x \\ y \\ n \\ 1 \\ \end{bmatrix}=
+\begin{bmatrix} nx \\ ny \\ n^2 \\ n \\ \end{bmatrix} = 
+\begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ a & b & c & d \\ 0 & 0 & 1 & 0 \\ \end{bmatrix} \begin{bmatrix} x \\ y \\ n \\ 1 \\ \end{bmatrix}=
+\begin{bmatrix} nx \\ ny \\ ax + by + cn +d  \\ n \\ \end{bmatrix}
+$$
+即 $ax + by + cn +d = n^2$,由于$n^2$与x与y变量都无关，因此$a=0,b=0$，因此我们得到：
+$$
+cn +d = n^2
+$$
+根据压缩过程中的第三条规定：压缩后原来远平面的中心依然是中心+第二
+$$
+M\begin{bmatrix} 0 \\ 0 \\ f \\ 1 \\ \end{bmatrix}=
+\begin{bmatrix} 0 \\ 0 \\ f \\ 1 \\ \end{bmatrix} = 
+\begin{bmatrix} 0 \\ 0 \\ f^2 \\ f \\ \end{bmatrix} = 
+\begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ 0 & 0 & c & d \\ 0 & 0 & 1 & 0 \\ \end{bmatrix} \begin{bmatrix} 0 \\ 0 \\ f \\ 1 \\ \end{bmatrix}=
+\begin{bmatrix} 0 \\ 0 \\ cf +d  \\ f\\ \end{bmatrix}
+$$
+因此我们得到：
+$$
+cf +d = nf
+$$
+联立得到：
+
+
+$$
+\begin{numcases}{}
+cn +d = n^2\\
+cf +d = f^2
+\end{numcases}
+$$
+解得：
+$$
+\begin{numcases}{}
+c = n+f\\
+d = -nf
+\end{numcases}
+$$
+至此，我们得到将观察体棱台压缩到一个立方体内的变换为
+$$
+M = \begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ 0 & 0 & n+f & -nf \\ 0 & 0 & 1 & 0 \\ \end{bmatrix}
+$$
+
 
 参考https://docs.gl/gl2/glFrustum这里的实现，在透视投影中，我们依然沿袭之前的near和far都是>0，且near的绝对值<far的绝对值的传统，构建透视投影矩阵如下：
 
@@ -389,7 +894,17 @@ mat4_t mat4_frustum(float left, float right, float bottom, float top,
 
 ### （4）透视投影矩阵——Perspective
 
-在刚才我们有提及到相机类有一个参数是`float aspect;`，这个是相机画幅的长宽比。实际上，往往还有一个FOV参数（了解摄影的朋友应该很熟悉）。下图很好地揭示了Aspect参数，FOV参数与刚才那个透视投影矩阵的参数时间的关系（图来自https://www.songho.ca/opengl/gl_projectionmatrix.html#google_vignette）：
+
+
+在刚才我们有提及到相机类有一个参数是`float aspect;`，这个是相机画幅的长宽比$\frac{width}{height}$。实际上，往往还有一个FOV参数（了解摄影的朋友应该很熟悉）,在公式中我们将竖直方向的FOV表示为$\theta$。下图很好地揭示了Aspect参数，FOV参数与刚才上面的透视投影矩阵的参数的关系（图来自https://www.songho.ca/opengl/gl_projectionmatrix.html#google_vignette）：
+$$
+\frac{top}{near} = tan(\frac{\theta}{2}) \\ 
+top = tan(\frac{\theta}{2})\cdot near\\
+right = top \cdot \frac{width}{height} = top \cdot aspect
+$$
+将这些带入以上
+
+画一个类似下图
 
 ![image-20240805115949813](./assets/image-20240805115949813.png)
 
@@ -464,7 +979,7 @@ mat4_t camera_get_proj_matrix(Camera& camera)
 
 ## 4.透视除法+视口映射
 
-经过透视投影之后，我们的点的齐次坐标（xyzw）中的w就有了数值，接下来我们需要对其进行透视除法，具体的代码如下：
+经过透视投影之后，我们的点的齐次坐标（xyzw）中的w就有了数值而不再是1，接下来我们需要对其进行透视除法（同除w），具体的代码如下：
 
 ```c++
 vec4_t clip_abc[3];
@@ -483,6 +998,8 @@ for (int i = 0; i < 3; i++)
 > **请注意！！这里有不少细节还没有处理好，但为了让读者能够很好地看到不错地效果，就先这样写着。**
 
 接下来就是映射到视口了，这个函数这样写：
+
+我们之所有要保留z是为了后续的深度测试等操作，需要保留深度值。
 
 ```c++
 /*
@@ -624,7 +1141,7 @@ void space_transform(framebuffer_t* framebuffer)
 
 		for (int i = 0; i < 3; i++)
 		{
-			clip_abc[i] = mat4_mul_vec4(proj_matrix, mat4_mul_vec4(view_matrix, vec4_from_vec3(abc_3d[i], 1)));
+			clip_abc[i] = mat4_mul_vec4(proj_matrix, mat4_mul_vec4(view_matrix, vec4_from_vec3(abc_3d[i], 1)));//透视投影
 			vec3_t clip_coord = vec3_from_vec4(clip_abc[i]);
 			ndc_coords[i] = vec3_div(clip_coord, clip_abc[i].w);  //这一步是做透视除法
 			vec3_t window_coord = viewport_transform(width, height, ndc_coords[i]); //这一步是做视口变换
@@ -632,6 +1149,7 @@ void space_transform(framebuffer_t* framebuffer)
 			screen_depths[i] = window_coord.z;
 		}
 
+        //将当前这个三角形绘制到屏幕上
 		bbox_t bbox = find_bounding_box(screen_coords, width, height);
 		//random 0-1 color
 		vec4_t color1{ (float)rand() / RAND_MAX, (float)rand() / RAND_MAX, (float)rand() / RAND_MAX, 1 }; //注：会有一点闪，这是为了能够看清立体感，不然都是纯色的
