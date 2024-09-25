@@ -658,40 +658,15 @@ mat4_t camera_get_view_matrix(Camera& camera)
 
 我们还需要将正交投影观察体规范化，让x,y,z 的范围规范到-1到1.
 
-如下图所示，正交投影观察体中的点（xmin，ymin，znear）/（left，bottom，near）规范化后成为点（-1，-1，-1），点（xmax，ymax，zfar）规范化后成为点（1，1，1）
+如下图所示，正交投影观察体中的点（xmin，ymin，-znear）/（left，bottom，-near）规范化后成为点（-1，-1，-1），点（xmax，ymax，-zfar）规范化后成为点（1，1，1）
 
 ![image-20240924174219922](lesson2_空间变换.assets/image-20240924174219922.png)
 
 （做一个类似以上的图）
 
-图中我们很明显能够知道，正交投影的规范化变化首先使用平移矩阵将正交投影观察体平移到原点，接着使用缩放矩阵将观察体规范化到-1到1之间。????[]
+图中我们很明显能够知道，正交投影的规范化变化首先使用平移矩阵将正交投影观察体平移到原点，接着使用缩放矩阵将观察体规范化到-1到1之间。
 
-需要注意的是，此时的n和f都是小于0的，$ \frac{2}{ f-n}$是负数，我们要进行缩放的话需要将其乘-1成为正数才能作为缩放系数。
-
-![image-20240925170219653](lesson2_空间变换.assets/image-20240925170219653.png)
-$$
-\mathbf{M_{ortho}}=\mathbf{R\cdot T}=
- \begin{bmatrix} 
- \frac{2}{r - l} & 0 & 0 & 0 \\
- 0 & \frac{2}{t - b} & 0 & 0 \\
- 0 & 0 & -\frac{2}{ f-n} & 0 \\
- 0 & 0 & 0 & 1 \\
- \end{bmatrix} 
- \begin{bmatrix} 
- 1 & 0 & 0 & -\frac{r + l}{2} \\
- 0 & 1 & 0 & -\frac{t + b}{2} \\
- 0 & 0 & 1 & -\frac{n + f}{2} \\ 
- 0 & 0 & 0 & 1 \\ 
- \end{bmatrix}
- =
-  \begin{bmatrix} 
- \frac{2}{r - l} & 0 & 0 & -\frac{r + l}{r - l} \\
- 0 & \frac{2}{t - b} & 0 & -\frac{t + b}{t - b} \\
- 0 & 0 & -\frac{2}{ f-n} & \frac{n + f}{f-n} \\ 
- 0 & 0 & 0 & 1 \\
- \end{bmatrix}
-$$
-因此，也有的规定会假设正交投影观察体的点为（left，bottom，-near），注意这里的负号，即规定near为正，那么缩放系数$ \frac{2}{ f-n}$就不再需要乘负号。则此时右手系坐标系下正交投影矩阵写为：
+我们规定正交投影观察体的点为（left，bottom，-near），注意这里的负号，即规定near为正，那么缩放系数$ \frac{2}{ f-n}$就不需要乘负号（有的规定会使n，f为负数，那么就需要负号，请注意甄别）。则此时右手系坐标系下正交投影矩阵写为：
 $$
 \mathbf{M_{ortho}}=\mathbf{R\cdot T}=
  \begin{bmatrix} 
@@ -752,8 +727,6 @@ $$
 $$
 
 
-（上下和图统一一下）
-
 
 
 ```c++
@@ -796,32 +769,7 @@ mat4_t mat4_ortho(float left, float right, float bottom, float top,
 
 这一版其实就是上一部分的简化版本。因为很多时候我们的投影矩阵有如下规律：left=-right，bottom=-top，因此可以对矩阵进行简化：
 
-
-$$
-\mathbf{M_{ortho}}
- =
-  \begin{bmatrix} 
- \frac{2}{r - l} & 0 & 0 & -\frac{r + l}{r - l} \\
- 0 & \frac{2}{t - b} & 0 & -\frac{t + b}{t - b} \\
- 0 & 0 & -\frac{2}{ f-n} & \frac{n + f}{f-n} \\ 
- 0 & 0 & 0 & 1 \\
- \end{bmatrix}
-  =
-  \begin{bmatrix} 
- \frac{2}{r - (-r)} & 0 & 0 & -\frac{r -r}{r - (-r)} \\
- 0 & \frac{2}{t - (-t)} & 0 & -\frac{t + b}{t - (-t)} \\
- 0 & 0 & -\frac{2}{ f-n} & \frac{n + f}{f-n} \\ 
- 0 & 0 & 0 & 1 \\
- \end{bmatrix}
-   =
-  \begin{bmatrix} 
- \frac{1}{r} & 0 & 0 & 0 \\
- 0 & \frac{1}{t} & 0 & 0 \\
- 0 & 0 & -\frac{2}{ f-n} & \frac{n + f}{f-n} \\ 
- 0 & 0 & 0 & 1 \\
- \end{bmatrix}
-$$
-如果假设near和far为正数，即假设正交投影观察体的点的为（left，bottom，-near），则写成：
+注意near和far为正数，即假设正交投影观察体的点的为（left，bottom，-near）
 $$
 \mathbf{M_{ortho}}
  =
@@ -908,141 +856,101 @@ mat4_t mat4_orthographic(float right, float top, float near, float far) {
 
 
 
-我们从压缩前的棱台观察体中随机取一个点$A(x,y,z)$,将它与相机连线，与近平面相交于$C(x',y',n)$这个点上。由于进行正交投影变换后$x'$与$y'$是不会改变的，因此点A压缩后对应的点$B(x',y',z')$的$x'$与$y'$与C是一致的。
 
-换言之，点A对应到压缩后的立方体中是点$B(x',y',z')$，在立方体中，我们将点B进行正交投影，投影到近平面上，进行正交投影变换后$x'$与$y'$是不会改变的，得到点$C(x',y',n)$。
+
+我们从压缩前的棱台观察体中随机取一个点$A(x,y,z)$,将它与相机连线，与近平面相交于$C(x',y',-n)$这个点上(在前面，我们规定n与f是正数)。由于进行正交投影变换后$x'$与$y'$是不会改变的，因此点A压缩后对应的点$B(x',y',z')$的$x'$与$y'$与C是一致的。
+
+换言之，点A对应到压缩后的立方体中是点$B(x',y',z')$，在立方体中，我们将点B进行正交投影，投影到近平面上，进行正交投影变换后$x'$与$y'$是不会改变的，得到点$C(x',y',-n)$。
 
 则由相似三角形我们计算出压缩后的x'和y'值，但是我们注意到，此时我们是还需要得到压缩后的z'
 $$
-y^\prime = \frac{z}{n}y \space\space\space\space\space\space\space\space\space\space\space\space x^\prime = \frac{z}{n}x
+y^\prime = -\frac{z}{n}y 
+\space\space\space\space\space\space\space\space\space\space\space\space 
+x^\prime = -\frac{z}{n}x
 $$
 
 
 ![image-20240924215913830](lesson2_空间变换.assets/image-20240924215913830.png)
 
-因此，对于棱台观察体中的每一个点A$\begin{bmatrix} x \\ y \\ z \\ 1 \\ \end{bmatrix}$，我们左乘M矩阵，可以将其压缩变换为立方体中的点B$\begin{bmatrix} \frac{nx}{z} \\  \frac{ny}{z}\\ p \\ 1 \\ \end{bmatrix}$，符合如下计算(z'是未知量)：
+因此，对于棱台观察体中的每一个点A$\begin{bmatrix} x \\ y \\ z \\ 1 \\ \end{bmatrix}$，我们左乘M矩阵，可以将其压缩变换为立方体中的点B$\begin{bmatrix} -\frac{nx}{z} \\  -\frac{ny}{z}\\ p \\ 1 \\ \end{bmatrix}$，符合如下计算(z'是未知量)：
 $$
 M\begin{bmatrix} x \\ y \\ z \\ 1 \\ \end{bmatrix}=
-\begin{bmatrix} \frac{nx}{z} \\  \frac{ny}{z}\\ z' \\ 1 \\ \end{bmatrix}
+\begin{bmatrix} -\frac{nx}{z} \\  -\frac{ny}{z}\\ z' \\ 1 \\ \end{bmatrix}
 $$
-将点B每个分量同时乘z，仍然代表点B(z''是未知量)：
+将点B每个分量同时乘（-z），仍然代表点B(z''是未知量)：
 $$
 \begin{bmatrix} \frac{nx}{z} \\  \frac{ny}{z}\\ z' \\ 1 \\ \end{bmatrix} = 
-\begin{bmatrix} nx \\ ny \\ z'' \\ z \\ \end{bmatrix}
+\begin{bmatrix} nx \\ ny \\ z'' \\ -z \\ \end{bmatrix}
 $$
 将M写成4*4矩阵形式，即：
 $$
 M\begin{bmatrix} x \\ y \\ z \\ 1 \\ \end{bmatrix}=
-\begin{bmatrix} \frac{nx}{z} \\  \frac{ny}{z}\\ z' \\ 1 \\ \end{bmatrix} = 
-\begin{bmatrix} nx \\ ny \\ z'' \\ z \\ \end{bmatrix} = 
-\begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ a & b & c & d \\ 0 & 0 & 1 & 0 \\ \end{bmatrix} \begin{bmatrix} x \\ y \\ z \\ 1 \\ \end{bmatrix}
+\begin{bmatrix} -\frac{nx}{z} \\  -\frac{ny}{z}\\ z' \\ 1 \\ \end{bmatrix} = 
+\begin{bmatrix} nx \\ ny \\ z'' \\ -z \\ \end{bmatrix} = 
+\begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ a & b & c & d \\ 0 & 0 & -1 & 0 \\ \end{bmatrix} \begin{bmatrix} x \\ y \\ z \\ 1 \\ \end{bmatrix}
 $$
 ##### 近平面点坐标不变
 
-根据压缩过程中的第一条规定：近平面上的点经过压缩后坐标不会变。而近平面中所有点的$z=n$，此时的变换后对应立方体中的点为
+根据压缩过程中的第一条规定：近平面上的点经过压缩后坐标不会变。而近平面中所有点的$z=-n$，此时的变换后对应立方体中的点为
 $$
-\begin{bmatrix} \frac{nx}{z} \\  \frac{ny}{z}\\ z' \\ 1 \\ \end{bmatrix}
-\overset{n=z}{=} 
-\begin{bmatrix} \frac{nx}{n} \\  \frac{ny}{n}\\ n \\ 1 \\ \end{bmatrix}
+\begin{bmatrix} -\frac{nx}{z} \\  -\frac{ny}{z}\\ z' \\ 1 \\ \end{bmatrix}
+\overset{z=-n}{=} 
+\begin{bmatrix} \frac{nx}{n} \\  \frac{ny}{n}\\ -n \\ 1 \\ \end{bmatrix}
 \overset{\cdot n}{=}
-\begin{bmatrix} nx \\ ny \\ n^2 \\ n \\ \end{bmatrix}
+\begin{bmatrix} nx \\ ny \\ -n^2 \\ n \\ \end{bmatrix}
 $$
 
 因此：
 $$
-M\begin{bmatrix} x \\ y \\ n \\ 1 \\ \end{bmatrix}=
-\begin{bmatrix} nx \\ ny \\ n^2 \\ n \\ \end{bmatrix} = 
-\begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ a & b & c & d \\ 0 & 0 & 1 & 0 \\ \end{bmatrix} \begin{bmatrix} x \\ y \\ n \\ 1 \\ \end{bmatrix}=
-\begin{bmatrix} nx \\ ny \\ ax + by + cn +d  \\ n \\ \end{bmatrix}
+M\begin{bmatrix} x \\ y \\ -n \\ 1 \\ \end{bmatrix}=
+\begin{bmatrix} nx \\ ny \\ -n^2 \\ n \\ \end{bmatrix} = 
+\begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ a & b & c & d \\ 0 & 0 & -1 & 0 \\ \end{bmatrix} \begin{bmatrix} x \\ y \\ -n \\ 1 \\ \end{bmatrix}=
+\begin{bmatrix} nx \\ ny \\ ax + by - cn +d  \\ n \\ \end{bmatrix}
 $$
 即 $ax + by + cn +d = n^2$,由于$n^2$与x与y变量都无关，因此$a=0,b=0$，我们得到：
 $$
-cn +d = n^2
+-cn +d = -n^2
 $$
 ##### 远平面中心点坐标不变
 
-根据压缩过程中的第三条规定：压缩后原来远平面的中心点依然是中心点$\begin{bmatrix} 0 \\ 0 \\ f \\ 1 \\ \end{bmatrix}$
+根据压缩过程中的第三条规定：压缩后原来远平面的中心点依然是中心点$\begin{bmatrix} 0 \\ 0 \\ -f \\ 1 \\ \end{bmatrix}$
 $$
-M\begin{bmatrix} 0 \\ 0 \\ f \\ 1 \\ \end{bmatrix}=
-\begin{bmatrix} 0 \\ 0 \\ f \\ 1 \\ \end{bmatrix} \overset{\cdot f}{=}
-\begin{bmatrix} 0 \\ 0 \\ f^2 \\ f \\ \end{bmatrix} = 
-\begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ 0 & 0 & c & d \\ 0 & 0 & 1 & 0 \\ \end{bmatrix} \begin{bmatrix} 0 \\ 0 \\ f \\ 1 \\ \end{bmatrix}=
-\begin{bmatrix} 0 \\ 0 \\ cf +d  \\ f\\ \end{bmatrix}
+M\begin{bmatrix} 0 \\ 0 \\ -f \\ 1 \\ \end{bmatrix}=
+\begin{bmatrix} 0 \\ 0 \\ -f \\ 1 \\ \end{bmatrix} \overset{\cdot f}{=}
+\begin{bmatrix} 0 \\ 0 \\ -f^2 \\ f \\ \end{bmatrix} = 
+\begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ 0 & 0 & c & d \\ 0 & 0 & -1 & 0 \\ \end{bmatrix} \begin{bmatrix} 0 \\ 0 \\ -f \\ 1 \\ \end{bmatrix}=
+\begin{bmatrix} 0 \\ 0 \\ -cf +d  \\ f\\ \end{bmatrix}
 $$
 因此我们得到：
 $$
-cf +d = nf
+-cf +d = f^2
 $$
 联立得到：
 
 
 $$
 \begin{numcases}{}
-cn +d = n^2\\
-cf +d = f^2
+-cn +d = -n^2\\
+-cf +d = -f^2
 \end{numcases}
 $$
 解得：
 $$
 \begin{numcases}{}
 c = n+f\\
-d = -nf
+d = nf
 \end{numcases}
 $$
 至此，我们得到将观察体棱台压缩到一个立方体内的变换为
 $$
-M = \begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ 0 & 0 & n+f & -nf \\ 0 & 0 & 1 & 0 \\ \end{bmatrix}
+M = \begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ 0 & 0 & n+f & nf \\ 0 & 0 & -1 & 0 \\ \end{bmatrix}
 $$
 
 
 
 #### 正交投影
 
-$$
-M =
-\begin{bmatrix} 
- \frac{2}{r - l} & 0 & 0 & -\frac{r + l}{r - l} \\
- 0 & \frac{2}{t - b} & 0 & -\frac{t + b}{t - b} \\
- 0 & 0 & -\frac{2}{ f-n} & \frac{n + f}{f-n} \\ 
- 0 & 0 & 0 & 1 \\
-\end{bmatrix}
 
-\begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ 0 & 0 & n+f & -nf \\ 0 & 0 & 1 & 0 \\ \end{bmatrix}
-
-=
-\begin{bmatrix} 
- \frac{2n}{r - l} & 0 & -\frac{r + l}{r - l} & 0 \\
- 0 & \frac{2n}{t - b} &  -\frac{t + b}{t - b} & 0 \\
- 0 & 0 & -\frac{n+f}{ f-n} & -\frac{2nf}{f-n} \\ 
- 0 & 0 & 1 & 0 \\
-\end{bmatrix}
-$$
-
- 使用第二种写法，n和f为正，则写成
-$$
-M =
-\begin{bmatrix} 
- \frac{2}{r - l} & 0 & 0 & -\frac{r + l}{r - l} \\
- 0 & \frac{2}{t - b} & 0 & -\frac{t + b}{t - b} \\
- 0 & 0 & -\frac{2}{ f-n} & -\frac{n + f}{f-n} \\ 
- 0 & 0 & 0 & 1 \\
-\end{bmatrix}
-
-\begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ 0 & 0 & n+f & -nf \\ 0 & 0 & 1 & 0 \\ \end{bmatrix}
-
-=
-\begin{bmatrix} 
- \frac{2n}{r - l} & 0 & -\frac{r + l}{r - l} & 0 \\
- 0 & \frac{2n}{t - b} &  -\frac{t + b}{t - b} & 0 \\
- 0 & 0 & -\frac{n+f}{ f-n} & -\frac{2nf}{f-n} \\ 
- 0 & 0 & 1 & 0 \\
-\end{bmatrix}
-$$
-
-
-
-
-假设此时n，f是正，那么其实其实应该是
 $$
 M =
 \begin{bmatrix} 
