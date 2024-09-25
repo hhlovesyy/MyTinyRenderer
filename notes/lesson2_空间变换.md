@@ -658,13 +658,17 @@ mat4_t camera_get_view_matrix(Camera& camera)
 
 我们还需要将正交投影观察体规范化，让x,y,z 的范围规范到-1到1.
 
-如下图所示，正交投影观察体中的点（xmin，ymin，znear）规范化后成为点（-1，-1，-1），点（xmax，ymax，zfar）规范化后成为点（1，1，1）
+如下图所示，正交投影观察体中的点（xmin，ymin，znear）/（left，bottom，near）规范化后成为点（-1，-1，-1），点（xmax，ymax，zfar）规范化后成为点（1，1，1）
 
 ![image-20240924174219922](lesson2_空间变换.assets/image-20240924174219922.png)
 
 （做一个类似以上的图）
 
 图中我们很明显能够知道，正交投影的规范化变化首先使用平移矩阵将正交投影观察体平移到原点，接着使用缩放矩阵将观察体规范化到-1到1之间。????[]
+
+需要注意的是，此时的n和f都是小于0的，$ \frac{2}{ f-n}$是负数，我们要进行缩放的话需要将其乘-1成为正数才能作为缩放系数。
+
+![image-20240925170219653](lesson2_空间变换.assets/image-20240925170219653.png)
 $$
 \mathbf{M_{ortho}}=\mathbf{R\cdot T}=
  \begin{bmatrix} 
@@ -685,12 +689,76 @@ $$
  0 & \frac{2}{t - b} & 0 & -\frac{t + b}{t - b} \\
  0 & 0 & -\frac{2}{ f-n} & \frac{n + f}{f-n} \\ 
  0 & 0 & 0 & 1 \\
- \end{bmatrix} 
+ \end{bmatrix}
 $$
+因此，也有的规定会假设正交投影观察体的点为（left，bottom，-near），注意这里的负号，即规定near为正，那么缩放系数$ \frac{2}{ f-n}$就不再需要乘负号。则此时右手系坐标系下正交投影矩阵写为：
+$$
+\mathbf{M_{ortho}}=\mathbf{R\cdot T}=
+ \begin{bmatrix} 
+ \frac{2}{r - l} & 0 & 0 & 0 \\
+ 0 & \frac{2}{t - b} & 0 & 0 \\
+ 0 & 0 & +\frac{2}{ f-n} & 0 \\
+ 0 & 0 & 0 & 1 \\
+ \end{bmatrix} 
+ \begin{bmatrix} 
+ 1 & 0 & 0 & -\frac{r + l}{2} \\
+ 0 & 1 & 0 & -\frac{t + b}{2} \\
+ 0 & 0 & 1 & +\frac{n + f}{2} \\ 
+ 0 & 0 & 0 & 1 \\ 
+ \end{bmatrix}
+ =
+  \begin{bmatrix} 
+ \frac{2}{r - l} & 0 & 0 & -\frac{r + l}{r - l} \\
+ 0 & \frac{2}{t - b} & 0 & -\frac{t + b}{t - b} \\
+ 0 & 0 & +\frac{2}{ f-n} & +\frac{n + f}{f-n} \\ 
+ 0 & 0 & 0 & 1 \\
+ \end{bmatrix}
+$$
+但是opengl的NDC，标准设备坐标系是左手系，如果我们要以这个标准为主，那么我们需要需要将向量的z值变成它的相反数（https://learnwebgl.brown37.net/08_projections/projections_ortho.html）
+$$
+\mathbf{M_{convertToLeftHanded}}=
+ \begin{bmatrix} 
+ 1 & 0 & 0 & 0 \\
+ 0 & 1 & 0 & 0 \\
+ 0 & 0 & -1 & 0 \\
+ 0 & 0 & 0 & 1 \\
+ \end{bmatrix}
+$$
+
+
+所以最终的投影矩阵：
+$$
+\mathbf{M_{ortho}}=\mathbf{\mathbf{M_{convertToLeftHanded}} \cdot R\cdot T }=
+ \begin{bmatrix} 
+ 1 & 0 & 0 & 0 \\
+ 0 & 1 & 0 & 0 \\
+ 0 & 0 & -1 & 0 \\
+ 0 & 0 & 0 & 1 \\
+ \end{bmatrix}
+
+  \begin{bmatrix} 
+ \frac{2}{r - l} & 0 & 0 & -\frac{r + l}{r - l} \\
+ 0 & \frac{2}{t - b} & 0 & -\frac{t + b}{t - b} \\
+ 0 & 0 & +\frac{2}{ f-n} & +\frac{n + f}{f-n} \\ 
+ 0 & 0 & 0 & 1 \\
+ \end{bmatrix}
+  =
+\begin{bmatrix} 
+ \frac{2}{r - l} & 0 & 0 & -\frac{r + l}{r - l} \\
+ 0 & \frac{2}{t - b} & 0 & -\frac{t + b}{t - b} \\
+ 0 & 0 & -\frac{2}{ f-n} & -\frac{n + f}{f-n} \\ 
+ 0 & 0 & 0 & 1 \\
+ \end{bmatrix}
+$$
+
+
 （上下和图统一一下）
+
+
 
 ```c++
 /*
+ * 使用第二种写法，n和f为正
  * left, right: the coordinates for the left and right clipping planes
  * bottom, top: the coordinates for the bottom and top clipping planes
  * near, far: the distances to the near and far depth clipping planes
@@ -729,9 +797,59 @@ mat4_t mat4_ortho(float left, float right, float bottom, float top,
 这一版其实就是上一部分的简化版本。因为很多时候我们的投影矩阵有如下规律：left=-right，bottom=-top，因此可以对矩阵进行简化：
 
 
+$$
+\mathbf{M_{ortho}}
+ =
+  \begin{bmatrix} 
+ \frac{2}{r - l} & 0 & 0 & -\frac{r + l}{r - l} \\
+ 0 & \frac{2}{t - b} & 0 & -\frac{t + b}{t - b} \\
+ 0 & 0 & -\frac{2}{ f-n} & \frac{n + f}{f-n} \\ 
+ 0 & 0 & 0 & 1 \\
+ \end{bmatrix}
+  =
+  \begin{bmatrix} 
+ \frac{2}{r - (-r)} & 0 & 0 & -\frac{r -r}{r - (-r)} \\
+ 0 & \frac{2}{t - (-t)} & 0 & -\frac{t + b}{t - (-t)} \\
+ 0 & 0 & -\frac{2}{ f-n} & \frac{n + f}{f-n} \\ 
+ 0 & 0 & 0 & 1 \\
+ \end{bmatrix}
+   =
+  \begin{bmatrix} 
+ \frac{1}{r} & 0 & 0 & 0 \\
+ 0 & \frac{1}{t} & 0 & 0 \\
+ 0 & 0 & -\frac{2}{ f-n} & \frac{n + f}{f-n} \\ 
+ 0 & 0 & 0 & 1 \\
+ \end{bmatrix}
+$$
+如果假设near和far为正数，即假设正交投影观察体的点的为（left，bottom，-near），则写成：
+$$
+\mathbf{M_{ortho}}
+ =
+  \begin{bmatrix} 
+ \frac{2}{r - l} & 0 & 0 & -\frac{r + l}{r - l} \\
+ 0 & \frac{2}{t - b} & 0 & -\frac{t + b}{t - b} \\
+ 0 & 0 & -\frac{2}{ f-n} & -\frac{n + f}{f-n} \\ 
+ 0 & 0 & 0 & 1 \\
+ \end{bmatrix}
+  =
+  \begin{bmatrix} 
+ \frac{2}{r - (-r)} & 0 & 0 & -\frac{r -r}{r - (-r)} \\
+ 0 & \frac{2}{t - (-t)} & 0 & -\frac{t + b}{t - (-t)} \\
+ 0 & 0 & -\frac{2}{ f-n} & -\frac{n + f}{f-n} \\ 
+ 0 & 0 & 0 & 1 \\
+ \end{bmatrix}
+   =
+  \begin{bmatrix} 
+ \frac{1}{r} & 0 & 0 & 0 \\
+ 0 & \frac{1}{t} & 0 & 0 \\
+ 0 & 0 & -\frac{2}{ f-n} & -\frac{n + f}{f-n} \\ 
+ 0 & 0 & 0 & 1 \\
+ \end{bmatrix}
+$$
 
 ```c++
 /*
+ * 使用第二种写法，n和f为正
  * right: the coordinates for the right clipping planes (left == -right)
  * top: the coordinates for the top clipping planes (bottom == -top)
  * near, far: the distances to the near and far depth clipping planes
@@ -778,6 +896,8 @@ mat4_t mat4_orthographic(float right, float top, float near, float far) {
 
 ![image-20240924200018476](lesson2_空间变换.assets/image-20240924200018476.png)
 
+#### 棱台观察体压缩为立方体
+
 
 
 在这个压缩过程中，我们规定：
@@ -800,30 +920,51 @@ $$
 
 ![image-20240924215913830](lesson2_空间变换.assets/image-20240924215913830.png)
 
-因此，对于棱台观察体中的每一个点，我们做成M矩阵，可以将其压缩变换为立方体中的点，符合如下计算：
-
-（下面这几个拆开（或者写清楚哪个是压缩后哪个是之前））
+因此，对于棱台观察体中的每一个点A$\begin{bmatrix} x \\ y \\ z \\ 1 \\ \end{bmatrix}$，我们左乘M矩阵，可以将其压缩变换为立方体中的点B$\begin{bmatrix} \frac{nx}{z} \\  \frac{ny}{z}\\ p \\ 1 \\ \end{bmatrix}$，符合如下计算(z'是未知量)：
 $$
 M\begin{bmatrix} x \\ y \\ z \\ 1 \\ \end{bmatrix}=
-\begin{bmatrix} \frac{nx}{z} \\  \frac{ny}{z}\\ p \\ 1 \\ \end{bmatrix} = 
-\begin{bmatrix} nx \\ ny \\ q \\ z \\ \end{bmatrix} = 
+\begin{bmatrix} \frac{nx}{z} \\  \frac{ny}{z}\\ z' \\ 1 \\ \end{bmatrix}
+$$
+将点B每个分量同时乘z，仍然代表点B(z''是未知量)：
+$$
+\begin{bmatrix} \frac{nx}{z} \\  \frac{ny}{z}\\ z' \\ 1 \\ \end{bmatrix} = 
+\begin{bmatrix} nx \\ ny \\ z'' \\ z \\ \end{bmatrix}
+$$
+将M写成4*4矩阵形式，即：
+$$
+M\begin{bmatrix} x \\ y \\ z \\ 1 \\ \end{bmatrix}=
+\begin{bmatrix} \frac{nx}{z} \\  \frac{ny}{z}\\ z' \\ 1 \\ \end{bmatrix} = 
+\begin{bmatrix} nx \\ ny \\ z'' \\ z \\ \end{bmatrix} = 
 \begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ a & b & c & d \\ 0 & 0 & 1 & 0 \\ \end{bmatrix} \begin{bmatrix} x \\ y \\ z \\ 1 \\ \end{bmatrix}
 $$
-根据压缩过程中的第一条规定：近平面上的点经过压缩后坐标不会变。而近平面中所有点的z为n，我们将z=n带入以上式子得到：
+##### 近平面点坐标不变
+
+根据压缩过程中的第一条规定：近平面上的点经过压缩后坐标不会变。而近平面中所有点的$z=n$，此时的变换后对应立方体中的点为
+$$
+\begin{bmatrix} \frac{nx}{z} \\  \frac{ny}{z}\\ z' \\ 1 \\ \end{bmatrix}
+\overset{n=z}{=} 
+\begin{bmatrix} \frac{nx}{n} \\  \frac{ny}{n}\\ n \\ 1 \\ \end{bmatrix}
+\overset{\cdot n}{=}
+\begin{bmatrix} nx \\ ny \\ n^2 \\ n \\ \end{bmatrix}
+$$
+
+因此：
 $$
 M\begin{bmatrix} x \\ y \\ n \\ 1 \\ \end{bmatrix}=
 \begin{bmatrix} nx \\ ny \\ n^2 \\ n \\ \end{bmatrix} = 
 \begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ a & b & c & d \\ 0 & 0 & 1 & 0 \\ \end{bmatrix} \begin{bmatrix} x \\ y \\ n \\ 1 \\ \end{bmatrix}=
 \begin{bmatrix} nx \\ ny \\ ax + by + cn +d  \\ n \\ \end{bmatrix}
 $$
-即 $ax + by + cn +d = n^2$,由于$n^2$与x与y变量都无关，因此$a=0,b=0$，因此我们得到：
+即 $ax + by + cn +d = n^2$,由于$n^2$与x与y变量都无关，因此$a=0,b=0$，我们得到：
 $$
 cn +d = n^2
 $$
-根据压缩过程中的第三条规定：压缩后原来远平面的中心依然是中心+第二
+##### 远平面中心点坐标不变
+
+根据压缩过程中的第三条规定：压缩后原来远平面的中心点依然是中心点$\begin{bmatrix} 0 \\ 0 \\ f \\ 1 \\ \end{bmatrix}$
 $$
 M\begin{bmatrix} 0 \\ 0 \\ f \\ 1 \\ \end{bmatrix}=
-\begin{bmatrix} 0 \\ 0 \\ f \\ 1 \\ \end{bmatrix} = 
+\begin{bmatrix} 0 \\ 0 \\ f \\ 1 \\ \end{bmatrix} \overset{\cdot f}{=}
 \begin{bmatrix} 0 \\ 0 \\ f^2 \\ f \\ \end{bmatrix} = 
 \begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ 0 & 0 & c & d \\ 0 & 0 & 1 & 0 \\ \end{bmatrix} \begin{bmatrix} 0 \\ 0 \\ f \\ 1 \\ \end{bmatrix}=
 \begin{bmatrix} 0 \\ 0 \\ cf +d  \\ f\\ \end{bmatrix}
@@ -852,6 +993,77 @@ $$
 $$
 M = \begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ 0 & 0 & n+f & -nf \\ 0 & 0 & 1 & 0 \\ \end{bmatrix}
 $$
+
+
+
+#### 正交投影
+
+$$
+M =
+\begin{bmatrix} 
+ \frac{2}{r - l} & 0 & 0 & -\frac{r + l}{r - l} \\
+ 0 & \frac{2}{t - b} & 0 & -\frac{t + b}{t - b} \\
+ 0 & 0 & -\frac{2}{ f-n} & \frac{n + f}{f-n} \\ 
+ 0 & 0 & 0 & 1 \\
+\end{bmatrix}
+
+\begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ 0 & 0 & n+f & -nf \\ 0 & 0 & 1 & 0 \\ \end{bmatrix}
+
+=
+\begin{bmatrix} 
+ \frac{2n}{r - l} & 0 & -\frac{r + l}{r - l} & 0 \\
+ 0 & \frac{2n}{t - b} &  -\frac{t + b}{t - b} & 0 \\
+ 0 & 0 & -\frac{n+f}{ f-n} & -\frac{2nf}{f-n} \\ 
+ 0 & 0 & 1 & 0 \\
+\end{bmatrix}
+$$
+
+ 使用第二种写法，n和f为正，则写成
+$$
+M =
+\begin{bmatrix} 
+ \frac{2}{r - l} & 0 & 0 & -\frac{r + l}{r - l} \\
+ 0 & \frac{2}{t - b} & 0 & -\frac{t + b}{t - b} \\
+ 0 & 0 & -\frac{2}{ f-n} & -\frac{n + f}{f-n} \\ 
+ 0 & 0 & 0 & 1 \\
+\end{bmatrix}
+
+\begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ 0 & 0 & n+f & -nf \\ 0 & 0 & 1 & 0 \\ \end{bmatrix}
+
+=
+\begin{bmatrix} 
+ \frac{2n}{r - l} & 0 & -\frac{r + l}{r - l} & 0 \\
+ 0 & \frac{2n}{t - b} &  -\frac{t + b}{t - b} & 0 \\
+ 0 & 0 & -\frac{n+f}{ f-n} & -\frac{2nf}{f-n} \\ 
+ 0 & 0 & 1 & 0 \\
+\end{bmatrix}
+$$
+
+
+
+
+假设此时n，f是正，那么其实其实应该是
+$$
+M =
+\begin{bmatrix} 
+ \frac{2}{r - l} & 0 & 0 & -\frac{r + l}{r - l} \\
+ 0 & \frac{2}{t - b} & 0 & -\frac{t + b}{t - b} \\
+ 0 & 0 & -\frac{2}{ f-n} & -\frac{n + f}{f-n} \\ 
+ 0 & 0 & 0 & 1 \\
+\end{bmatrix}
+
+\begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ 0 & 0 & n+f & nf \\ 0 & 0 & -1 & 0 \\ \end{bmatrix}
+
+=
+\begin{bmatrix} 
+ \frac{2n}{r - l} & 0 & -\frac{r + l}{r - l} & 0 \\
+ 0 & \frac{2n}{t - b} &  -\frac{t + b}{t - b} & 0 \\
+ 0 & 0 & -\frac{n+f}{ f-n} & -\frac{2nf}{f-n} \\ 
+ 0 & 0 & 1 & 0 \\
+\end{bmatrix}
+$$
+
+
 
 
 参考https://docs.gl/gl2/glFrustum这里的实现，在透视投影中，我们依然沿袭之前的near和far都是>0，且near的绝对值<far的绝对值的传统，构建透视投影矩阵如下：
