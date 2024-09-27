@@ -870,7 +870,7 @@ x^\prime = -\frac{z}{n}x
 $$
 
 
-![image-20240924215913830](lesson2_空间变换.assets/image-20240924215913830.png)
+（下图改为-n）![image-20240924215913830](lesson2_空间变换.assets/image-20240924215913830.png)
 
 因此，对于棱台观察体中的每一个点A$\begin{bmatrix} x \\ y \\ z \\ 1 \\ \end{bmatrix}$，我们左乘M矩阵，可以将其压缩变换为立方体中的点B$\begin{bmatrix} -\frac{nx}{z} \\  -\frac{ny}{z}\\ p \\ 1 \\ \end{bmatrix}$，符合如下计算(z'是未知量)：
 $$
@@ -879,7 +879,7 @@ M\begin{bmatrix} x \\ y \\ z \\ 1 \\ \end{bmatrix}=
 $$
 将点B每个分量同时乘（-z），仍然代表点B(z''是未知量)：
 $$
-\begin{bmatrix} \frac{nx}{z} \\  \frac{ny}{z}\\ z' \\ 1 \\ \end{bmatrix} = 
+\begin{bmatrix} -\frac{nx}{z} \\  -\frac{ny}{z}\\ z' \\ 1 \\ \end{bmatrix} = 
 \begin{bmatrix} nx \\ ny \\ z'' \\ -z \\ \end{bmatrix}
 $$
 将M写成4*4矩阵形式，即：
@@ -967,7 +967,25 @@ M =
  \frac{2n}{r - l} & 0 & -\frac{r + l}{r - l} & 0 \\
  0 & \frac{2n}{t - b} &  -\frac{t + b}{t - b} & 0 \\
  0 & 0 & -\frac{n+f}{ f-n} & -\frac{2nf}{f-n} \\ 
- 0 & 0 & 1 & 0 \\
+ 0 & 0 & -1 & 0 \\
+\end{bmatrix}
+$$
+如果b=-t，l=-r，则透视投影矩阵为
+$$
+M 
+=
+\begin{bmatrix} 
+ \frac{2n}{2r} & 0 & 0 & 0 \\
+ 0 & \frac{2n}{2t} & 0 & 0 \\
+ 0 & 0 & -\frac{n+f}{ f-n} & -\frac{2nf}{f-n} \\ 
+ 0 & 0 & -1 & 0 \\
+\end{bmatrix}
+=
+\begin{bmatrix} 
+ \frac{n}{r} & 0 & 0 & 0 \\
+ 0 & \frac{n}{t} & 0 & 0 \\
+ 0 & 0 & -\frac{n+f}{ f-n} & -\frac{2nf}{f-n} \\ 
+ 0 & 0 & -1 & 0 \\
 \end{bmatrix}
 $$
 
@@ -1020,9 +1038,38 @@ mat4_t mat4_frustum(float left, float right, float bottom, float top,
 $$
 \frac{top}{near} = tan(\frac{\theta}{2}) \\ 
 top = tan(\frac{\theta}{2})\cdot near\\
-right = top \cdot \frac{width}{height} = top \cdot aspect
+right = top \cdot \frac{width}{height} = top \cdot aspect = tan(\frac{\theta}{2})\cdot near\cdot aspect \\
 $$
-将这些带入以上
+将这些带入以上透视投影矩阵得到：
+$$
+M 
+=
+
+\begin{bmatrix} 
+ \frac{n}{r} & 0 & 0 & 0 \\
+ 0 & \frac{n}{t} & 0 & 0 \\
+ 0 & 0 & -\frac{n+f}{ f-n} & -\frac{2nf}{f-n} \\ 
+ 0 & 0 & -1 & 0 \\
+\end{bmatrix}
+=
+
+\begin{bmatrix} 
+ \frac{n}{  tan(\frac{\theta}{2})\cdot aspect\cdot n} & 0 & 0 & 0 \\
+ 0 & \frac{n}{ tan(\frac{\theta}{2})\cdot n} & 0 & 0 \\
+ 0 & 0 & -\frac{n+f}{ f-n} & -\frac{2nf}{f-n} \\ 
+ 0 & 0 & -1 & 0 \\
+\end{bmatrix}
+
+=
+
+\begin{bmatrix} 
+ \frac{1}{  tan(\frac{\theta}{2})\cdot aspect} & 0 & 0 & 0 \\
+ 0 & \frac{1}{ tan(\frac{\theta}{2})} & 0 & 0 \\
+ 0 & 0 & -\frac{n+f}{ f-n} & -\frac{2nf}{f-n} \\ 
+ 0 & 0 & -1 & 0 \\
+\end{bmatrix}
+$$
+
 
 画一个类似下图
 
@@ -1117,7 +1164,18 @@ for (int i = 0; i < 3; i++)
 
 > **请注意！！这里有不少细节还没有处理好，但为了让读者能够很好地看到不错地效果，就先这样写着。**
 
-接下来就是映射到视口了，这个函数这样写：
+接下来就是映射到视口了，
+
+
+
+做了投影之后,范围会被规范化到$[-1,1]^3$,所以接下来要转换为屏幕坐标,这里我们认为像素的坐标是以左下角为定位点的,中心应该是(x+0.5,y+0.5),矩阵如下(复习前面的,先缩放再平移):
+$$
+M_{viewport}=\left[\begin{matrix} \frac{width}{2} & 0 & 0&\frac{width}{2} \\ 0&\frac{height}{2}&0&\frac{height}{2} \\ 0&0&\frac{1}{2}&\frac{1}{2} \\0&0&0&1 \end{matrix}\right]
+$$
+
+------
+
+这个函数这样写：
 
 我们之所有要保留z是为了后续的深度测试等操作，需要保留深度值。
 
@@ -1320,7 +1378,95 @@ else
 
 # 三、一个重要的注意事项——重心插值的结果
 
-这里有一个很容易出错的地方，而在我们前面的实现中也是错误的（虽然结果好像没看出来），那就是**我们不能直接拿屏幕空间重心插值得到的结果对模型空间的属性进行插值（例如顶点颜色、法线等）**。这里可以参考如下所示的一篇博客：https://blog.csdn.net/Motarookie/article/details/124284471，讲解的会比较清晰一些。以下记录重点：
+
+
+我们已经知道三角形投影变换后的三个顶点在屏幕上的坐标$\large(x_{\tiny A},y_{\tiny A})，(x_{\tiny B},y_{\tiny B})，(x_{\tiny C},y_{\tiny C})$和目标像素$P( x , y )$，似乎就能算出P点的在**屏幕中呈现的三角形**中的重心坐标，然后里有一个很容易出错的地方，而在我们前面的实现中也是错误的（虽然结果好像没看出来），那就是**我们不能直接拿屏幕空间重心插值得到的结果对模型空间的属性进行插值（例如深度、顶点颜色、法线等）**。
+
+原因有很多，比如投影后三角形的形状一般情况下会发生形变。空间中一个正三角形，投影后可能变成一个特别窄的三角形，这时候计算出来的该像素的重心坐标肯定与空间中该像素对应的点在三角形内的重心坐标不同，如果直接插值会导致错误的结果。
+
+有的读者可能会想到，直接对屏幕空间的像素点P应用透视投影矩阵的逆，做个逆变换变回原来的空间中，就知道P点在空间中的准确位置了可以进行正确的重心插值，但是一个例如1080p 的屏幕有1920 x 1080= 2,073,600 个像素，每个像素都要做一次逆矩阵运算的话计算量过于庞大了。
+
+因此，在这个地方，我们需要做一次重心插值矫正。
+
+
+
+![image-20240926151448896](lesson2_空间变换.assets/image-20240926151448896.png)
+
+以下我们以插值深度为例。
+
+
+
+#### 建立投影前后重心坐标的关系 
+
+ $\alpha'$, $\beta'$, $\gamma'$是屏幕空间的P点在屏幕空间三角形ABC中计算得到的重心坐标，符合：
+$$
+\begin{equation}
+    1 = \alpha' + \beta' + \gamma'
+\end{equation}
+$$
+进行变形，我们可以得到：
+$$
+\begin{equation}
+   	\frac{Z}{Z} = \frac{Z_A}{Z_A} \alpha' + \frac{Z_B}{Z_B}  \beta' + \frac{Z_C}{Z_C}  \gamma'
+\end{equation}
+$$
+其中，$Z$ 是屏幕空间的点 $P$ 所对应的投影前的点的正确深度值，是我们求解的目标值。$Z_A$, $Z_B$, $Z_C$ 是空间中 $A$, $B$, $C$ 三个顶点的深度值。
+
+接下来，对上述公式两边同时乘以  $Z$, 得：：
+$$
+\begin{equation}
+    Z = \left(\frac{Z}{Z_A}\alpha' \right) Z_A + \left( \frac{Z}{Z_B} \beta' \right) Z_B + \left( \frac{Z}{Z_C} \gamma' \right) Z_C \tag{1}
+\end{equation}
+$$
+比较之前的深度插值公式：
+$$
+\begin{equation}
+    Z = \alpha Z_A + \beta Z_B + \gamma Z_C \cdots \cdots \cdots \cdots \tag{2}
+\end{equation}
+$$
+由（1）和（2）公式对应项系数相等，我们得到：
+$$
+\alpha = \frac{Z}{Z_A} \alpha', \quad \beta = \frac{Z}{Z_B} \beta', \quad \gamma = \frac{Z}{Z_C} \gamma'\cdots \cdots \cdots \tag{3}
+$$
+#### 导出透视修正后的深度插值公式
+
+我们可以将公式（3）带入 $1 = \alpha + \beta + \gamma$，重新排列为：
+$$
+\begin{equation}
+    1 = \frac{Z}{Z_A} \alpha' + \frac{Z}{Z_B} \beta' + \frac{Z}{Z_C} \gamma' \cdots \cdots \cdots \tag{4}
+\end{equation}
+$$
+最后，对等式（4）两边同时乘以$ \frac{1}{Z} $ ，可以得到最终的透视修正深度插值公式：
+$$
+\begin{equation}
+    \frac{1}{Z} = \alpha' \frac{1}{Z_A} + \beta' \frac{1}{Z_B} + \gamma' \frac{1}{Z_C}
+\end{equation}
+$$
+至此，我们通过投影后的屏幕空间三角形内点 $P'$ 的 $\alpha'$, $\beta'$, $\gamma'$，计算出投影前三角形内点 $P$ 的深度值$Z$。
+
+
+
+#### 任意属性插值
+
+不止是深度，我们希望包括颜色，法线等在内的其他属性也能够得到正确的插值结果。我们用$ ( I_A, I_B, I_C )$ 表示三角形三个顶点的属性值。
+
+##### 插值公式
+
+目标点的属性 $ I$  可以通过以下公式计算： $ I = \alpha I_A + \beta I_B + \gamma I_C $
+
+这里的$ \alpha, \beta, \gamma $ 是该点在正确空间的三角形内的重心坐标，它们的和为1。
+
+将公式（3）带入 $ I = \alpha I_A + \beta I_B + \gamma I_C $，我们得到：
+$$
+  I =  ( \frac{Z}{Z_A}\alpha')I_A +  (\frac{Z}{Z_B}\beta')I_B + (\frac{Z}{Z_C}\gamma')I_C 
+$$
+整理一下 ：
+$$
+I = Z \cdot \left( \alpha' \frac{I_A}{Z_A} + \beta' \frac{I_B}{Z_B} + \gamma' \frac{I_C}{Z_C} \right)
+$$
+
+
+
 
 在https://registry.khronos.org/OpenGL/specs/es/2.0/es_full_spec_2.0.pdf这篇文章中的3.5.1小节，有这样一段话：
 
