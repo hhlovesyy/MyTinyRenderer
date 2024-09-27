@@ -460,7 +460,7 @@ matrix_translate(abc);
 
 ## 1.空间变换过程
 
-现在，我们的三角形能够实现平移、旋转和缩放了，于是我们可以思考，能否不仅仅是绘制二维的图形，而是进一步绘制出三维的图形比如立方体呢？
+现在，我们的三角形能够实现平移、旋转和缩放了，于是我们可以思考，能否不仅仅是绘制二维的图形，而是进一步绘制出三维的图形比如立方体，或者是各种模型呢？
 
 在屏幕中绘制立方体的某个视角图像，就类似于拍一张照片的过程。首先，我们需要拜访场景，比如将立方体等物体摆放到相应的位置，接下来摆放照相机的位置，并确定这个照相机该往哪里去看，比如朝着立方体去看。按下快门后，我们要根据镜头来裁剪场景，最终形成一张照片，显示出了立方体的某一个角度的照片。
 
@@ -563,13 +563,49 @@ $$
 $$
 我们惊喜地发现，将模型空间的三个坐标轴加上原点竖着放，就可以表示模型空间转到世界空间的矩阵了。
 
-同理，这样的坐标空间的变换可以应用到所有的父空间和子空间之上。
+同理，这样的坐标空间的变换可以应用到所有的父空间和子空间之上。即A空间转B空间，对应矩阵为B空间下A空间XYZ三个轴竖着放。
+
+
+$$
+M_{a->b}=
+\begin{bmatrix}
+|&|&|&|\\
+\mathbf{x}_a&\mathbf{y}_a&\mathbf{z}_a&O_{a}\\
+|&|&|&|\\
+0&0&0&1
+\end{bmatrix}
+$$
+如果我们不考虑平移矩阵，例如向量不需要平移，那么
+$$
+M_{a->b}=
+\begin{bmatrix}
+|&|&|\\
+\mathbf{x}_a&\mathbf{y}_a&\mathbf{z}_a\\
+|&|&|
+\end{bmatrix}
+$$
+同理，如果是B空间转A空间，由于对于正交矩阵来说，逆矩阵就等于其转置矩阵，坐标轴自然是正交的，因此
+$$
+M_{b->a}=M_{a->b}^{-1}=M_{a->b}^{T}=
+\begin{bmatrix}
+|&|&|\\
+\mathbf{x}_a&\mathbf{y}_a&\mathbf{z}_a\\
+|&|&|
+\end{bmatrix}^{T}
+=
+\begin{bmatrix}
+-&\mathbf{x}_a&-\\
+-&\mathbf{y}_a&-\\
+-&\mathbf{z}_a&-
+\end{bmatrix}
+$$
+
 
 
 
 ## 1.模型空间->世界空间
 
-> 上节刚讲完模型空间转世界空间，对应矩阵为世界空间下模型空间XYZ三个轴竖着放。
+> 上节刚讲完，模型空间转世界空间，对应矩阵为世界空间下模型空间XYZ三个轴竖着放。
 
 
 
@@ -626,19 +662,48 @@ T=
 \end{bmatrix}
 $$
 我们希望将相机坐标旋转到与世界空间坐标系重合，让相机向上方向u与世界空间y轴重合，向右方向与世界坐标x轴重合，但是要注意的是，向前方向是与世界坐标的-z方向重合。将观察坐标系旋转到与世界坐标系三个轴重合的组合旋转变换矩阵是R：??
+
+由2.2节可知，A空间转B空间，对应矩阵为B空间下A空间XYZ三个轴竖着放。
 $$
-R^{-1}=
+M_{b->a}=M_{a->b}^{-1}=M_{a->b}^{T}=
+\begin{bmatrix}
+|&|&|\\
+\mathbf{x}_a&\mathbf{y}_a&\mathbf{z}_a\\
+|&|&|
+\end{bmatrix}^{T}
+=
+\begin{bmatrix}
+-&\mathbf{x}_a&-\\
+-&\mathbf{y}_a&-\\
+-&\mathbf{z}_a&-
+\end{bmatrix}
+$$
+所以
+$$
+R_{world->camera}=R_{camera->world}^{-1}=R_{camera->world}^{T}=
+\begin{bmatrix}
+|&|&|\\
+\mathbf{x}_{camera}&\mathbf{y}_{camera}&\mathbf{z}_{camera}\\
+|&|&|\\
+\end{bmatrix}^{T}
+=
+\begin{bmatrix}
+-&\mathbf{x}_{camera}&-\\
+-&\mathbf{y}_{camera}&-\\
+-&\mathbf{z}_{camera}&-
+\end{bmatrix}
+$$
+  
+$$
+R_{world->camera}=R_{camera->world}^{T}=
+
 \begin{bmatrix}
 r_x&u_x&-f_x&0\\
 r_y&u_y&-f_y&0\\
 r_z&u_z&-f_z&0\\
 0&0&0&1
-\end{bmatrix}
-$$
-转置
-
-$$
-R=
+\end{bmatrix}^{T}
+=
 \begin{bmatrix}
 r_x&r_y&r_z&0\\
 u_x&u_y&u_z&0\\
@@ -647,8 +712,10 @@ u_x&u_y&u_z&0\\
 \end{bmatrix}
 $$
 
-将平移矩阵和旋转矩阵乘起来，获得最终的坐标变换矩阵 RT ??([[]【书上和这里不一样 后面看看】])
+
+将平移矩阵和旋转矩阵乘起来，获得最终的坐标变换矩阵 RT
 $$
+M_{world->camera}=
 R\cdot  T=
 \begin{bmatrix}
 r_x&r_y&r_z&-x_0\\
