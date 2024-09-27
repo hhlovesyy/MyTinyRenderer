@@ -456,6 +456,10 @@ matrix_translate(abc);
 
 # 二、空间变换
 
+
+
+## 1.空间变换过程
+
 现在，我们的三角形能够实现平移、旋转和缩放了，于是我们可以思考，能否不仅仅是绘制二维的图形，而是进一步绘制出三维的图形比如立方体呢？
 
 在屏幕中绘制立方体的某个视角图像，就类似于拍一张照片的过程。首先，我们需要拜访场景，比如将立方体等物体摆放到相应的位置，接下来摆放照相机的位置，并确定这个照相机该往哪里去看，比如朝着立方体去看。按下快门后，我们要根据镜头来裁剪场景，最终形成一张照片，显示出了立方体的某一个角度的照片。
@@ -466,13 +470,119 @@ matrix_translate(abc);
 
 ![image-20240925151034757](lesson2_空间变换.assets/image-20240925151034757.png)
 
+
+
+## 2.空间变换矩阵
+
+我们发现后续将会涉及大量的空间变换，那么我们有必要先行讲解一下把一个点或者向量转到另一个坐标空间是如何实现的。
+
+
+
+假设这么一个场景，在一个坐标系W中，有一个小玩偶，它知道自己位于坐标坐标系W中什么位置。以它自己为中心，它的向上方向为子空间的Y轴，向前方向为子空间的Z轴，向右方向为子空间的X轴，它也知道这三个方向在世界坐标坐标系W中的向量$(x_m,y_m,z_m)$。小玩偶头上绑了一个蝴蝶结，它知道蝴蝶结位于自己这个子空间的位置，但是此时它想知道，自己的蝴蝶结位于世界坐标坐标系W中的什么位置呢？
+
+假设蝴蝶结在模型空间下的坐标是$H_m(a,b,c)$,则我们想求的是$H_w = M_{m->w}H_m$
+
+而我们已经知道了小玩偶模型坐标系在世界坐标坐标系W中的位置$O_c$
+
+假设此时我们手里拿了一个新蝴蝶结，
+
+第一步，我们首先将新蝴蝶结放在位置$O_m$。
+
+第二步，将新蝴蝶结沿着小玩偶的x轴方向$x_m$移动a个单位：$O_m + ax_m$
+
+第三步，将新蝴蝶结沿着小玩偶的y轴方向$y_m$移动b个单位：$O_m + ax_m + by_m$
+
+第四步，将新蝴蝶结沿着小玩偶的z轴方向$z_m$移动c个单位：$O_m + ax_m + by_m + cz_m$
+
+终于，我们到达了真正的蝴蝶结所在的位置$H_w=O_m + ax_m + by_m + cz_m$,
+
+展开得到：
+
+$$\begin{aligned}&H_w=O_m + ax_m + by_m + cz_m\\&=(x_{om},y_{om},z_{om})+a(x_{xm},y_{xm},z_{xm})+b(x_{ym},y_{ym},z_{ym})+c(x_{zm},y_{zm},z_{zm})\\&=(x_{om},y_{om},z_{om})+\begin{bmatrix}x_{xm}&x_{ym}&x_{zm}\\y_{xm}&y_{ym}&y_{zm}\\z_{xm}&z_{ym}&z_{zm}\end{bmatrix}\begin{bmatrix}a\\b\\c\end{bmatrix}\\&=(x_{om},y_{om},z_{om})+\begin{bmatrix}|&|&|\\\mathbf{x}_{m}&\mathbf{y}_{m}&\mathbf{z}_{m}\\|&|&|\end{bmatrix}\begin{bmatrix}a\\b\\c\end{bmatrix}\end{aligned}$$
+
+我们上面已经学到了，如果要将平移矩阵加入到我们的矩阵中，就需要使用齐次坐标
+
+
+
+
+
+$$
+\begin{aligned}H_{w}=(x_{om},y_{om},z_{om},1)+
+\begin{bmatrix}|&|&|&0\\\mathbf{x}_{m}&\mathbf{y}_{m}&\mathbf{z}_{m}&0\\|&|&|&0\\0&0&0&1
+\end{bmatrix}
+\begin{bmatrix}
+a\\b\\c\\1
+\end{bmatrix}
+\\=
+\begin{bmatrix}
+1&0&0&x_{om}\\0&1&0&y_{om}\\0&0&1&z_{om}\\0&0&0&1
+\end{bmatrix}
+\begin{bmatrix}
+|&|&|&0\\\mathbf{x}_m&\mathbf{y}_m&\mathbf{z}_m&0\\|&|&|&0\\0&0&0&1
+\end{bmatrix}
+\begin{bmatrix}
+a\\b\\c\\1
+\end{bmatrix}
+
+\\=
+
+\begin{bmatrix}
+|&|&|&x_{om}\\
+\mathbf{x}_m&\mathbf{y}_m&\mathbf{z}_m&y_{om}\\
+|&|&|&z_{om}\\
+0&0&0&1
+\end{bmatrix}
+\begin{bmatrix}
+a\\b\\c\\1
+\end{bmatrix}
+
+\\=
+
+\begin{bmatrix}
+|&|&|&|\\
+\mathbf{x}_m&\mathbf{y}_m&\mathbf{z}_m&O_{m}\\
+|&|&|&|\\
+0&0&0&1
+\end{bmatrix}
+\begin{bmatrix}
+a\\b\\c\\1
+\end{bmatrix}
+\end{aligned}
+$$
+
+
+
+因此，$M_{m->w}$就变成了
+$$
+\begin{bmatrix}
+|&|&|&|\\
+\mathbf{x}_m&\mathbf{y}_m&\mathbf{z}_m&O_{m}\\
+|&|&|&|\\
+0&0&0&1
+\end{bmatrix}
+$$
+我们惊喜地发现，将模型空间的三个坐标轴加上原点竖着放，就可以表示模型空间转到世界空间的矩阵了。
+
+同理，这样的坐标空间的变换可以应用到所有的父空间和子空间之上。
+
+
+
 ## 1.模型空间->世界空间
 
-(看入门精要将三个轴竖着放那个讲解)TODO：
+> 上节刚讲完模型空间转世界空间，对应矩阵为世界空间下模型空间XYZ三个轴竖着放。
 
-假设此时我们要渲染世界中的一个三角形，我们首先要找到这个三角形在这个世界上什么位置呢？它相对于世界的中心有多远？因此我们需要把它从模型空间转到世界空间。
 
-> 模型空间转世界空间，对应矩阵为世界空间下模型空间XYZ三个轴竖着放。
+
+$$
+M_{m->w}=
+\begin{bmatrix}
+|&|&|&|\\
+\mathbf{x}_m&\mathbf{y}_m&\mathbf{z}_m&O_{m}\\
+|&|&|&|\\
+0&0&0&1
+\end{bmatrix}
+$$
+
 
 首先我们定义一下要渲染的三角形的三个顶点的坐标，因为这里要做空间变换因此此时定义的坐标是三维的，比如下面的这个例子：
 
