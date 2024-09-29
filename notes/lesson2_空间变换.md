@@ -476,8 +476,6 @@ matrix_translate(abc);
 
 我们发现后续将会涉及大量的空间变换，那么我们有必要先行讲解一下把一个点或者向量转到另一个坐标空间是如何实现的。
 
-
-
 假设这么一个场景，在一个坐标系W中，有一个小玩偶，它知道自己位于坐标坐标系W中什么位置。以它自己为中心，它的向上方向为子空间的Y轴，向前方向为子空间的Z轴，向右方向为子空间的X轴，它也知道这三个方向在世界坐标坐标系W中的向量$(x_m,y_m,z_m)$。小玩偶头上绑了一个蝴蝶结，它知道蝴蝶结位于自己这个子空间的位置，但是此时它想知道，自己的蝴蝶结位于世界坐标坐标系W中的什么位置呢？
 
 假设蝴蝶结在模型空间下的坐标是$H_m(a,b,c)$,则我们想求的是$H_w = M_{m->w}H_m$
@@ -661,7 +659,7 @@ T=
 \\0&0&0&1
 \end{bmatrix}
 $$
-我们希望将相机坐标旋转到与世界空间坐标系重合，让相机向上方向u与世界空间y轴重合，向右方向与世界坐标x轴重合，但是要注意的是，向前方向是与世界坐标的-z方向重合。将观察坐标系旋转到与世界坐标系三个轴重合的组合旋转变换矩阵是R：??
+我们希望将相机坐标旋转到与世界空间坐标系重合，让相机向上方向u与世界空间y轴重合，向右方向与世界坐标x轴重合，但是要注意的是，向前方向是与世界坐标的-z方向重合。将观察坐标系旋转到与世界坐标系三个轴重合的组合旋转变换矩阵是R：
 
 由2.2节可知，A空间转B空间，对应矩阵为B空间下A空间XYZ三个轴竖着放。
 $$
@@ -693,7 +691,7 @@ R_{world->camera}=R_{camera->world}^{-1}=R_{camera->world}^{T}=
 -&\mathbf{z}_{camera}&-
 \end{bmatrix}
 $$
-  
+
 $$
 R_{world->camera}=R_{camera->world}^{T}=
 
@@ -1029,11 +1027,11 @@ mat4_t mat4_orthographic(float right, float top, float near, float far) {
 
 1. 近平面上的点经过压缩后坐标不会变
 2. 远平面上的点的 z 坐标不会随着压缩而变化
-3. 压缩后原来远平面的中心依然是中心
+3. 压缩后原来远平面的中心依然是中心(以下动图中还有一半没有画出，-y部分还有一半，远平面中心的（z，y）是（-f，0）
 
+观察下图的压缩过程，我们可以看到这个过程符合以上压缩规定。
 
-
-
+<video src="lesson2视频演示/CoordinateSystemExample.mp4"></video>
 
 我们从压缩前的棱台观察体中随机取一个点$A(x,y,z)$,将它与相机连线，与近平面相交于$C(x',y',-n)$这个点上(在前面，我们规定n与f是正数)。由于进行正交投影变换后$x'$与$y'$是不会改变的，因此点A压缩后对应的点$B(x',y',z')$的$x'$与$y'$与C是一致的。
 
@@ -1041,13 +1039,24 @@ mat4_t mat4_orthographic(float right, float top, float near, float far) {
 
 则由相似三角形我们计算出压缩后的x'和y'值，但是我们注意到，此时我们是还需要得到压缩后的z'
 $$
-y^\prime = -\frac{z}{n}y 
+y^\prime = -\frac{n}{z}y 
 \space\space\space\space\space\space\space\space\space\space\space\space 
-x^\prime = -\frac{z}{n}x
+x^\prime = -\frac{n}{z}x
 $$
 
+压缩前：
 
-（下图改为-n）![image-20240924215913830](lesson2_空间变换.assets/image-20240924215913830.png)
+![image-20240929171803082](lesson2_空间变换.assets/image-20240929171803082.png)
+
+压缩后：
+
+![image-20240929171708408](lesson2_空间变换.assets/image-20240929171708408.png)
+
+
+
+
+
+
 
 因此，对于棱台观察体中的每一个点A$\begin{bmatrix} x \\ y \\ z \\ 1 \\ \end{bmatrix}$，我们左乘M矩阵，可以将其压缩变换为立方体中的点B$\begin{bmatrix} -\frac{nx}{z} \\  -\frac{ny}{z}\\ p \\ 1 \\ \end{bmatrix}$，符合如下计算(z'是未知量)：
 $$
@@ -1122,6 +1131,18 @@ $$
 $$
 M = \begin{bmatrix} n & 0 & 0 & 0 \\ 0 & n & 0 & 0 \\ 0 & 0 & n+f & nf \\ 0 & 0 & -1 & 0 \\ \end{bmatrix}
 $$
+
+
+
+##### 思考:压缩前后点的位置(Z值)发生了什么变化呢?
+
+我们从动图很容易看出,除了近裁剪面上的点和远裁剪面上的点，中间的点都是更靠近远裁剪面的,具体数学推导同学们可以自行思考.
+
+
+
+<video src="lesson2视频演示/PerspectiveShowOnlyMorePoints.mp4"></video>
+
+
 
 
 
@@ -1207,11 +1228,11 @@ mat4_t mat4_frustum(float left, float right, float bottom, float top,
 
 
 
-### （4）透视投影矩阵——Perspective
+### （4）使用FOV表示透视投影矩阵
 
+在刚才我们有提及到相机类有一个参数是`float aspect;`，这个是相机画幅的长宽比$\frac{width}{height}$。实际上，往往还有一个FOV参数（了解摄影的朋友应该很熟悉）,在公式中我们将竖直方向的FOV表示为$\theta$。下图可以看到相关FOV参数与刚才上面的透视投影矩阵的参数等（自己画的图，参考的是https://www.songho.ca/opengl/gl_projectionmatrix.html#google_vignette的图）：
 
-
-在刚才我们有提及到相机类有一个参数是`float aspect;`，这个是相机画幅的长宽比$\frac{width}{height}$。实际上，往往还有一个FOV参数（了解摄影的朋友应该很熟悉）,在公式中我们将竖直方向的FOV表示为$\theta$。下图很好地揭示了Aspect参数，FOV参数与刚才上面的透视投影矩阵的参数的关系（图来自https://www.songho.ca/opengl/gl_projectionmatrix.html#google_vignette）：
+![image-20240929214208416](lesson2_空间变换.assets/image-20240929214208416.png)
 $$
 \frac{top}{near} = tan(\frac{\theta}{2}) \\ 
 top = tan(\frac{\theta}{2})\cdot near\\
@@ -1248,9 +1269,9 @@ M
 $$
 
 
-画一个类似下图
 
-![image-20240805115949813](./assets/image-20240805115949813.png)
+
+
 
 因此，不难写出Perspective版本的透视投影矩阵（因为FOV和aspect的定义，其实这里还暗含着b=-t，l=-r）：
 
