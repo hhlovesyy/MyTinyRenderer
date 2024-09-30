@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\MRenderer\\TinyRenderer\\MyTinyRenderer\\MyRendererCpp\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{5A9AF515-7333-4138-B50E-A4F5DAC01247}|MyRendererCpp\\MyRendererCpp.vcxproj|D:\\MRenderer\\TinyRenderer\\MyTinyRenderer\\MyRendererCpp\\MyRendererCpp\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{5A9AF515-7333-4138-B50E-A4F5DAC01247}|MyRendererCpp\\MyRendererCpp.vcxproj|solutionrelative:MyRendererCpp\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "main.cpp",
+              "DocumentMoniker": "D:\\MRenderer\\TinyRenderer\\MyTinyRenderer\\MyRendererCpp\\MyRendererCpp\\main.cpp",
+              "RelativeDocumentMoniker": "MyRendererCpp\\main.cpp",
+              "ToolTip": "D:\\MRenderer\\TinyRenderer\\MyTinyRenderer\\MyRendererCpp\\MyRendererCpp\\main.cpp",
+              "RelativeToolTip": "MyRendererCpp\\main.cpp",
+              "ViewState": "AQIAAAAAAAAAAAAAAADwvwcAAAAfAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-09-30T02:09:45.688Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
