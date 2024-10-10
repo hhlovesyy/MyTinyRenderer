@@ -1,6 +1,6 @@
 # 课时2——空间变换
 
-现在我们在屏幕上绘制出了第一个三角形，但这个三角形是静止的（也许你完成了上一课时的作业，但三角形依然变换的比较无聊）。通过这个课时的学习和实践，我们希望能够把这个三角形变得“立体化”，像是一个三维的三角形，并绘制属于我们的第一个立方体
+现在我们在屏幕上绘制出了第一个三角形，但这个三角形是静止的（也许你完成了上一课时的作业，但三角形依然变换的比较无聊）。通过这个课时的学习，我们和实践，我们希望能够把这个三角形变得“立体化”，像是一个三维的三角形，并绘制属于我们的第一个立方体。要实现这样的效果，我们需要学习空间变换，，了解一个三维的物体如何被相机拍照后变成二维的照片，呈现在我们眼前。
 
 > 注意：我们实现的是OpenGL标准，这就意味着都是矩阵乘向量这种形式，如果要对向量旋转，需要把旋转矩阵乘在左边。
 
@@ -236,83 +236,6 @@ mat4_t mat4_rotate_z(float angle)
 
 
 
-####  绕任意轴旋转
-
-第一种情况是这个任意轴过原点，那么我们按照以下步骤操作
-
-（提一下不过原点情况）
-
-1. 将旋转轴P旋转至XOZ平面=>图中的R轴
-2. 将旋转轴旋转至于Z轴重合=>图中的T轴/Z轴
-3. 绕Z轴旋转θ度
-4. 执行步骤2的逆过程
-5. 执行步骤1的逆过程
-
-<img src="lesson2_空间变换.assets/image-20240923165436441.png" alt="image-20240923165436441" style="zoom:50%;" /><img src="lesson2_空间变换.assets/image-20240923165445546.png" alt="image-20240923165445546" style="zoom:50%;" />
-
-
-
-##### 绕X轴旋转，旋转至XOZ平面
-
-<img src="lesson2_空间变换.assets/image-20240922163504450.png" alt="image-20240922163504450" style="zoom:50%;" />
-
-假设P绕着X轴旋转$\alpha$得到R，我们将P投影到YOZ上得到P1点（0,b,c）,
-
-
-
-<img src="lesson2_空间变换.assets/image-20240922163521232.png" alt="image-20240922163521232" style="zoom:50%;" />
-
-<img src="lesson2_空间变换.assets/image-20240925133010417.png" alt="image-20240925133010417" style="zoom: 50%;" />
-
-<img src="lesson2_空间变换.assets/image-20240922161754636.png" alt="image-20240922161754636" style="zoom:50%;" />
-
-从图中不难看出，$cos\alpha =\frac{c}{\sqrt{b^2+c^2}}$,$sin\alpha =\frac{b}{\sqrt{b^2+c^2}}$
-
-根据一.1中”围绕X轴旋转“对应的公式，我们得到围绕X轴旋转的公式为
-
-$$Rx(\alpha)=\begin{bmatrix}1&0&0&0\\0&cos\alpha&-sin\alpha&0\\0&sin\alpha&cos\alpha&0\\0&0&0&1\end{bmatrix}=\begin{bmatrix}1&0&0&0\\0&\frac{c}{\sqrt{b^2+c^2}}&-\frac{b}{\sqrt{b^2+c^2}}&0\\0&\frac{b}{\sqrt{b^2+c^2}}&\frac{c}{\sqrt{b^2+c^2}}&0\\0&0&0&1\end{bmatrix}$$
-
-
-
-##### 绕Y轴旋转，旋转至与Z轴重合
-
-<img src="lesson2_空间变换.assets/image-20240922164421249.png" alt="image-20240922164421249" style="zoom: 67%;" />
-
-我们将R**绕Y轴旋转**至与Z轴重台，顺时针旋转的角度为$\beta$,则逆时针旋转角度为$-\beta$
-
-$$cos(-\beta)=cos\beta=\frac{\sqrt{b^{2}+c^{2}}}{\sqrt{a^{2}+b^{2}+c^{2}}},\quad sin(-\beta)=-sin\beta=-\frac{a}{\sqrt{a^{2}+b^{2}+c^{2}}}$$
-
-根据一.2中”围绕Y轴旋转“对应的公式，我们得到围绕Y轴旋转的公式为
-$$
-Ry(-\beta)=\begin{bmatrix}cos\beta&0&sin(-\beta)&0\\0&1&0&0\\-sin(-\beta)&0&cos\beta&0\\0&0&0&1\end{bmatrix}=\begin{bmatrix}\frac{\sqrt{b^2+c^2}}{\sqrt{a^2+b^2+c^2}}&0&-\frac{a}{\sqrt{a^2+b^2+c^2}}&0\\0&1&0&0\\\frac{a}{\sqrt{a^2+b^2+c^2}}&0&\frac{\sqrt{b^2+c^2}}{\sqrt{a^2+b^2+c^2}}&0\\0&0&0&1\end{bmatrix}
-$$
-
-
-##### 绕Z轴旋转
-
-根据一.1中”围绕Z轴旋转“对应的公式，我们得到围绕Z轴旋转的公式为
-$$
-Rx(\theta)=\begin{bmatrix}
-cos\theta&-sin\theta&0&0
-\\sin\theta&cos\theta&0&0
-\\0&0&1&0
-\\0&0&0&1
-\end{bmatrix}
-$$
-
-
-##### 整合
-
-我们按照步骤将以上的矩阵相乘(不断左乘),得到：
-
-$$M=R_{x}(-\alpha)\cdot R_{y}(\beta)\cdot R_{z}(\theta)\cdot R_{y}(-\beta)\cdot R_{x}(\alpha)$$
-
-即
-
-$$\begin{bmatrix}a^2+(1-a^2)cos\theta&ab(1-cos\theta)+csin\theta&ac(1-cos\theta)-bsin\theta&0\\ab(1-cos\theta)-csin\theta&b^2+(1-b^2)cos\theta&bc(1-cos\theta)+asin\theta&0\\ac(1-cos\theta)+bsin\theta&bc(1-cos\theta)-asin\theta&c^2+(1-c^2)cos\theta&0\\0&0&0&1\end{bmatrix}$$
-
-
-
 ## （2）缩放矩阵
 
 以原点为中心进行缩放
@@ -454,6 +377,111 @@ matrix_translate(abc);
 
 
 
+## （4） 绕任意轴旋转
+
+### 任意轴过原点
+
+假设这个任意轴过原点，那么我们按照以下步骤操作
+
+1. 将旋转轴P旋转至XOZ平面=>图中的R轴
+2. 将旋转轴旋转至于Z轴重合=>图中的T轴/Z轴
+3. 绕Z轴旋转θ度
+4. 执行步骤2的逆过程
+5. 执行步骤1的逆过程
+
+<img src="lesson2_空间变换.assets/image-20240923165436441.png" alt="image-20240923165436441" style="zoom:50%;" /><img src="lesson2_空间变换.assets/image-20240923165445546.png" alt="image-20240923165445546" style="zoom:50%;" />
+
+
+
+##### 绕X轴旋转，旋转至XOZ平面
+
+<img src="lesson2_空间变换.assets/image-20240922163504450.png" alt="image-20240922163504450" style="zoom:50%;" />
+
+假设P绕着X轴旋转$\alpha$得到R，我们将P投影到YOZ上得到P1点（0,b,c）,
+
+
+
+<img src="lesson2_空间变换.assets/image-20240922163521232.png" alt="image-20240922163521232" style="zoom:50%;" />
+
+<img src="lesson2_空间变换.assets/image-20240925133010417.png" alt="image-20240925133010417" style="zoom: 50%;" />
+
+<img src="lesson2_空间变换.assets/image-20240922161754636.png" alt="image-20240922161754636" style="zoom:50%;" />
+
+从图中不难看出，$cos\alpha =\frac{c}{\sqrt{b^2+c^2}}$,$sin\alpha =\frac{b}{\sqrt{b^2+c^2}}$
+
+根据一.1中”围绕X轴旋转“对应的公式，我们得到围绕X轴旋转的公式为
+
+$$Rx(\alpha)=\begin{bmatrix}1&0&0&0\\0&cos\alpha&-sin\alpha&0\\0&sin\alpha&cos\alpha&0\\0&0&0&1\end{bmatrix}=\begin{bmatrix}1&0&0&0\\0&\frac{c}{\sqrt{b^2+c^2}}&-\frac{b}{\sqrt{b^2+c^2}}&0\\0&\frac{b}{\sqrt{b^2+c^2}}&\frac{c}{\sqrt{b^2+c^2}}&0\\0&0&0&1\end{bmatrix}$$
+
+
+
+##### 绕Y轴旋转，旋转至与Z轴重合
+
+<img src="lesson2_空间变换.assets/image-20240922164421249.png" alt="image-20240922164421249" style="zoom: 67%;" /><img src="lesson2_空间变换.assets/image-20241010102809674.png" alt="image-20241010102809674" style="zoom: 33%;" />
+
+我们将R**绕Y轴旋转**至与Z轴重台，顺时针旋转的角度为$\beta$,则逆时针旋转角度为$-\beta$
+
+$$cos(-\beta)=cos\beta=\frac{\sqrt{b^{2}+c^{2}}}{\sqrt{a^{2}+b^{2}+c^{2}}},\quad sin(-\beta)=-sin\beta=-\frac{a}{\sqrt{a^{2}+b^{2}+c^{2}}}$$
+
+根据一.2中”围绕Y轴旋转“对应的公式，我们得到围绕Y轴旋转的公式为
+$$
+Ry(-\beta)=\begin{bmatrix}cos\beta&0&sin(-\beta)&0\\0&1&0&0\\-sin(-\beta)&0&cos\beta&0\\0&0&0&1\end{bmatrix}=\begin{bmatrix}\frac{\sqrt{b^2+c^2}}{\sqrt{a^2+b^2+c^2}}&0&-\frac{a}{\sqrt{a^2+b^2+c^2}}&0\\0&1&0&0\\\frac{a}{\sqrt{a^2+b^2+c^2}}&0&\frac{\sqrt{b^2+c^2}}{\sqrt{a^2+b^2+c^2}}&0\\0&0&0&1\end{bmatrix}
+$$
+
+
+##### 绕Z轴旋转
+
+根据一.1中”围绕Z轴旋转“对应的公式，我们得到围绕Z轴旋转的公式为
+$$
+Rx(\theta)=\begin{bmatrix}
+cos\theta&-sin\theta&0&0
+\\sin\theta&cos\theta&0&0
+\\0&0&1&0
+\\0&0&0&1
+\end{bmatrix}
+$$
+
+
+##### 整合
+
+我们按照步骤将以上的矩阵相乘(不断左乘),得到：
+
+$$M=R_{x}(-\alpha)\cdot R_{y}(\beta)\cdot R_{z}(\theta)\cdot R_{y}(-\beta)\cdot R_{x}(\alpha)$$
+
+即
+
+$$\begin{bmatrix}a^2+(1-a^2)cos\theta&ab(1-cos\theta)+csin\theta&ac(1-cos\theta)-bsin\theta&0\\ab(1-cos\theta)-csin\theta&b^2+(1-b^2)cos\theta&bc(1-cos\theta)+asin\theta&0\\ac(1-cos\theta)+bsin\theta&bc(1-cos\theta)-asin\theta&c^2+(1-c^2)cos\theta&0\\0&0&0&1\end{bmatrix}$$
+
+
+
+### 任意轴不过原点
+
+上面的方法需要旋转轴过原点，那么如果这个任意的旋转轴不过原点呢？那么很简单，我们可以增加第一步先将这个旋转轴平移到原点，然后最后一步再执行这个操作的逆过程平移回去。
+
+<img src="lesson2_空间变换.assets/image-20241010103816304.png" alt="image-20241010103816304" style="zoom:50%;" />
+
+对应的平移矩阵为：
+$$
+\begin{bmatrix}X\\Y\\Z\\1\end{bmatrix}=
+\begin{bmatrix}
+1&0&0&-a'
+\\0&1&0&-b'
+\\0&0&1&-c'
+\\0&0&0&1
+\end{bmatrix}
+
+\begin{bmatrix}x\\y\\z\\1\end{bmatrix}
+= 
+\begin{bmatrix}
+x-a'\\y-b'\\z-c'\\1
+\end{bmatrix}
+$$
+
+
+
+
+
+
 # 二、空间变换
 
 
@@ -469,6 +497,8 @@ matrix_translate(abc);
 在图形学的管线中，需要经过模型空间->世界空间->相机空间->裁剪空间->屏幕空间的过程，读者可以在test_space_transform这个文件中找到对应这几个空间变换的函数。
 
 ![image-20240925151034757](lesson2_空间变换.assets/image-20240925151034757.png)
+
+
 
 
 
@@ -825,6 +855,8 @@ mat4_t camera_get_view_matrix(Camera& camera)
 
 这个立方体我们称为正交投影观察体。
 
+![image-20241009112305226](lesson2_空间变换.assets/image-20241009112305226.png)
+
 ![image-20240924173924958](lesson2_空间变换.assets/image-20240924173924958.png)
 
 对于任意一个点$(x,y,z)$,它进行正交投影变换后等于$(x',y',z')$，其中$x$与$y$是不会改变的，等于$(x,y,z')$。
@@ -833,7 +865,9 @@ mat4_t camera_get_view_matrix(Camera& camera)
 
 我们还需要将正交投影观察体规范化，让x,y,z 的范围规范到-1到1.
 
-如下图所示，正交投影观察体中的点（xmin，ymin，-znear）/（left，bottom，-near）规范化后成为点（-1，-1，-1），点（xmax，ymax，-zfar）规范化后成为点（1，1，1）
+如下 面这个视频所示，正交投影观察体中的点（xmin，ymin，-znear）/（left，bottom，-near）规范化后成为点（-1，-1，-1），点（xmax，ymax，-zfar）规范化后成为点（1，1，1）
+
+<video src="../../../../_LabProj/tuxingxueKechengCG/t3b1b/manim/results/Orthographic2NDC.mp4"></video>
 
 ![image-20240924174219922](lesson2_空间变换.assets/image-20240924174219922.png)
 
@@ -1011,16 +1045,26 @@ mat4_t mat4_orthographic(float right, float top, float near, float far) {
 
 真实世界中，我们看到的东西实际上会符合近大远小的特点，是透视投影而不是正交投影。
 
+![image-20241009102047594](lesson2_空间变换.assets/image-20241009102047594.png)
+
+![image-20241009102310208](lesson2_空间变换.assets/image-20241009102310208.png)
+
 ![image-20240924194419132](lesson2_空间变换.assets/image-20240924194419132.png)
 
-在透视投影中，观察体就不再是立方体而是棱台。
+
+
+在透视投影中，观察体就不再是立方体而是棱台。下图中的绿色部分就是矩形棱台观察体，只有位于其中的物体会被观察到。
+
+![image-20241009104418556](lesson2_空间变换.assets/image-20241009104418556.png)
 
 透视投影可以拆分为两个子步骤，第一步，先将观察体棱台压缩到一个立方体内，第二步，将立方体做一次正交投影。
 
-![image-20240924200018476](lesson2_空间变换.assets/image-20240924200018476.png)
+<video src="lesson2视频演示/PerspectiveToOrthographicFromPer.mp4"></video>
+
+
 
 #### 棱台观察体压缩为立方体
-
+<video src="lesson2视频演示/PerspectiveToOrthographic.mp4"></video>
 
 
 在这个压缩过程中，我们规定：
@@ -1029,7 +1073,13 @@ mat4_t mat4_orthographic(float right, float top, float near, float far) {
 2. 远平面上的点的 z 坐标不会随着压缩而变化
 3. 压缩后原来远平面的中心依然是中心(以下动图中还有一半没有画出，-y部分还有一半，远平面中心的（z，y）是（-f，0）
 
-观察下图的压缩过程，我们可以看到这个过程符合以上压缩规定。
+
+
+我们从棱台中找到一个横截面来讲解，会更加清晰，如下图所示，这个横截面三角形由原点，远平面中心，和远平面上边的中心组成。
+
+<img src="lesson2_空间变换.assets/image-20241010105735895.png" alt="image-20241010105735895" style="zoom: 67%;" />
+
+观察以下动画的压缩过程，我们可以看到这个过程符合以上压缩规定。
 
 <video src="lesson2视频演示/CoordinateSystemExample.mp4"></video>
 
@@ -1148,6 +1198,7 @@ $$
 
 #### 正交投影
 
+压缩后，我们就可以进行正交投影。
 
 $$
 M =
