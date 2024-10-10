@@ -499,11 +499,23 @@ $$
 
 在图形学的管线中，需要经过**模型空间->世界空间->相机空间->裁剪空间->屏幕空间的过程**，读者可以在test_space_transform这个文件中找到对应这几个空间变换的函数。接下来我们会讲述如何经过这些空间变换，把一个三维的物体”变换“到二维的屏幕上。
 
-![image-20240925151034757](lesson2_空间变换.assets/image-20240925151034757.png)
 
 
+我们先大致看看这个空间变换的过程:首先我们要拍照的各个物体都在自己的模型空间中
 
+<img src="lesson2_空间变换.assets/image-20241010162517896.png" alt="image-20241010162517896" style="zoom:50%;" />
 
+我们要将其转换到世界空间中:
+
+<img src="lesson2_空间变换.assets/image-20241010162716717.png" alt="image-20241010162716717" style="zoom:50%;" />
+
+接下来我们放好相机,我们会将物体进一步转换到相机空间中,然后转换到裁剪空间中(后续会有具体介绍)
+
+<img src="lesson2_空间变换.assets/image-20241010162727132.png" alt="image-20241010162727132" style="zoom:50%;" />
+
+然后我们就可以按下快门,为看到的物体拍照,即转到屏幕空间中.
+
+![image-20241010162830830](lesson2_空间变换.assets/image-20241010162830830.png)
 
 ## 2.空间变换矩阵
 
@@ -668,8 +680,6 @@ vec3_t abc_3d[3] =
 
 ## 2.世界空间->相机空间
 
-参考绿皮计算机图形学P27那个图
-
 ​	放置完场景中的物体，接下来我们需要放置照相机的位置，并确定这个照相机该往哪里去看。要决定照相机“往哪里去看”这件事，也就是说我们需要知道相机的位姿，即此时的朝向，即相机的向上，向右和向前方向分别是哪三个向量。
 
 ![image-20240924170551037](lesson2_空间变换.assets/image-20240924170551037.png)
@@ -759,13 +769,6 @@ $$
 
 
 
-（做出类似下图）
-
-![image-20240805112249746](./assets/image-20240805112249746.png)
-
-此时这个转到相机空间/观察空间的矩阵如下（推导暂略）：
-
-![image-20240805112409907](./assets/image-20240805112409907.png)
 
 这里我们开始写代码。首先定义一个camera.h文件和对应的camera.cpp文件，用于表示相机。根据我们刚才所说，相机需要一个position和一个lookat的方向，通常来说相机还有一个宽高比aspect参数（这个在透视投影里会有用，先写进来）：
 
@@ -840,7 +843,7 @@ mat4_t camera_get_view_matrix(Camera& camera)
 
 经过上面的步骤，我们的眼睛已经对准了相机，可以按下快门，将场景记录在照片上了。这就是说，这一阶段我们需要将物体投影到观察平面上，可以通过正交投影和透视投影等的方式进行。
 
-（类似下图的图画一个 就是下图的正方体是照相机可见的渲染的场景区域）
+下图的正方体是照相机可见的渲染的场景区域:
 
 ![image-20240924172339675](lesson2_空间变换.assets/image-20240924172339675.png)
 
@@ -860,11 +863,9 @@ mat4_t camera_get_view_matrix(Camera& camera)
 
 ![image-20241009112305226](lesson2_空间变换.assets/image-20241009112305226.png)
 
-![image-20240924173924958](lesson2_空间变换.assets/image-20240924173924958.png)
+
 
 对于任意一个点$(x,y,z)$,它进行正交投影变换后等于$(x',y',z')$，其中$x$与$y$是不会改变的，等于$(x,y,z')$。
-
-（做一个类似以上的图）
 
 我们还需要将正交投影观察体规范化，让x,y,z 的范围规范到-1到1.
 
@@ -872,9 +873,7 @@ mat4_t camera_get_view_matrix(Camera& camera)
 
 <video src="lesson2视频演示/Orthographic2NDC.mp4"></video>
 
-![image-20240924174219922](lesson2_空间变换.assets/image-20240924174219922.png)
-
-（做一个类似以上的图）
+<img src="lesson2_空间变换.assets/image-20241010163256746.png" alt="image-20241010163256746" style="zoom:50%;" />  规范化:  <img src="lesson2_空间变换.assets/image-20241010163314133.png" alt="image-20241010163314133" style="zoom:50%;" />     
 
 图中我们很明显能够知道，正交投影的规范化变化首先使用平移矩阵将正交投影观察体平移到原点，接着使用缩放矩阵将观察体规范化到-1到1之间。
 
@@ -1052,7 +1051,7 @@ mat4_t mat4_orthographic(float right, float top, float near, float far) {
 
 ![image-20241009102310208](lesson2_空间变换.assets/image-20241009102310208.png)
 
-![image-20240924194419132](lesson2_空间变换.assets/image-20240924194419132.png)
+
 
 
 
@@ -1067,6 +1066,9 @@ mat4_t mat4_orthographic(float right, float top, float near, float far) {
 
 
 #### 棱台观察体压缩为立方体
+
+棱台观察体压缩为立方体的过程见如下视频演示:
+
 <video src="lesson2视频演示/PerspectiveToOrthographic.mp4"></video>
 
 
@@ -1086,7 +1088,7 @@ mat4_t mat4_orthographic(float right, float top, float near, float far) {
 
 <video src="lesson2视频演示/CoordinateSystemExample.mp4"></video>
 
-我们从压缩前的棱台观察体中随机取一个点$A(x,y,z)$,将它与相机连线，与近平面相交于$C(x',y',-n)$这个点上(在前面，我们规定n与f是正数)。由于进行正交投影变换后$x'$与$y'$是不会改变的，因此点A压缩后对应的点$B(x',y',z')$的$x'$与$y'$与C是一致的。
+我们从压缩前的棱台观察体中随机取一个点$A(x,y,z)$,将它与相机连线，与近平面相交于$C(x',y',-n)$这个点上(在前面，我们规定n与f是正数)。$C(x',y',-n)$正是点$A$最终投影在近平面上的点.由于进行正交投影变换后$x'$与$y'$是不会改变的，因此点A压缩后对应的点$B(x',y',z')$的$x'$与$y'$与C是一致的。
 
 换言之，点A对应到压缩后的立方体中是点$B(x',y',z')$，在立方体中，我们将点B进行正交投影，投影到近平面上，进行正交投影变换后$x'$与$y'$是不会改变的，得到点$C(x',y',-n)$。
 
@@ -1644,7 +1646,7 @@ else
 
 
 
-![image-20240926151448896](lesson2_空间变换.assets/image-20240926151448896.png)
+![image-20241010172336412](lesson2_空间变换.assets/image-20241010172336412.png)
 
 而解决方案需要经过一定的推导。以下我们以插值深度为例。
 
@@ -1720,11 +1722,6 @@ I = Z \cdot \left( \alpha' \frac{I_A}{Z_A} + \beta' \frac{I_B}{Z_B} + \gamma' \f
 $$
 
 
-
-
-在https://registry.khronos.org/OpenGL/specs/es/2.0/es_full_spec_2.0.pdf这篇文章中的3.5.1小节，有这样一段话：
-
-![image-20240805144815292](./assets/image-20240805144815292.png)
 
 ## 1.插值深度（参照OpenGL）
 
