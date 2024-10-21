@@ -1,7 +1,6 @@
-﻿  camera.cpp
+﻿  build_scene.cpp
   graphics.cpp
   main.cpp
-  maths.cpp
   rasterization.cpp
   shader_BlinnPhong.cpp
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\rasterization.cpp(30,10): warning C4101: “clip_abc”: 未引用的局部变量
@@ -26,9 +25,6 @@ D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_transf
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_transform.cpp(63,97): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_transform.cpp(63,64): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_transform.cpp(63,32): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
-  texture2D.cpp
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.cpp(7,8): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.cpp(8,8): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
   win32.cpp
   正在生成代码...
   MyRendererCpp.vcxproj -> D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\x64\Debug\MyRendererCpp.exe

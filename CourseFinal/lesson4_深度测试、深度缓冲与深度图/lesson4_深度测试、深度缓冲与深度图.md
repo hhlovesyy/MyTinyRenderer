@@ -194,6 +194,8 @@ $$
 
 ## 5.项目中的代码
 
+在光栅化中，我们对每个三角形的aabb包围盒进行遍历，对每个像素进行深度测试。
+
 ```C++
 float screen_depths[3];//三角形的三个顶点的深度值	
 for (int i = bbox.min_x; i <= bbox.max_x; i++)
@@ -205,9 +207,7 @@ for (int i = bbox.min_x; i <= bbox.max_x; i++)
 
             //深度插值
 			float depth = interpolate_depth(screen_depths, result);
-			//Zbuffer test
 			int screen_index = j * width + i;
-            
             //深度测试
 			if (depth < zbuffer[screen_index])
 			{
@@ -221,6 +221,34 @@ for (int i = bbox.min_x; i <= bbox.max_x; i++)
 			......
 	
 		}
+	}
+
+```
+
+在我们的代码中，为了提供更高的性能、更低的内存开销、更方便的管理，我们将zbuffer/depthbuffer存放在framebuffer中
+
+```C++
+for (int i = bbox.min_x; i <= bbox.max_x; i++)
+{
+	for (int j = bbox.min_y; j <= bbox.max_y; j++)
+	{
+		vec2_t p{ (float)(i + 0.5), (float)(j + 0.5) };
+		vec3_t result = calculate_weights(screen_coords, p);
+
+		float depth = interpolate_depth(screen_depths, result);
+		int screen_index = j * WINDOW_WIDTH + i;
+        //深度测试 
+        //为了提供更高性能、更低内存开销、更方便管理，我们将depthbuffer存放在framebuffer中
+		if (depth < framebuffer->depth_buffer[screen_index])
+		{
+            //深度写入
+			framebuffer->depth_buffer[screen_index] = depth;
+		}
+		else
+		{
+			continue;
+		}
+        ......
 	}
 }
 ```

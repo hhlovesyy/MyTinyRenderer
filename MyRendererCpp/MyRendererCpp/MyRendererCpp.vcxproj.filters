@@ -59,6 +59,9 @@
     <ClCompile Include="texture2D.cpp">
       <Filter>core\source</Filter>
     </ClCompile>
+    <ClCompile Include="build_scene.cpp">
+      <Filter>core\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -119,6 +122,9 @@
       <Filter>core\header</Filter>
     </ClInclude>
     <ClInclude Include="texture2D.h">
+      <Filter>core\header</Filter>
+    </ClInclude>
+    <ClInclude Include="build_scene.h">
       <Filter>core\header</Filter>
     </ClInclude>
   </ItemGroup>

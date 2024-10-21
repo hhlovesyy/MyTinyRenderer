@@ -63,14 +63,10 @@ void rasterization_tri(Mesh* mesh,Program* program, framebuffer_t* framebuffer)
 			{
 				vec2_t p{ (float)(i + 0.5), (float)(j + 0.5) };
 				vec3_t result = calculate_weights(screen_coords, p);
-
-
 				if (!(result.x > 0 && result.y > 0 && result.z > 0)) continue;
-
-				//Zbuffer test
 				float depth = interpolate_depth(screen_depths, result);
-				//Zbuffer test
 				int screen_index = j * WINDOW_WIDTH + i;
+				//Zbuffer test
 				if (depth < framebuffer->depth_buffer[screen_index])
 				{
 					framebuffer->depth_buffer[screen_index] = depth;

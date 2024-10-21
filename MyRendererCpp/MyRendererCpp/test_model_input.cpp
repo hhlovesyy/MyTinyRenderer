@@ -8,6 +8,7 @@
 #include "test_helper.h"
 #include "scene_helper.h"
 #include "rasterization.h"
+#include "build_scene.h"
 using namespace std;
 
 typedef void tickfunc_t(framebuffer_t* framebuffer, Camera* camera);
@@ -19,6 +20,9 @@ std::vector<TGAImage> img;
 vector<Model*> models;
 void preLoadModel()
 {
+	//SceneBuilder builder;
+	
+
 	//加载模型(新)
 	Scene* scene = scene_from_file("combinePamu.scene");
 
@@ -27,9 +31,9 @@ void preLoadModel()
 	
 	/*vertices = mesh->getVertices();
 	num_faces = mesh->getNumFaces();*/
+
 	
 }
-
 
 //传入顶点数据
 void model_input_transform(framebuffer_t* framebuffer,Camera* camera)
@@ -93,6 +97,7 @@ void test_enter_mainloop_model_input(tickfunc_t* tickfunc)
 		update_camera(window, camera, &record);
 		update_click(curr_time, &record);
 
+		//调用传入的函数，main中将这个函数设置为此类下的model_input_transform
 		tickfunc(framebuffer, camera);
 		window_draw_buffer(window, framebuffer);
 		num_frames += 1;
@@ -118,9 +123,6 @@ void test_enter_mainloop_model_input(tickfunc_t* tickfunc)
 void test_model_input()
 {
 	//创建模型
-
-
-
 	preLoadModel();
 	//进入主循环并渲染模型,传入顶点数据
 	test_enter_mainloop_model_input(model_input_transform);
