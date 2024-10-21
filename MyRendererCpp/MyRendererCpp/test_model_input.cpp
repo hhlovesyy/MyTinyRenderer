@@ -18,16 +18,17 @@ std::vector<Mesh::Vertex> vertices;
 //获取材质
 std::vector<TGAImage> img;
 vector<Model*> models;
+SceneBuilder builder;
+Scene scene;
 void preLoadModel()
 {
-	//SceneBuilder builder;
-	
-
+	builder = SceneBuilder();
 	//加载模型(新)
-	Scene* scene = scene_from_file("combinePamu.scene");
+	//Scene* scene = scene_from_file("combinePamu.scene");
+	scene = scene_from_file("combinePamu.scene");
 
 	//获取模型的顶点数据
-	 models = scene->models;
+	 models = scene.models;
 	
 	/*vertices = mesh->getVertices();
 	num_faces = mesh->getNumFaces();*/
@@ -45,7 +46,9 @@ void model_input_transform(framebuffer_t* framebuffer,Camera* camera)
 	int width = framebuffer->width;
 	int height = framebuffer->height;
 
-	mat4_t view_matrix = camera_get_view_matrix(*camera);
+	builder.test_draw_scene(scene, framebuffer,camera);
+
+	/*mat4_t view_matrix = camera_get_view_matrix(*camera);
 	mat4_t proj_matrix = camera_get_proj_matrix(*camera);
 
 	for(int index=0;index<models.size();index++)
@@ -63,6 +66,7 @@ void model_input_transform(framebuffer_t* framebuffer,Camera* camera)
 	
 		rasterization_tri(mesh, program, framebuffer);	
 	}
+	*/
 }
 void test_enter_mainloop_model_input(tickfunc_t* tickfunc)
 {

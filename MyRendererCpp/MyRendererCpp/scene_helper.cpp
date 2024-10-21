@@ -171,7 +171,7 @@ static Scene* create_blinn_scene(std::vector<Scene_Blinn_t>& materials, std::vec
 	return scene;
 }
 
-Scene* scene_from_file(const char* filename)
+Scene scene_from_file(const char* filename)
 {
 	char scene_type[LINE_SIZE];
 	int items = 0;
@@ -181,7 +181,7 @@ Scene* scene_from_file(const char* filename)
 	items = fscanf(file, " type: %s", scene_type);
 	assert(items == 1); //说明读取成功
 	UNUSED_VAR(items);
-	Scene* scene;
+	Scene scene;
 
 	if (equals_to(scene_type, "blinn")) //目前只支持Blinn的相关场景
 	{
@@ -191,12 +191,13 @@ Scene* scene_from_file(const char* filename)
 		read_blinn_materials(file, materials);
 		read_transforms(file, transforms);
 		read_models(file, models);
-		scene = create_blinn_scene(materials, transforms, models);
+		//scene = create_blinn_scene(materials, transforms, models);
+		scene = *create_blinn_scene(materials, transforms, models);
 	}
 	else
 	{
 		assert(0);
-		scene = nullptr;
+		scene = Scene();
 	}
 	fclose(file);
 	return scene;

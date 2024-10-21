@@ -1,10 +1,31 @@
 #include "scene.h"
+#include "scene_helper.h"
+#include <vector>
 #include "build_scene.h"
+#include "rasterization.h"
+using namespace std;
 
 
 
-void SceneBuilder::test_draw_scene(Scene* scene, framebuffer_t* framebuffer)
+void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Camera* camera)
 {
+    vector<Model*> models = scene.models;
+
+    for (int index = 0; index < models.size(); index++)
+    {
+        Mesh* mesh = models[index]->mesh;
+
+
+        Program* program = models[index]->program;
+        uniforms_blinnphong* uniforms = (uniforms_blinnphong*)program->get_uniforms();
+        uniforms->light_dir = vec3_new(0.5f, 0.8f, 0.9f);
+        uniforms->camera_pos = camera->position;
+
+        uniforms->camera_vp_matrix = mat4_mul_mat4(camera_get_proj_matrix(*camera), camera_get_view_matrix(*camera));
+
+
+        rasterization_tri(mesh, program, framebuffer);
+    }
     /*
     std::vector<Model*>& models = scene->models;  // 获取所有模型
     int num_models = models.size();  // 获取模型数量
@@ -15,8 +36,6 @@ void SceneBuilder::test_draw_scene(Scene* scene, framebuffer_t* framebuffer)
         Model* model = models[i];
         model->update(perframe);  // 调用更新函数
     }
-    
-
 
     sort_models(models, perframe->camera_view_matrix);  // 按摄像机视图矩阵排序模型
     framebuffer->clear_color(scene->background);  // 清除颜色缓冲

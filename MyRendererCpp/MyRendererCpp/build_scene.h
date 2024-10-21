@@ -4,7 +4,7 @@
 #define BUILD_SCENE_H
 class SceneBuilder {
 public:
-    void test_draw_scene(Scene* scene, framebuffer_t* framebuffer);
+    void test_draw_scene(Scene scene, framebuffer_t* framebuffer, Camera* camera);
     // 未来可以在这里添加更多成员函数
 };
 
