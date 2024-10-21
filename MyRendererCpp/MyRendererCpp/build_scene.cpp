@@ -3,18 +3,20 @@
 #include <vector>
 #include "build_scene.h"
 #include "rasterization.h"
+#include <algorithm> // for std::sort
 using namespace std;
-
-
 
 void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Camera* camera)
 {
     vector<Model*> models = scene.models;
+    //渲染顺序
+    //模型排序
+    int num_models = models.size();
+    sort_models(models, camera_get_view_matrix(*camera));
 
     for (int index = 0; index < models.size(); index++)
     {
         Mesh* mesh = models[index]->mesh;
-
 
         Program* program = models[index]->program;
         uniforms_blinnphong* uniforms = (uniforms_blinnphong*)program->get_uniforms();
@@ -22,7 +24,6 @@ void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Came
         uniforms->camera_pos = camera->position;
 
         uniforms->camera_vp_matrix = mat4_mul_mat4(camera_get_proj_matrix(*camera), camera_get_view_matrix(*camera));
-
 
         rasterization_tri(mesh, program, framebuffer);
     }
@@ -78,21 +79,28 @@ void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Came
     }
     */
 }
+void Qsort(std::vector<Model*>& models)
+{
+    std::sort(models.begin(), models.end(), [](Model* a, Model* b) {
+        return a->distance < b->distance; // 升序排序
+        });
+}
+void SceneBuilder::sort_models(std::vector<Model*>& models, const mat4_t& view_matrix)
+{
+    int num_models = models.size();  // 获取模型数量
+    if (num_models > 1)
+    {
+        for (int i = 0; i < num_models; i++)
+        {  // 遍历所有模型
+            Model* model = models[i];
+            vec3_t center = model->mesh->getCenter();  // 获取模型中心
+            vec4_t local_pos = vec4_from_vec3(center, 1.0f);  // 转换为4D向量
+            vec4_t world_pos = mat4_mul_vec4(model->transform, local_pos);  // 变换到世界坐标
 
-//static void sort_models(std::vector<Model*>& models, const mat4& view_matrix)
-//{
-//    int num_models = models.size();  // 获取模型数量
-//    if (num_models > 1)
-//    {
-//        for (int i = 0; i < num_models; i++)
-//        {  // 遍历所有模型
-//            Model* model = models[i];
-//            vec3 center = model->mesh->get_center();  // 获取模型中心
-//            vec4 local_pos = vec4(center, 1.0f);  // 转换为4D向量
-//            vec4 world_pos = model->transform * local_pos;  // 变换到世界坐标
-//            vec4 view_pos = view_matrix * world_pos;  // 变换到视图坐标
-//            model->distance = -view_pos.z;  // 计算距离
-//        }
-//        std::sort(models.begin(), models.end(), compare_models);  // 使用std::sort
-//    }
-//}
+            vec4_t view_pos = mat4_mul_vec4(view_matrix, world_pos);
+            model->distance = -view_pos.z;  // 计算距离
+        }
+        Qsort(models);  // 使用std::sort
+    }
+}
+//Qsort函数
