@@ -1,5 +1,31 @@
 #include "rasterization.h"
 
+//用于背面剔除
+bool cull_back(vec3_t ndc_coords[3])
+{
+	vec3_t a = ndc_coords[0];
+	vec3_t b = ndc_coords[1];
+	vec3_t c = ndc_coords[2];
+
+	vec3_t ab = vec3_sub(b, a);
+	vec3_t bc = vec3_sub(c, b);
+
+	float cross = ab.x * bc.y - ab.y * bc.x;
+	return cross <= 0;
+}
+bool cull_back_efficient(vec3_t ndc_coords[3])
+{
+	vec3_t a = ndc_coords[0];
+	vec3_t b = ndc_coords[1];
+	vec3_t c = ndc_coords[2];
+
+	float signed_area =
+		a.x * b.y - a.y * b.x +
+		b.x * c.y - b.y * c.x +
+		c.x * a.y - c.y * a.x;
+	return signed_area <= 0;
+}
+
 void rasterization_tri(Mesh* mesh,Program* program, framebuffer_t* framebuffer)
 {
 	std::vector<Mesh::Vertex> vertices = mesh->getVertices();
@@ -52,6 +78,11 @@ void rasterization_tri(Mesh* mesh,Program* program, framebuffer_t* framebuffer)
 			vec3_t window_coord = viewport_transform(WINDOW_WIDTH, WINDOW_HEIGHT, ndc_coords[i]); //这一步是做视口变换
 			screen_coords[i] = vec2_new(window_coord.x, window_coord.y);
 			screen_depths[i] = window_coord.z;
+		}
+		//背面剔除
+		if(cull_back_efficient(ndc_coords))
+		{
+			continue;
 		}
 
 		bbox_t bbox = find_bounding_box(screen_coords, WINDOW_WIDTH, WINDOW_HEIGHT);
