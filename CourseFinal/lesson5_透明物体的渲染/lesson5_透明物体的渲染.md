@@ -356,3 +356,15 @@ $$
 [Unity Shader 点阵像素剔除半透（Stipple Transparency ） - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/92955281)
 ### 5.6.2  开启深度写入的半透明
 
+
+
+
+
+## 实践
+
+![image-20241022231958214](lesson5_透明物体的渲染.assets/image-20241022231958214.png)
+
+![image-20241022231922404](lesson5_透明物体的渲染.assets/image-20241022231922404.png)
+
+
+

@@ -97,9 +97,10 @@ void rasterization_tri(Mesh* mesh,Program* program, framebuffer_t* framebuffer)
 				if (!(result.x > 0 && result.y > 0 && result.z > 0)) continue;
 				float depth = interpolate_depth(screen_depths, result);
 				int screen_index = j * WINDOW_WIDTH + i;
-				//Zbuffer test
+				//Zbuffer test 深度测试
 				if (depth < framebuffer->depth_buffer[screen_index])
 				{
+					//深度写入
 					framebuffer->depth_buffer[screen_index] = depth;
 				}
 				else

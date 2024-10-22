@@ -3,10 +3,10 @@
 #include "graphics.h"
 #include "camera.h"
 #include <iostream>
-
-static const char* const WINDOW_TITLE = "Lesson3";
-static const int WINDOW_WIDTH = 800;
-static const int WINDOW_HEIGHT = 600;
+#include "test_helper.h"
+//static const char* const WINDOW_TITLE = "Lesson3";
+//static const int WINDOW_WIDTH = 800;
+//static const int WINDOW_HEIGHT = 600;
 
 typedef void tickfunc_t(framebuffer_t* framebuffer);
 
