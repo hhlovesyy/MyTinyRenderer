@@ -92,7 +92,7 @@ Model* shader_BlinnPhong_create_model(std::string mesh_path, mat4_t transform, m
     
 
     program = new Program(blinnphong_vertex_shader, blinnphong_fragment_shader,
-        sizeof_attribs, sizeof_varyings, sizeof_uniforms);
+        sizeof_attribs, sizeof_varyings, sizeof_uniforms,material.alpha_blend);
 
     uniforms = static_cast<uniforms_blinnphong*>(program->get_uniforms());
 

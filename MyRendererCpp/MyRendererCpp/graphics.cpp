@@ -16,10 +16,11 @@
 #define MAX_VARYINGS 10
 
 Program::Program(vertex_shader_t vertex_shader, fragment_shader_t fragment_shader,
-	int sizeof_attribs, int sizeof_varyings, int sizeof_uniforms)
+	int sizeof_attribs, int sizeof_varyings, int sizeof_uniforms, int alpha_blend)
 	: vertex_shader_(vertex_shader), fragment_shader_(fragment_shader),
 	sizeof_attribs_(sizeof_attribs), sizeof_varyings_(sizeof_varyings),
-	sizeof_uniforms_(sizeof_uniforms){
+	sizeof_uniforms_(sizeof_uniforms), alpha_blend(alpha_blend)
+{
 	assert(sizeof_attribs > 0 && sizeof_varyings > 0 && sizeof_uniforms > 0);
 	assert(sizeof_varyings % sizeof(float) == 0);
 
@@ -83,14 +84,15 @@ bbox_t find_bounding_box(vec2_t abc[3], int width, int height)
 	return bbox;
 }
 
+//目前只是简单的将颜色写入到framebuffer中，并做透明度混合
 void draw_fragment(framebuffer_t* framebuffer, int index, vec4_t& color,Program* program)
 {
 	//start 增加透明度混合
-	int transparent = 1;
+	int transparent = program->alpha_blend;
 	if (transparent == 1)
 	{
 		//float alpha = color.w;
-		float alpha = 0.2;
+		float alpha = 0.5;
 		if (alpha < 1)
 		{
 			unsigned char dst_r = framebuffer->color_buffer[index * 4 + 0];

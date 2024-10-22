@@ -9,7 +9,7 @@ using fragment_shader_t = vec4_t(*)(void* varyings, void* uniforms, int* discard
 class Program {
 public:
 	Program(vertex_shader_t vertex_shader, fragment_shader_t fragment_shader,
-		int sizeof_attribs, int sizeof_varyings, int sizeof_uniforms);
+		int sizeof_attribs, int sizeof_varyings, int sizeof_uniforms, int alpha_blend = 0);
 	~Program();
 
 	void* get_attribs(int nth_vertex);
