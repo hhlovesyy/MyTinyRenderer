@@ -10,11 +10,8 @@ void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Came
 {
     vector<Model*> models = scene.models;
     //渲染顺序
-    //模型排序
-    int num_models = models.size();
-    sort_models(models, camera_get_view_matrix(*camera));
+    
     //区分透明与非透明模型
-    int num_opaques = 0;
     vector<Model*> TransModels ;//透明物体
     vector<Model*> OpaqueModels;//非透明物体
     for (int index = 0; index < models.size(); index++)
@@ -23,7 +20,6 @@ void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Came
         
         if (model->transparent==0)
         {
-            num_opaques += 1;
             OpaqueModels.push_back(model);
         }
         else
@@ -32,8 +28,8 @@ void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Came
             //break;  // 透明模型不计入
         }
     }
-    //绘制不透明模型
-    //for (int index = 0; index < num_opaques; index++)
+    //先渲染不透明物体，再渲染透明物体
+    //绘制不透明模型 不需要关注顺序
     sort_models(OpaqueModels, camera_get_view_matrix(*camera));
     for (int index = 0; index < OpaqueModels.size(); index++)
 	{
@@ -50,7 +46,6 @@ void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Came
         rasterization_tri(mesh, program, framebuffer);
 	}
     //绘制透明模型
-    //for (int index = num_opaques; index < models.size(); index++)
     //绘制透明物体时，应该采用先远后近的顺序
     sort_models(TransModels, camera_get_view_matrix(*camera),false);
     for (int index = 0; index < TransModels.size(); index++)
@@ -67,72 +62,6 @@ void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Came
 
 		rasterization_tri(mesh, program, framebuffer);
 	}
-
-   /* for (int index = 0; index < models.size(); index++)
-    {
-        Mesh* mesh = models[index]->mesh;
-
-        Program* program = models[index]->program;
-        uniforms_blinnphong* uniforms = (uniforms_blinnphong*)program->get_uniforms();
-        uniforms->light_dir = vec3_new(0.5f, 0.8f, 0.9f);
-        uniforms->camera_pos = camera->position;
-
-        uniforms->camera_vp_matrix = mat4_mul_mat4(camera_get_proj_matrix(*camera), camera_get_view_matrix(*camera));
-
-        rasterization_tri(mesh, program, framebuffer);
-    }*/
-
-    /*
-    std::vector<Model*>& models = scene->models;  // 获取所有模型
-    int num_models = models.size();  // 获取模型数量
-    int i;
-
-    for (i = 0; i < num_models; i++) 
-    {  // 更新所有模型
-        Model* model = models[i];
-        model->update(perframe);  // 调用更新函数
-    }
-
-    sort_models(models, perframe->camera_view_matrix);  // 按摄像机视图矩阵排序模型
-    framebuffer->clear_color(scene->background);  // 清除颜色缓冲
-    framebuffer->clear_depth(1);  // 清除深度缓冲
-    if (skybox == nullptr || perframe->layer_view >= 0)
-    {  // 绘制所有模型
-        for (i = 0; i < num_models; i++)
-        {
-            Model* model = models[i];
-            model->draw(framebuffer, 0);
-        }
-    }
-    else
-    {
-        int num_opaques = 0;
-        for (i = 0; i < num_models; i++) 
-        {  // 计算非透明模型数量
-            Model* model = models[i];
-            if (model->opaque) 
-            {
-                num_opaques++;
-            }
-            else 
-            {
-                break;
-            }
-        }
-
-        for (i = 0; i < num_opaques; i++) 
-        {  // 绘制所有非透明模型
-            Model* model = models[i];
-            model->draw(framebuffer, 0);
-        }
-        skybox->draw(framebuffer, 0);  // 绘制天空盒
-        for (i = num_opaques; i < num_models; i++) 
-        {  // 绘制透明模型
-            Model* model = models[i];
-            model->draw(framebuffer, 0);
-        }
-    }
-    */
 }
 void Qsort(std::vector<Model*>& models, bool isAscending)
 {
@@ -166,7 +95,6 @@ void SceneBuilder::sort_models(std::vector<Model*>& models, const mat4_t& view_m
             vec4_t view_pos = mat4_mul_vec4(view_matrix, world_pos);
             model->distance = -view_pos.z;  // 计算距离
         }
-        Qsort(models,isAscending);  // 使用std::sort
+        Qsort(models,isAscending);  
     }
 }
-//Qsort函数
