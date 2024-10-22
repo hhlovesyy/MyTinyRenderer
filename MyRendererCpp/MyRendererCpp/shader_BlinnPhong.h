@@ -34,6 +34,7 @@ struct uniforms_blinnphong
     
     vec4_t basecolor;
     TGAImage diffuse_map;
+    int alpha_blend;
 };
 
 
@@ -41,6 +42,7 @@ struct material_blinnphong
 {
     vec4_t basecolor;
     std::string diffuse_map;
+    int alpha_blend;
 };
 
 

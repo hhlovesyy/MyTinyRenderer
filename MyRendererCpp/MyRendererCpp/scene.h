@@ -15,6 +15,7 @@ public:
 	void (*draw)(Model* model, framebuffer_t* framebuffer);
 	void (*release)(Model* model);
 	Program* program;
+	int transparent;//是否是透明物体 用于渲染顺序
 };
 
 class Scene

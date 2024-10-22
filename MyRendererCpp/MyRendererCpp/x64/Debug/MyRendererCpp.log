@@ -1,4 +1,4 @@
 ﻿  build_scene.cpp
-  test_model_input.cpp
-  正在生成代码...
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\build_scene.cpp(14,20): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\build_scene.cpp(136,20): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
   MyRendererCpp.vcxproj -> D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\x64\Debug\MyRendererCpp.exe

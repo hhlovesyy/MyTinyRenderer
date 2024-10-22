@@ -1,5 +1,5 @@
 #include "graphics.h"
-#include "maths.h"
+//#include "maths.h"
 #include <assert.h>
 #include <math.h>
 #include <vcruntime_string.h>
@@ -83,8 +83,26 @@ bbox_t find_bounding_box(vec2_t abc[3], int width, int height)
 	return bbox;
 }
 
-void draw_fragment(framebuffer_t* framebuffer, int index, vec4_t& color)
+void draw_fragment(framebuffer_t* framebuffer, int index, vec4_t& color,Program* program)
 {
+	//start 增加透明度混合
+	int transparent = 1;
+	if (transparent == 1)
+	{
+		//float alpha = color.w;
+		float alpha = 0.2;
+		if (alpha < 1)
+		{
+			unsigned char dst_r = framebuffer->color_buffer[index * 4 + 0];
+			unsigned char dst_g = framebuffer->color_buffer[index * 4 + 1];
+			unsigned char dst_b = framebuffer->color_buffer[index * 4 + 2];
+			color.x = color.x * alpha + float_from_uchar(dst_r) * (1 - alpha);
+			color.y = color.y * alpha + float_from_uchar(dst_g) * (1 - alpha);
+			color.z = color.z * alpha + float_from_uchar(dst_b) * (1 - alpha);
+		}
+	}
+	
+	//end
 	framebuffer->color_buffer[index * 4 + 0] = float_to_uchar(color.x);
 	framebuffer->color_buffer[index * 4 + 1] = float_to_uchar(color.y);
 	framebuffer->color_buffer[index * 4 + 2] = float_to_uchar(color.z);

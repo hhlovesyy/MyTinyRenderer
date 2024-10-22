@@ -19,6 +19,7 @@ float float_clamp(float f, float min, float max);
 int min_integer(int a, int b);
 
 int max_integer(int a, int b);
+float float_from_uchar(unsigned char value);
 unsigned char float_to_uchar(float value);
 vec2_t vec2_sub(vec2_t a, vec2_t b);
 float vec2_length(vec2_t v);

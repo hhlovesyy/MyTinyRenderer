@@ -10,6 +10,7 @@ public:
 	int index;
 	vec4_t basecolor;
 	char diffuse_map[LINE_SIZE];
+	int alpha_blend;
 };
 
 class Scene_Transform_t
@@ -43,6 +44,8 @@ static Scene_Blinn_t read_a_blinn_material(FILE* file)
 	items = fscanf(file, " basecolor: %f %f %f %f", &material.basecolor.x, &material.basecolor.y, &material.basecolor.z, &material.basecolor.w);
 	assert(items == 4);
 	items = fscanf(file, " diffuse_map: %s", material.diffuse_map);
+	assert(items == 1);
+	items = fscanf(file, " alpha_blend: %d", &material.alpha_blend);
 	assert(items == 1);
 	UNUSED_VAR(items);  //消除未使用的变量的警告
 	return material;
@@ -162,6 +165,7 @@ static Scene* create_blinn_scene(std::vector<Scene_Blinn_t>& materials, std::vec
 		const char* mesh = wrap_path(scene_model.mesh);
 		material.basecolor = scene_material.basecolor;
 		material.diffuse_map = wrap_path(scene_material.diffuse_map);
+		material.alpha_blend = scene_material.alpha_blend;
 
 		Model* model = shader_BlinnPhong_create_model(mesh, scene_transform.matrix, material);
 		models.push_back(model);

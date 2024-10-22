@@ -25,7 +25,10 @@ int max_integer(int a, int b)
 {
     return a > b ? a : b;
 }
-
+float float_from_uchar(unsigned char value)
+{
+    return value / 255.0f;
+}
 unsigned char float_to_uchar(float value) 
 {
     return (unsigned char)(value * 255);

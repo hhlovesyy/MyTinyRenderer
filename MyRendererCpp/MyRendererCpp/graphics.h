@@ -14,6 +14,7 @@ public:
 
 	void* get_attribs(int nth_vertex);
 	void* get_uniforms();
+	int alpha_blend;
 
 private:
 	vertex_shader_t vertex_shader_;
@@ -59,7 +60,7 @@ void framebuffer_clear_color(framebuffer_t* framebuffer, vec4_t color);
 void framebuffer_clear_depth(framebuffer_t* framebuffer, float depth);
 vec3_t calculate_weights(vec2_t abc[3], vec2_t& p);
 bbox_t find_bounding_box(vec2_t abc[3], int width, int height);
-void draw_fragment(framebuffer_t* framebuffer, int index, vec4_t& color);
+void draw_fragment(framebuffer_t* framebuffer, int index, vec4_t& color, Program* program=nullptr);
 vec3_t viewport_transform(int width, int height, vec3_t ndc_coord);
 float interpolate_depth(float screen_depths[3], vec3_t weights);
 vec3_t interpolate_varyings_weights(vec3_t& weights, float recip_w[3]);

@@ -1,8 +1,8 @@
 ﻿  build_scene.cpp
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\build_scene.cpp(14,20): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\build_scene.cpp(90,20): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\build_scene.cpp(156,20): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
   正在生成代码
   Previous IPDB and IOBJ mismatch, fall back to full compilation.
-  All 873 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  All 922 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   已完成代码的生成
   MyRendererCpp.vcxproj -> D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\x64\Release\MyRendererCpp.exe

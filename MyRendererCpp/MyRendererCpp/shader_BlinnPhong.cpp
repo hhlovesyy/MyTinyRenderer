@@ -64,13 +64,14 @@ static vec4_t common_fragment_shader(varyings_blinnphong* varyings,
     vec3_t normal = varyings->normal;
     float n_dot_l = vec3_dot(normal, light_dir);
     if (n_dot_l < 0) n_dot_l = 0;
+    //half-lambert 半兰伯特
+    n_dot_l = n_dot_l * 0.5 + 0.5;
     vec4_t diffuse = vec4_mul(uniforms->basecolor, n_dot_l);
 
     diffuse = vec4_mul_vec4(diffuse, albedo);
     //diffuse = vec4_t{ 1, 1, 1, 1 };
 
     return diffuse;
-        
 }
 
 vec4_t blinnphong_fragment_shader(void* varyings_, void* uniforms_, int* discard, int backface)
@@ -105,9 +106,11 @@ Model* shader_BlinnPhong_create_model(std::string mesh_path, mat4_t transform, m
     model->program = program;
     model->mesh = mesh;
     model->transform = transform;
+    model->transparent = material.alpha_blend;//如果允许透明度混合，则认为是透明物体
 
     uniforms->diffuse_map = mesh->load_texture(material.diffuse_map);
     uniforms->basecolor = material.basecolor;
+    uniforms->alpha_blend = material.alpha_blend;
     uniforms->model_matrix = transform;
 
     return model;
