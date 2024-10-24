@@ -100,8 +100,13 @@ void rasterization_tri(Mesh* mesh,Program* program, framebuffer_t* framebuffer)
 				//Zbuffer test 深度测试
 				if (depth < framebuffer->depth_buffer[screen_index])
 				{
-					//深度写入
 					framebuffer->depth_buffer[screen_index] = depth;
+					////如果是不透明物体，进行深度写入；如果是透明物体，不进行深度写入
+					//if(program->alpha_blend == 0)
+					//{
+					//	//深度写入
+					//	framebuffer->depth_buffer[screen_index] = depth;
+					//}					
 				}
 				else
 				{

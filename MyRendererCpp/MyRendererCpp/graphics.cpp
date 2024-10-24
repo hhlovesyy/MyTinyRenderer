@@ -92,7 +92,7 @@ void draw_fragment(framebuffer_t* framebuffer, int index, vec4_t& color,Program*
 	if (transparent == 1)
 	{
 		//float alpha = color.w;
-		float alpha = 0.5;
+		float alpha = 0.6;
 		if (alpha < 1)
 		{
 			unsigned char dst_r = framebuffer->color_buffer[index * 4 + 0];
