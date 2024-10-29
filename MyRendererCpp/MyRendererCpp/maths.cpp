@@ -1,5 +1,6 @@
 #include "maths.h"
 #include <assert.h>
+#include "macro.h"
 
 float float_min(float a, float b) 
 {
@@ -536,5 +537,223 @@ mat4_t mat4_perspective(float fovy, float aspect, float near, float far)
     m.m[2][3] = -2 * near * far / z_range;
     m.m[3][2] = -1;
     m.m[3][3] = 0;
+    return m;
+}
+
+vec3_t vec3_lerp(vec3_t a, vec3_t b, float t)
+{
+    float x = float_lerp(a.x, b.x, t);
+    float y = float_lerp(a.y, b.y, t);
+    float z = float_lerp(a.z, b.z, t);
+    return vec3_new(x, y, z);
+}
+
+float float_lerp(float a, float b, float t)
+{
+    return a + (b - a) * t;
+}
+
+quat_t quat_new(float x, float y, float z, float w) 
+{
+    quat_t q;
+    q.x = x;
+    q.y = y;
+    q.z = z;
+    q.w = w;
+    return q;
+}
+
+float quat_dot(quat_t a, quat_t b) 
+{
+    return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+}
+
+/*
+ * for spherical linear interpolation, see
+ * 3D Math Primer for Graphics and Game Development, 2nd Edition, Chapter 8
+ */
+quat_t quat_slerp(quat_t a, quat_t b, float t) 
+{
+    float cos_angle = quat_dot(a, b);
+    if (cos_angle < 0) {
+        b = quat_new(-b.x, -b.y, -b.z, -b.w);
+        cos_angle = -cos_angle;
+    }
+    if (cos_angle > 1 - EPSILON) {
+        float x = float_lerp(a.x, b.x, t);
+        float y = float_lerp(a.y, b.y, t);
+        float z = float_lerp(a.z, b.z, t);
+        float w = float_lerp(a.w, b.w, t);
+        return quat_new(x, y, z, w);
+    }
+    else {
+        float angle = (float)acos(cos_angle);
+        float sin_angle = (float)sin(angle);
+        float angle_a = (1 - t) * angle;
+        float angle_b = t * angle;
+        float factor_a = (float)sin(angle_a) / sin_angle;
+        float factor_b = (float)sin(angle_b) / sin_angle;
+        float x = factor_a * a.x + factor_b * b.x;
+        float y = factor_a * a.y + factor_b * b.y;
+        float z = factor_a * a.z + factor_b * b.z;
+        float w = factor_a * a.w + factor_b * b.w;
+        return quat_new(x, y, z, w);
+    }
+}
+
+mat4_t mat4_from_trs(vec3_t t, quat_t r, vec3_t s) 
+{
+    mat4_t translation = mat4_translate(t.x, t.y, t.z);
+    mat4_t rotation = mat4_from_quat(r);
+    mat4_t scale = mat4_scale(s.x, s.y, s.z);
+    return mat4_mul_mat4(translation, mat4_mul_mat4(rotation, scale));
+}
+
+mat4_t mat4_from_quat(quat_t q)
+{
+    mat4_t m = mat4_identity();
+    float xx = q.x * q.x;
+    float xy = q.x * q.y;
+    float xz = q.x * q.z;
+    float xw = q.x * q.w;
+    float yy = q.y * q.y;
+    float yz = q.y * q.z;
+    float yw = q.y * q.w;
+    float zz = q.z * q.z;
+    float zw = q.z * q.w;
+
+    m.m[0][0] = 1 - 2 * (yy + zz);
+    m.m[0][1] = 2 * (xy - zw);
+    m.m[0][2] = 2 * (xz + yw);
+
+    m.m[1][0] = 2 * (xy + zw);
+    m.m[1][1] = 1 - 2 * (xx + zz);
+    m.m[1][2] = 2 * (yz - xw);
+
+    m.m[2][0] = 2 * (xz - yw);
+    m.m[2][1] = 2 * (yz + xw);
+    m.m[2][2] = 1 - 2 * (xx + yy);
+
+    return m;
+}
+
+/*
+ * for determinant, adjoint, and inverse, see
+ * 3D Math Primer for Graphics and Game Development, 2nd Edition, Chapter 6
+ */
+
+static float mat3_determinant(mat3_t m) {
+    float a = +m.m[0][0] * (m.m[1][1] * m.m[2][2] - m.m[1][2] * m.m[2][1]);
+    float b = -m.m[0][1] * (m.m[1][0] * m.m[2][2] - m.m[1][2] * m.m[2][0]);
+    float c = +m.m[0][2] * (m.m[1][0] * m.m[2][1] - m.m[1][1] * m.m[2][0]);
+    return a + b + c;
+}
+
+mat3_t mat3_inverse_transpose(mat3_t m)
+{
+    mat3_t adjoint, inverse_transpose;
+    float determinant, inv_determinant;
+    int i, j;
+
+    adjoint = mat3_adjoint(m);
+    determinant = mat3_determinant(m);
+    inv_determinant = 1 / determinant;
+    for (i = 0; i < 3; i++) {
+        for (j = 0; j < 3; j++) {
+            inverse_transpose.m[i][j] = adjoint.m[i][j] * inv_determinant;
+        }
+    }
+    return inverse_transpose;
+}
+
+static mat3_t mat3_adjoint(mat3_t m) {
+    mat3_t adjoint;
+    adjoint.m[0][0] = +(m.m[1][1] * m.m[2][2] - m.m[2][1] * m.m[1][2]);
+    adjoint.m[0][1] = -(m.m[1][0] * m.m[2][2] - m.m[2][0] * m.m[1][2]);
+    adjoint.m[0][2] = +(m.m[1][0] * m.m[2][1] - m.m[2][0] * m.m[1][1]);
+    adjoint.m[1][0] = -(m.m[0][1] * m.m[2][2] - m.m[2][1] * m.m[0][2]);
+    adjoint.m[1][1] = +(m.m[0][0] * m.m[2][2] - m.m[2][0] * m.m[0][2]);
+    adjoint.m[1][2] = -(m.m[0][0] * m.m[2][1] - m.m[2][0] * m.m[0][1]);
+    adjoint.m[2][0] = +(m.m[0][1] * m.m[1][2] - m.m[1][1] * m.m[0][2]);
+    adjoint.m[2][1] = -(m.m[0][0] * m.m[1][2] - m.m[1][0] * m.m[0][2]);
+    adjoint.m[2][2] = +(m.m[0][0] * m.m[1][1] - m.m[1][0] * m.m[0][1]);
+    return adjoint;
+}
+
+mat3_t mat3_from_mat4(mat4_t m) {
+    mat3_t n;
+    n.m[0][0] = m.m[0][0];
+    n.m[0][1] = m.m[0][1];
+    n.m[0][2] = m.m[0][2];
+    n.m[1][0] = m.m[1][0];
+    n.m[1][1] = m.m[1][1];
+    n.m[1][2] = m.m[1][2];
+    n.m[2][0] = m.m[2][0];
+    n.m[2][1] = m.m[2][1];
+    n.m[2][2] = m.m[2][2];
+    return n;
+}
+
+mat4_t mat4_combine(mat4_t m[4], vec4_t weights_) 
+{
+    mat4_t combined = { {{0}} };
+    float weights[4];
+    int i, r, c;
+
+    weights[0] = weights_.x;
+    weights[1] = weights_.y;
+    weights[2] = weights_.z;
+    weights[3] = weights_.w;
+
+    for (i = 0; i < 4; i++) {
+        float weight = weights[i];
+        if (weight > 0) {
+            mat4_t source = m[i];
+            for (r = 0; r < 4; r++) {
+                for (c = 0; c < 4; c++) {
+                    combined.m[r][c] += weight * source.m[r][c];
+                }
+            }
+        }
+    }
+
+    return combined;
+}
+
+mat3_t mat3_combine(mat3_t m[4], vec4_t weights_) {
+    mat3_t combined = { {{0}} };
+    float weights[4];
+    int i, r, c;
+
+    weights[0] = weights_.x;
+    weights[1] = weights_.y;
+    weights[2] = weights_.z;
+    weights[3] = weights_.w;
+
+    for (i = 0; i < 4; i++) {
+        float weight = weights[i];
+        if (weight > 0) {
+            mat3_t source = m[i];
+            for (r = 0; r < 3; r++) {
+                for (c = 0; c < 3; c++) {
+                    combined.m[r][c] += weight * source.m[r][c];
+                }
+            }
+        }
+    }
+
+    return combined;
+}
+
+mat3_t mat3_mul_mat3(mat3_t a, mat3_t b) {
+    mat3_t m = { {{0}} };
+    int i, j, k;
+    for (i = 0; i < 3; i++) {
+        for (j = 0; j < 3; j++) {
+            for (k = 0; k < 3; k++) {
+                m.m[i][j] += a.m[i][k] * b.m[k][j];
+            }
+        }
+    }
     return m;
 }

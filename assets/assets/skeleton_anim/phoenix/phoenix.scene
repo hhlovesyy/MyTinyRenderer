@@ -1,0 +1,30 @@
+type: blinn
+
+materials 2:
+    material 0:
+        basecolor: 1 1 1 1
+        diffuse_map: skeleton_anim/phoenix/body_diffuse.tga
+        alpha_blend: 0
+    material 1:
+        basecolor: 1 1 1 1
+        diffuse_map: skeleton_anim/phoenix/wings_diffuse.tga
+        alpha_blend: 0
+
+transforms 1:
+    transform 0:
+        1  0  0  0
+        0  1  0  0
+        0  0  1  0
+        0  0  0  1
+
+models 2:
+    model 0:
+        mesh: skeleton_anim/phoenix/body.obj
+        skeleton: skeleton_anim/phoenix/phoenix.ani
+        material: 0
+        transform: 0
+    model 1:
+        mesh: skeleton_anim/phoenix/wings.obj
+        skeleton: skeleton_anim/phoenix/phoenix.ani
+        material: 1
+        transform: 0

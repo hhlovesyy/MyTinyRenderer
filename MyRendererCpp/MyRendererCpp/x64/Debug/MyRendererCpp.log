@@ -1,4 +1,11 @@
-﻿  build_scene.cpp
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\build_scene.cpp(14,20): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\build_scene.cpp(136,20): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
-  MyRendererCpp.vcxproj -> D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\x64\Debug\MyRendererCpp.exe
+﻿  test_skeleton_animation.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,42): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_skeleton_animation.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_skeleton_animation.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_skeleton_animation.cpp”)
+  
+  MyRendererCpp.vcxproj -> D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\x64\Debug\MyRendererCpp.exe

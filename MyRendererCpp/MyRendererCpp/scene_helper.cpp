@@ -25,6 +25,7 @@ class Scene_Model_t
 public:
 	int index;
 	char mesh[LINE_SIZE];
+	char skeleton[LINE_SIZE];
 	int material;
 	int transform;
 };
@@ -101,6 +102,8 @@ static Scene_Model_t read_model(FILE* file)
 	assert(items == 1);
 	items = fscanf(file, " mesh: %s", model.mesh);
 	assert(items == 1);
+	items = fscanf(file, " skeleton: %s", model.skeleton);
+	assert(items == 1);
 	items = fscanf(file, " material: %d", &model.material);
 	assert(items == 1);
 	items = fscanf(file, " transform: %d", &model.transform);
@@ -143,7 +146,7 @@ static int wrap_knob(const char* knob)
 	}
 }
 
-static Scene* create_blinn_scene(std::vector<Scene_Blinn_t>& materials, std::vector<Scene_Transform_t>& transforms, std::vector<Scene_Model_t>& scene_models)
+static Scene* create_blinn_scene(std::vector<Scene_Blinn_t>& materials, std::vector<Scene_Transform_t>& transforms, std::vector<Scene_Model_t>& scene_models, mat4_t root_transform)
 {
 	int num_materials = materials.size();
 	int num_transforms = transforms.size();
@@ -163,11 +166,13 @@ static Scene* create_blinn_scene(std::vector<Scene_Blinn_t>& materials, std::vec
 		assert(scene_model.material < num_materials);
 		
 		const char* mesh = wrap_path(scene_model.mesh);
+		const char* skeleton = wrap_path(scene_model.skeleton);
+		mat4_t transform = mat4_mul_mat4(root_transform, scene_transform.matrix);
 		material.basecolor = scene_material.basecolor;
 		material.diffuse_map = wrap_path(scene_material.diffuse_map);
 		material.alpha_blend = scene_material.alpha_blend;
 
-		Model* model = shader_BlinnPhong_create_model(mesh, scene_transform.matrix, material);
+		Model* model = shader_BlinnPhong_create_model(mesh, skeleton, transform, material);
 		models.push_back(model);
 	}
 
@@ -175,10 +180,12 @@ static Scene* create_blinn_scene(std::vector<Scene_Blinn_t>& materials, std::vec
 	return scene;
 }
 
-Scene scene_from_file(const char* filename)
+Scene scene_from_file(const char* filename, mat4_t root)
 {
 	char scene_type[LINE_SIZE];
 	int items = 0;
+
+	//打印一下filename的绝对路径
 
 	FILE* file = fopen(filename, "rb");
 	assert(file != NULL);
@@ -196,7 +203,7 @@ Scene scene_from_file(const char* filename)
 		read_transforms(file, transforms);
 		read_models(file, models);
 		//scene = create_blinn_scene(materials, transforms, models);
-		scene = *create_blinn_scene(materials, transforms, models);
+		scene = *create_blinn_scene(materials, transforms, models, root);
 	}
 	else
 	{

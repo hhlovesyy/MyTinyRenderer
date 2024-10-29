@@ -1,0 +1,32 @@
+# Blender 4.0.1 MTL File: 'None'
+# www.blender.org
+
+newmtl 眼睛
+Ns 1000.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 1
+map_Kd D:/myUnityProj/buDaiXi/proj/githubWork/fromGitO/Assets/Artist/Models/HonkaiStarrail/Pamu/身体.png
+map_d D:/myUnityProj/buDaiXi/proj/githubWork/fromGitO/Assets/Artist/Models/HonkaiStarrail/Pamu/身体.png
+
+newmtl 眼睛1
+Ns 1000.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 1
+map_Kd D:/myUnityProj/buDaiXi/proj/githubWork/fromGitO/Assets/Artist/Models/HonkaiStarrail/Pamu/身体.png
+map_d D:/myUnityProj/buDaiXi/proj/githubWork/fromGitO/Assets/Artist/Models/HonkaiStarrail/Pamu/身体.png
+
+newmtl 表情
+Ns 1000.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 1
+map_Kd D:/myUnityProj/buDaiXi/proj/githubWork/fromGitO/Assets/Artist/Models/HonkaiStarrail/Pamu/表情.png
+map_d D:/myUnityProj/buDaiXi/proj/githubWork/fromGitO/Assets/Artist/Models/HonkaiStarrail/Pamu/表情.png

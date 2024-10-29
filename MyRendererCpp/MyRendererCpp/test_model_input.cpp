@@ -25,7 +25,8 @@ void preLoadModel()
 	builder = SceneBuilder();
 	//加载模型(新)
 	//Scene* scene = scene_from_file("combinePamu.scene");
-	scene = scene_from_file("combinePamu.scene");
+	mat4_t root= mat4_identity();
+	scene = scene_from_file("combinePamu.scene", root);
 
 	//获取模型的顶点数据
 	 models = scene.models;

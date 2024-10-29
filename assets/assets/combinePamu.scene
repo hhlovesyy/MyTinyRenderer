@@ -1,0 +1,52 @@
+type: blinn
+
+materials 5:
+    material 0:
+        basecolor: 1 1 1 1
+        diffuse_map: combinePamu_diffuse.tga
+        alpha_blend: 1
+    material 1:
+        basecolor: 1 1 1 1
+        diffuse_map: test_diffuse.tga
+        alpha_blend: 0	
+    material 2:
+        basecolor: 1 1 1 1
+        diffuse_map: ProjectGrass_Sphere_AlbedoTransparency.tga
+        alpha_blend: 1
+    material 3:
+        basecolor: 1 1 1 1
+        diffuse_map: ProjectGrass_Sphere_1_AlbedoTransparency.tga
+        alpha_blend: 0	
+    material 4:
+        basecolor: 1 1 1 1
+        diffuse_map: ProjectGrass_Sphere_AlbedoTransparency.tga
+        alpha_blend: 1		
+
+transforms 1:
+    transform 0:
+        1  0  0  0
+        0  1  0  0
+        0  0  1  0
+        0  0  0  1
+
+models 5:
+    model 0:
+        mesh: grassBodyForRenderer3.obj
+        material: 2
+        transform: 0
+    model 1:
+        mesh: testStarOffset.obj
+        material: 1
+        transform: 0
+    model 2:
+        mesh: starOffsetForRenderer2.obj
+        material: 1
+        transform: 0
+    model 3:
+        mesh: grassMaoLForRenderer3.obj
+        material: 3
+        transform: 0
+    model 4:
+        mesh: grassMaoRForRenderer333.obj
+        material: 3
+        transform: 0

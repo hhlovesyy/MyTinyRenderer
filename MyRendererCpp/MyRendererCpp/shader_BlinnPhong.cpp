@@ -3,17 +3,74 @@
 #include <vector>
 #include "shader_BlinnPhong.h"
 #include "texture2D.h"
+#include "skeleton.h"
+#include "scene.h"
 #include <iostream>
 
 //返回模型矩阵，将模型从模型空间变换到世界空间
 static mat4_t get_model_matrix(attribs_blinnphong* attribs, uniforms_blinnphong* uniforms)
 {
-    return uniforms->model_matrix;
+    if (uniforms->joint_matrices.size() > 0) {
+        mat4_t joint_matrices[4];
+        mat4_t skin_matrix;
+
+        joint_matrices[0] = uniforms->joint_matrices[(int)attribs->joint.x];
+        joint_matrices[1] = uniforms->joint_matrices[(int)attribs->joint.y];
+        joint_matrices[2] = uniforms->joint_matrices[(int)attribs->joint.z];
+        joint_matrices[3] = uniforms->joint_matrices[(int)attribs->joint.w];
+
+        skin_matrix = mat4_combine(joint_matrices, attribs->weight);
+        return mat4_mul_mat4(uniforms->model_matrix, skin_matrix);
+    }
+    else 
+    {
+        return uniforms->model_matrix;
+    }
 }
 //返回法线矩阵，将法线从模型空间变换到世界空间
 static mat3_t get_normal_matrix(attribs_blinnphong* attribs, uniforms_blinnphong* uniforms)
 {
-    return uniforms->normal_matrix;
+    if (uniforms->joint_n_matrices.size() > 0) 
+    {
+        mat3_t joint_n_matrices[4];
+        mat3_t skin_n_matrix;
+
+        joint_n_matrices[0] = uniforms->joint_n_matrices[(int)attribs->joint.x];
+        joint_n_matrices[1] = uniforms->joint_n_matrices[(int)attribs->joint.y];
+        joint_n_matrices[2] = uniforms->joint_n_matrices[(int)attribs->joint.z];
+        joint_n_matrices[3] = uniforms->joint_n_matrices[(int)attribs->joint.w];
+
+        skin_n_matrix = mat3_combine(joint_n_matrices, attribs->weight);
+        return mat3_mul_mat3(uniforms->normal_matrix, skin_n_matrix);
+    }
+    else 
+    {
+        return uniforms->normal_matrix;
+    }
+}
+
+static void update_model(Model* model, Camera* perframe)
+{
+    //todo:如果有类似于find_bbox的函数，可能也要更新骨骼的bbox，参考skeleton_update_joints的调用时机
+    Skeleton* skeleton = model->skeleton;
+    mat4_t model_matrix = model->transform;
+    mat3_t normal_matrix;
+    std::vector<mat4_t> joint_matrices;
+    std::vector<mat3_t> joint_n_matrices;
+    uniforms_blinnphong* uniforms = static_cast<uniforms_blinnphong*>(model->program->get_uniforms());
+
+    if (skeleton)
+    {
+        skeleton_update_joints(skeleton, FrameInfo::get_frame_time());
+        joint_matrices = skeleton->joint_matrices;
+        joint_n_matrices = skeleton->normal_matrices;
+    }
+    normal_matrix = mat3_inverse_transpose(mat3_from_mat4(model_matrix));
+    uniforms->camera_pos = perframe->position;
+    uniforms->model_matrix = model_matrix;
+    uniforms->normal_matrix = normal_matrix;
+    uniforms->joint_matrices = joint_matrices;
+    uniforms->joint_n_matrices = joint_n_matrices;
 }
 
 
@@ -82,7 +139,7 @@ vec4_t blinnphong_fragment_shader(void* varyings_, void* uniforms_, int* discard
     return common_fragment_shader(varyings, uniforms, discard, backface);
 }
 
-Model* shader_BlinnPhong_create_model(std::string mesh_path, mat4_t transform, material_blinnphong& material)
+Model* shader_BlinnPhong_create_model(std::string mesh_path,std::string skeleton_path, mat4_t transform, material_blinnphong& material)
 {
     int sizeof_attribs = sizeof(attribs_blinnphong);
     int sizeof_varyings = sizeof(varyings_blinnphong);
@@ -103,10 +160,13 @@ Model* shader_BlinnPhong_create_model(std::string mesh_path, mat4_t transform, m
         return nullptr;
     }
     Model* model = new Model();
+    Skeleton* skeleton = Skeleton::load(skeleton_path);
     model->program = program;
-    model->mesh = mesh;
+    model->mesh = mesh; //todo:可能是性能瓶颈之一，因为没有cached，每次都会重新加载，如果太慢了需要优化
     model->transform = transform;
     model->transparent = material.alpha_blend;//如果允许透明度混合，则认为是透明物体
+    model->skeleton = skeleton;
+    model->update = update_model;
 
     uniforms->diffuse_map = mesh->load_texture(material.diffuse_map);
     uniforms->basecolor = material.basecolor;

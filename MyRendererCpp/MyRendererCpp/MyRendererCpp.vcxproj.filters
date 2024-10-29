@@ -62,6 +62,12 @@
     <ClCompile Include="build_scene.cpp">
       <Filter>core\source</Filter>
     </ClCompile>
+    <ClCompile Include="test_skeleton_animation.cpp">
+      <Filter>test_unit\source</Filter>
+    </ClCompile>
+    <ClCompile Include="skeleton.cpp">
+      <Filter>core\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -125,6 +131,12 @@
       <Filter>core\header</Filter>
     </ClInclude>
     <ClInclude Include="build_scene.h">
+      <Filter>core\header</Filter>
+    </ClInclude>
+    <ClInclude Include="test_skeleton_animation.h">
+      <Filter>test_unit\header</Filter>
+    </ClInclude>
+    <ClInclude Include="skeleton.h">
       <Filter>core\header</Filter>
     </ClInclude>
   </ItemGroup>

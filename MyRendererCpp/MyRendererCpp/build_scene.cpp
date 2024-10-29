@@ -9,6 +9,15 @@ using namespace std;
 void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Camera* camera)
 {
     vector<Model*> models = scene.models;
+    // 新增：更新场景的所有mesh
+    for (int index = 0; index < models.size(); index++)
+    {
+		Model* model = models[index];
+        if (model->update)
+        {
+			model->update(model, camera);
+		}
+	}
     //渲染顺序
     
     //区分透明与非透明模型
@@ -56,6 +65,7 @@ void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Came
 		Mesh* mesh = TransModels[index]->mesh;
 
 		Program* program = TransModels[index]->program;
+        //todo:需要解耦开，现在把uniform放在这里面，代码不够优雅
 		uniforms_blinnphong* uniforms = (uniforms_blinnphong*)program->get_uniforms();
 		uniforms->light_dir = vec3_new(0.5f, 0.8f, 0.9f);
 		uniforms->camera_pos = camera->position;
