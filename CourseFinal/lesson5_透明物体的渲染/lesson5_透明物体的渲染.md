@@ -425,7 +425,7 @@ void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Came
 
 
     //先渲染不透明物体，再渲染透明物体
-    //绘制不透明模型 不需要关注顺序
+    //绘制不透明模型 为了性能，最好采用先近后远的顺序
     sort_models(OpaqueModels, camera_get_view_matrix(*camera));
     for (int index = 0; index < OpaqueModels.size(); index++)
 	{
