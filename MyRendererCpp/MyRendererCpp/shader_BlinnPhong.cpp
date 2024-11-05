@@ -5,6 +5,7 @@
 #include "texture2D.h"
 #include "skeleton.h"
 #include "scene.h"
+#include "rasterization.h"
 #include <iostream>
 
 //返回模型矩阵，将模型从模型空间变换到世界空间
@@ -71,6 +72,17 @@ static void update_model(Model* model, Camera* perframe)
     uniforms->normal_matrix = normal_matrix;
     uniforms->joint_matrices = joint_matrices;
     uniforms->joint_n_matrices = joint_n_matrices;
+    uniforms->light_dir = vec3_new(0.5f, 0.8f, 0.9f);
+    uniforms->camera_vp_matrix = mat4_mul_mat4(camera_get_proj_matrix(*perframe), camera_get_view_matrix(*perframe));
+}
+
+static void draw_model(Model* model, framebuffer_t* framebuffer)
+{
+     Mesh* mesh = model->mesh;
+     Program* program = model->program;
+     uniforms_blinnphong* uniforms = (uniforms_blinnphong*)program->get_uniforms();
+
+     rasterization_tri(mesh, program, framebuffer);
 }
 
 
@@ -167,8 +179,12 @@ Model* shader_BlinnPhong_create_model(std::string mesh_path,std::string skeleton
     model->transparent = material.alpha_blend;//如果允许透明度混合，则认为是透明物体
     model->skeleton = skeleton;
     model->update = update_model;
+    model->draw = draw_model;
 
     uniforms->diffuse_map = mesh->load_texture(material.diffuse_map);
+    uniforms->specular_map = mesh->load_texture(material.specular_map);
+    uniforms->emission_map = mesh->load_texture(material.emission_map);
+    uniforms->shininess = material.shininess;
     uniforms->basecolor = material.basecolor;
     uniforms->alpha_blend = material.alpha_blend;
     uniforms->model_matrix = transform;

@@ -10,7 +10,6 @@ vector<Model*> models_skel_anim;
 SceneBuilder builder_skel_anim;
 Scene scene_skel_anim;
 typedef void tickfunc_t(framebuffer_t* framebuffer, Camera* camera);
-float FrameInfo::frame_time = 0.0f; // 静态成员变量的定义与初始化
 void preLoadModel_skeleton_anim()
 {
 	builder_skel_anim = SceneBuilder();
@@ -23,7 +22,6 @@ void preLoadModel_skeleton_anim()
 	mat4_t scale = mat4_scale(0.001f, 0.001f, 0.001f);
 	mat4_t root = mat4_mul_mat4(scale, mat4_mul_mat4(rotation, translation));
 	scene_skel_anim = scene_from_file("skeleton_anim/phoenix/phoenix.scene", root);
-
 	//获取模型的顶点数据
 	models_skel_anim = scene_skel_anim.models;
 
@@ -77,7 +75,7 @@ void test_enter_mainloop_skeleton_anim(tickfunc_t* tickfunc)
 		float delta_time = curr_time - prev_time; //与帧率有关的值
 		update_camera(window, camera, &record);
 		update_click(curr_time, &record);
-		FrameInfo::set_frame_time(curr_time);
+		FrameInfo::set_frame_time(curr_time);  //Time.time
 
 		//调用传入的函数，main中将这个函数设置为此类下的model_input_transform
 		tickfunc(framebuffer, camera);

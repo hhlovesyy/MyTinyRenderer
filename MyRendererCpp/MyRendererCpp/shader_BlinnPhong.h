@@ -36,7 +36,11 @@ struct uniforms_blinnphong
     
     vec4_t basecolor;
     TGAImage diffuse_map;
+    TGAImage specular_map;
+    TGAImage emission_map;
     int alpha_blend;
+    float shininess;
+    float ambient_intensity;
     std::vector<mat4_t> joint_matrices;
     std::vector<mat3_t> joint_n_matrices;
 };
@@ -46,7 +50,10 @@ struct material_blinnphong
 {
     vec4_t basecolor;
     std::string diffuse_map;
+    std::string specular_map;
+    std::string emission_map;
     int alpha_blend;
+    float shininess;
 };
 
 

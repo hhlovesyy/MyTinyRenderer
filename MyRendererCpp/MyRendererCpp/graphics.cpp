@@ -88,7 +88,12 @@ bbox_t find_bounding_box(vec2_t abc[3], int width, int height)
 void draw_fragment(framebuffer_t* framebuffer, int index, vec4_t& color,Program* program)
 {
 	//start 增加透明度混合
-	int transparent = program->alpha_blend;
+	int transparent = 0;
+	if (program != nullptr)
+	{
+		transparent = program->alpha_blend;
+	}
+	 
 	if (transparent == 1)
 	{
 		//float alpha = color.w;

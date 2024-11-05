@@ -68,6 +68,9 @@
     <ClCompile Include="skeleton.cpp">
       <Filter>core\source</Filter>
     </ClCompile>
+    <ClCompile Include="test_blinn_phong_light.cpp">
+      <Filter>test_unit\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -138,6 +141,9 @@
     </ClInclude>
     <ClInclude Include="skeleton.h">
       <Filter>core\header</Filter>
+    </ClInclude>
+    <ClInclude Include="test_blinn_phong_light.h">
+      <Filter>test_unit\header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

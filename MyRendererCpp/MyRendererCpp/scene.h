@@ -24,6 +24,8 @@ class Scene
 {
 public:
 	vec4_t background;
+	/* light intensity */
+	float ambient_intensity;
 	std::vector<Model*> models;
 };
 

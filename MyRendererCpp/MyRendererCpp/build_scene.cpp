@@ -45,7 +45,11 @@ void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Came
     for (int index = 0; index < OpaqueModels.size(); index++)
 	{
 		Model* model = OpaqueModels[index];
-        Mesh* mesh = OpaqueModels[index]->mesh;
+        if (model->draw)
+        {
+            model->draw(model, framebuffer);
+        }
+        /*Mesh* mesh = OpaqueModels[index]->mesh;
 
         Program* program = OpaqueModels[index]->program;
         uniforms_blinnphong* uniforms = (uniforms_blinnphong*)program->get_uniforms();
@@ -54,7 +58,7 @@ void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Came
 
         uniforms->camera_vp_matrix = mat4_mul_mat4(camera_get_proj_matrix(*camera), camera_get_view_matrix(*camera));
 
-        rasterization_tri(mesh, program, framebuffer);
+        rasterization_tri(mesh, program, framebuffer);*/
 	}
     //绘制透明模型
     //绘制透明物体时，应该采用先远后近的顺序
@@ -62,17 +66,10 @@ void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Came
     for (int index = 0; index < TransModels.size(); index++)
 	{
 		Model* model = TransModels[index];
-		Mesh* mesh = TransModels[index]->mesh;
-
-		Program* program = TransModels[index]->program;
-        //todo:需要解耦开，现在把uniform放在这里面，代码不够优雅
-		uniforms_blinnphong* uniforms = (uniforms_blinnphong*)program->get_uniforms();
-		uniforms->light_dir = vec3_new(0.5f, 0.8f, 0.9f);
-		uniforms->camera_pos = camera->position;
-
-		uniforms->camera_vp_matrix = mat4_mul_mat4(camera_get_proj_matrix(*camera), camera_get_view_matrix(*camera));
-
-		rasterization_tri(mesh, program, framebuffer);
+        if (model->draw)
+        {
+			model->draw(model, framebuffer);
+		}
 	}
 }
 void Qsort(std::vector<Model*>& models, bool isAscending)

@@ -237,7 +237,7 @@ void skeleton_update_joints(Skeleton* skeleton, float frame_time)
 
 static Joint load_joint(FILE* file)
 {
-	Joint joint;
+	Joint joint; //Joint* joint = new Joint(); 
 	int items;
 	items = fscanf(file, " joint %d:", &joint.joint_index);
 	assert(items == 1);
@@ -257,7 +257,7 @@ Skeleton* Skeleton::load(std::string filename)
 	FILE* file = fopen(filename.c_str(), "rb");
 	if (file == nullptr)
 	{
-		std::cerr << "Failed to open file: " << filename << std::endl;
+		std::cerr << "Failed to open skeleton file: " << filename << std::endl;
 		return nullptr;
 	}
 	int items = fscanf(file, " joint-size: %d", &skeleton->num_joints);
