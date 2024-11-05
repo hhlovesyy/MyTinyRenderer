@@ -8,7 +8,14 @@ bool TGAImage::read_tga_file(const std::string filename) {
     std::ifstream in;
     in.open(filename, std::ios::binary);
     if (!in.is_open()) {
-        std::cerr << "can't open file " << filename << "\n";
+        if (filename == "")
+        {
+            std::cerr << "can't open file, because you don't set it!"<< "\n";
+        }
+        else
+        {
+            std::cerr << "can't open file " << filename << "\n";
+        }
         return false;
     }
     TGAHeader header;

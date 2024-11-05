@@ -8,6 +8,7 @@
 typedef struct { float x, y; } vec2_t;
 typedef struct { float x, y, z; } vec3_t;
 typedef struct { float x, y, z, w; } vec4_t;
+typedef struct { float x, y, z, w; } quat_t;
 
 typedef struct { float m[3][3]; } mat3_t;
 typedef struct { float m[4][4]; } mat4_t;
@@ -73,4 +74,24 @@ mat4_t mat4_frustum(float left, float right, float bottom, float top,
 mat4_t mat4_perspective(float fovy, float aspect, float near, float far);
 vec4_t mat4_mul_vec4(mat4_t m, vec4_t v);
 mat4_t mat4_mul_mat4(mat4_t a, mat4_t b);
+
+vec3_t vec3_lerp(vec3_t a, vec3_t b, float t);
+float float_lerp(float a, float b, float t);
+quat_t quat_new(float x, float y, float z, float w);
+quat_t quat_slerp(quat_t a, quat_t b, float t);
+float quat_dot(quat_t a, quat_t b);
+mat4_t mat4_from_trs(vec3_t t, quat_t r, vec3_t s);
+mat4_t mat4_from_quat(quat_t q);
+mat3_t mat3_inverse_transpose(mat3_t m);
+static mat3_t mat3_adjoint(mat3_t m);
+static float mat3_determinant(mat3_t m);
+mat3_t mat3_from_mat4(mat4_t m);
+mat4_t mat4_combine(mat4_t m[4], vec4_t weights_);
+mat3_t mat3_combine(mat3_t m[4], vec4_t weights_);
+mat3_t mat3_mul_mat3(mat3_t a, mat3_t b);
+vec3_t vec3_modulate(vec3_t a, vec3_t b);
+vec3_t vec3_negate(vec3_t v);
+
+vec4_t vec4_saturate(vec4_t v);
+float float_saturate(float f);
 #endif

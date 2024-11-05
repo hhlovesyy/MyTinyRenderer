@@ -13,7 +13,8 @@
 static Mesh* buildMesh
 (
     std::vector<vec3_t>& positions, std::vector<vec2_t>& texcoords, std::vector<vec3_t>& normals,
-    std::vector<int>& position_indices, std::vector<int>& texcoord_indices, std::vector<int>& normal_indices
+    std::vector<int>& position_indices, std::vector<int>& texcoord_indices, std::vector<int>& normal_indices,
+    std::vector<vec4_t>& joints, std::vector<vec4_t>& weights
 ) 
 {
     //bbox_min和bbox_max分别表示模型的包围盒的最小和最大顶点坐标。
@@ -43,6 +44,17 @@ static Mesh* buildMesh
         vertices[i].texcoord = texcoords[texcoord_index];
         vertices[i].normal = normals[normal_index];
 
+        if (joints.size() > 0 && weights.size() > 0)
+        {
+			vertices[i].joint = joints[position_index];
+			vertices[i].weight = weights[position_index];
+		}
+        else
+        {
+            vertices[i].joint = vec4_new(0, 0, 0, 0);
+            vertices[i].weight = vec4_new(0, 0, 0, 0);
+        }
+
         bbox_min = vec3_min(bbox_min, vertices[i].position);
         bbox_max = vec3_max(bbox_max, vertices[i].position);
     }
@@ -63,6 +75,9 @@ static Mesh* loadObj(std::string filename)
     std::vector<int> position_indices;
     std::vector<int> texcoord_indices;
     std::vector<int> normal_indices;
+    //add joints and weights
+    std::vector<vec4_t> joints;
+    std::vector<vec4_t> weights;
     char line[LINE_SIZE];
     Mesh* mesh;
     FILE* file;
@@ -120,6 +135,20 @@ static Mesh* loadObj(std::string filename)
                 normal_indices.push_back(n_indices[i] - 1);
             }
         }
+        else if (strncmp(line, "# ext.joint ", 12) == 0) {    /* joint */
+            vec4_t joint;
+            items = sscanf(line, "# ext.joint %f %f %f %f",
+                &joint.x, &joint.y, &joint.z, &joint.w);
+            assert(items == 4);
+            joints.push_back(joint);
+        }
+        else if (strncmp(line, "# ext.weight ", 13) == 0) {   /* weight */
+            vec4_t weight;
+            items = sscanf(line, "# ext.weight %f %f %f %f",
+                &weight.x, &weight.y, &weight.z, &weight.w);
+            assert(items == 4);
+            weights.push_back(weight);
+        }
         
         //告诉编译器，我们在这里声明了一个变量items，但是我们并没有在后续的代码中使用它，防止产生不必要的警告信息。
         UNUSED_VAR(items);
@@ -127,7 +156,7 @@ static Mesh* loadObj(std::string filename)
     fclose(file);
 
     mesh = buildMesh(positions, texcoords, normals, 
-        position_indices, texcoord_indices, normal_indices);
+        position_indices, texcoord_indices, normal_indices, joints, weights);
 
     return mesh;
 }

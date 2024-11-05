@@ -13,6 +13,8 @@ struct attribs_blinnphong
     vec3_t position;
     vec2_t texcoord;
     vec3_t normal;
+    vec4_t joint;
+    vec4_t weight;
 };
 
 struct varyings_blinnphong 
@@ -34,7 +36,13 @@ struct uniforms_blinnphong
     
     vec4_t basecolor;
     TGAImage diffuse_map;
+    TGAImage specular_map;
+    TGAImage emission_map;
     int alpha_blend;
+    float shininess;
+    float ambient_intensity;
+    std::vector<mat4_t> joint_matrices;
+    std::vector<mat3_t> joint_n_matrices;
 };
 
 
@@ -42,12 +50,15 @@ struct material_blinnphong
 {
     vec4_t basecolor;
     std::string diffuse_map;
+    std::string specular_map;
+    std::string emission_map;
     int alpha_blend;
+    float shininess;
 };
 
 
 /* high-level api */
-Model* shader_BlinnPhong_create_model(std::string mesh, mat4_t transform, material_blinnphong& material);
+Model* shader_BlinnPhong_create_model(std::string mesh_path, std::string skeleton_path, mat4_t transform, material_blinnphong& material);
 
 vec4_t blinnphong_vertex_shader(void* attribs_, void* varyings_, void* uniforms_);
 

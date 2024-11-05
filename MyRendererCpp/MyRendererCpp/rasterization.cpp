@@ -69,6 +69,8 @@ void rasterization_tri(Mesh* mesh,Program* program, framebuffer_t* framebuffer)
 			attribs.position = abc_3d[i];
 			attribs.texcoord = uv[i];
 			attribs.normal = normal[i];
+			attribs.joint = vertices[index * 3 + i].joint;
+			attribs.weight = vertices[index * 3 + i].weight;
 
 			vec4_t clip_position = blinnphong_vertex_shader(&attribs, &varyings, program->get_uniforms());
 			recip_w[i] = 1 / clip_position.w;
@@ -133,7 +135,7 @@ void rasterization_tri(Mesh* mesh,Program* program, framebuffer_t* framebuffer)
 
 				//--
 				vec4_t finalColor = blinnphong_fragment_shader(&varyings, program->get_uniforms(), nullptr, 0);
-
+			
 				//draw_fragment(framebuffer, j * width + i, finalColor1);
 				draw_fragment(framebuffer, j * WINDOW_WIDTH + i, finalColor,program);
 

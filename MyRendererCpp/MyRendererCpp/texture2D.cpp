@@ -4,6 +4,11 @@ vec4_t sample2D(TGAImage& image, vec2_t uv)
 {
 	int width = image.width();
 	int height = image.height();
+	if (width <= 0 || height <= 0)
+	{
+		//说明贴图没有，或者出了问题
+		return vec4_new(0, 0, 0, 0);
+	}
 	int x = uv.x * width;
 	int y = (1.0 - uv.y) * height;//纹理坐标的Y轴是反的
 	if (x < 0) x = 0;

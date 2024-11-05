@@ -9,11 +9,16 @@
 #include "test_model_input.h"
 #include "test_space_transform.h"
 #include "test_camera_move.h"
+#include "test_skeleton_animation.h"
+#include "test_blinn_phong_light.h"
 #include "win32.h"
+#include "scene.h"
+
 
 typedef void testfunc_t();
 typedef struct { const char* testname; testfunc_t* testfunc; } testcase_t;
-
+float FrameInfo::frame_time = 0.0f; // 静态成员变量的定义与初始化
+float FrameInfo::ambient_intensity = 0.0f; // 静态成员变量的定义与初始化
 static testcase_t g_testcases[] = 
 {
     {"test_rasterization", test_rasterization},
@@ -21,14 +26,16 @@ static testcase_t g_testcases[] =
     {"test_model_input",test_model_input},
     {"test_space_transform", test_space_transform},
     {"test_camera_move", test_camera_move},
+    {"test_skeleton_animation", test_skeleton_animation},
+    {"test_blinn_phong_light", test_blinn_phong_light},
 };
 
 int main(int argc, char* argv[])
 {
     platform_initialize();
     //now we test rasterization
-    const char* testname = g_testcases[2].testname;
-    testfunc_t* testfunc = g_testcases[2].testfunc;
+    const char* testname = g_testcases[6].testname;
+    testfunc_t* testfunc = g_testcases[6].testfunc;
     //使用函数指针调用函数，比如：调用test_model_input函数（因为引用了test_model_input.h，test_model_input.h中包含test_model_input函数）
     if (testfunc)
     {

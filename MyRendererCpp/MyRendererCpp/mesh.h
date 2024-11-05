@@ -14,6 +14,8 @@ public:
         vec3_t position;
         vec2_t texcoord;
         vec3_t normal;
+        vec4_t joint;
+        vec4_t weight;
     };
 
     //º”‘ÿƒ£–Õ
@@ -41,7 +43,8 @@ private:
     friend Mesh* buildMesh
     (
         std::vector<vec3_t>& positions, std::vector<vec2_t>& texcoords, std::vector<vec3_t>& normals,
-        std::vector<int>& position_indices, std::vector<int>& texcoord_indices, std::vector<int>& normal_indices
+        std::vector<int>& position_indices, std::vector<int>& texcoord_indices, std::vector<int>& normal_indices,
+        std::vector<vec4_t>& joints, std::vector<vec4_t>& weights
     );
 
 };
