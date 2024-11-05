@@ -33,6 +33,7 @@ class FrameInfo
 {
 public:
 	static float frame_time;
+	static float ambient_intensity;
 	static void set_frame_time(float time)
 	{
 		frame_time = time;

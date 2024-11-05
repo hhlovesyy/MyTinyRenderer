@@ -101,7 +101,7 @@ void test_enter_mainloop_model_input(tickfunc_t* tickfunc)
 		float delta_time = curr_time - prev_time; //与帧率有关的值
 		update_camera(window, camera, &record);
 		update_click(curr_time, &record);
-
+		FrameInfo::ambient_intensity = scene.ambient_intensity;
 		//调用传入的函数，main中将这个函数设置为此类下的model_input_transform
 		tickfunc(framebuffer, camera);
 		window_draw_buffer(window, framebuffer);

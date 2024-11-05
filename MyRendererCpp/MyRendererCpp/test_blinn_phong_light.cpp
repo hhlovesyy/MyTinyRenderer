@@ -67,6 +67,7 @@ void test_enter_mainloop_blinnPhong(tickfunc_t* tickfunc)
 		update_camera(window, camera, &record);
 		update_click(curr_time, &record);
 		FrameInfo::set_frame_time(curr_time);  //Time.time
+		FrameInfo::ambient_intensity = scene_blinnPhong.ambient_intensity;
 
 		//调用传入的函数，main中将这个函数设置为此类下的model_input_transform
 		tickfunc(framebuffer, camera);

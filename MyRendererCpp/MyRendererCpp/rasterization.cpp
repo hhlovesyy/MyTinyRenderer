@@ -135,7 +135,7 @@ void rasterization_tri(Mesh* mesh,Program* program, framebuffer_t* framebuffer)
 
 				//--
 				vec4_t finalColor = blinnphong_fragment_shader(&varyings, program->get_uniforms(), nullptr, 0);
-
+			
 				//draw_fragment(framebuffer, j * width + i, finalColor1);
 				draw_fragment(framebuffer, j * WINDOW_WIDTH + i, finalColor,program);
 

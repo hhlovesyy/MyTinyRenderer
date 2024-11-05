@@ -18,6 +18,7 @@
 typedef void testfunc_t();
 typedef struct { const char* testname; testfunc_t* testfunc; } testcase_t;
 float FrameInfo::frame_time = 0.0f; // 静态成员变量的定义与初始化
+float FrameInfo::ambient_intensity = 0.0f; // 静态成员变量的定义与初始化
 static testcase_t g_testcases[] = 
 {
     {"test_rasterization", test_rasterization},

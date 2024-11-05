@@ -89,4 +89,9 @@ mat3_t mat3_from_mat4(mat4_t m);
 mat4_t mat4_combine(mat4_t m[4], vec4_t weights_);
 mat3_t mat3_combine(mat3_t m[4], vec4_t weights_);
 mat3_t mat3_mul_mat3(mat3_t a, mat3_t b);
+vec3_t vec3_modulate(vec3_t a, vec3_t b);
+vec3_t vec3_negate(vec3_t v);
+
+vec4_t vec4_saturate(vec4_t v);
+float float_saturate(float f);
 #endif

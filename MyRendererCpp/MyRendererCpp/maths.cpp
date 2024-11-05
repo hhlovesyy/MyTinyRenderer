@@ -757,3 +757,22 @@ mat3_t mat3_mul_mat3(mat3_t a, mat3_t b) {
     }
     return m;
 }
+
+vec3_t vec3_modulate(vec3_t a, vec3_t b) {
+    return vec3_new(a.x * b.x, a.y * b.y, a.z * b.z);
+}
+
+vec3_t vec3_negate(vec3_t v) {
+    return vec3_new(-v.x, -v.y, -v.z);
+}
+float float_saturate(float f) {
+    return f < 0 ? 0 : (f > 1 ? 1 : f);
+}
+
+vec4_t vec4_saturate(vec4_t v) {
+    float x = float_saturate(v.x);
+    float y = float_saturate(v.y);
+    float z = float_saturate(v.z);
+    float w = float_saturate(v.w);
+    return vec4_new(x, y, z, w);
+}

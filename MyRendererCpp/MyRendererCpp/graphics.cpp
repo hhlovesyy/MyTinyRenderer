@@ -109,6 +109,7 @@ void draw_fragment(framebuffer_t* framebuffer, int index, vec4_t& color,Program*
 		}
 	}
 	
+	color = vec4_saturate(color);
 	//end
 	framebuffer->color_buffer[index * 4 + 0] = float_to_uchar(color.x);
 	framebuffer->color_buffer[index * 4 + 1] = float_to_uchar(color.y);

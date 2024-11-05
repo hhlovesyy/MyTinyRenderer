@@ -1,7 +1,16 @@
-﻿  main.cpp
+﻿  test_blinn_phong_light.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,42): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_blinn_phong_light.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_blinn_phong_light.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_blinn_phong_light.cpp”)
+  
   正在生成代码
-  1 of 1364 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+  0 of 1372 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+    0 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   MyRendererCpp.vcxproj -> D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\x64\Release\MyRendererCpp.exe
