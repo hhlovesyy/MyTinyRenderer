@@ -38,6 +38,7 @@ struct uniforms_blinnphong
     TGAImage diffuse_map;
     TGAImage specular_map;
     TGAImage emission_map;
+    TGAImage normal_map;
     int alpha_blend;
     float shininess;
     float ambient_intensity;
@@ -52,6 +53,7 @@ struct material_blinnphong
     std::string diffuse_map;
     std::string specular_map;
     std::string emission_map;
+    std::string normal_map;
     int alpha_blend;
     float shininess;
 };

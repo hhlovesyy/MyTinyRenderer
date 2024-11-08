@@ -145,9 +145,10 @@ static Material_BlinnPhong get_material(varyings_blinnphong* varyings, uniforms_
     alpha *= albedo.w;
 
     vec4_t specular_map = sample2D(uniforms->specular_map, texcoord);
-    //specular = vec3_from_vec4(specular_map);
+    //std::cout<<"specular_map:"<<specular_map.x<<","<<specular_map.y<<","<<specular_map.z<<","<<specular_map.w<<std::endl;
+    specular = vec3_from_vec4(specular_map);
     //todo:test uniform specular value
-    specular = vec3_new(0.5, 0.5, 0.5);
+    //specular = vec3_new(0.5, 0.5, 0.5);
     shininess = uniforms->shininess;
     normal = varyings->normal;
     if (backface) {
@@ -178,6 +179,7 @@ static int is_zero_vector(vec3_t v) {
 
 static vec3_t get_specular(vec3_t light_dir, vec3_t view_dir, Material_BlinnPhong material)
 {
+    return material.specular;
     if (!is_zero_vector(material.specular))
     {
         vec3_t half_dir = vec3_normalize(vec3_add(light_dir, view_dir));
@@ -193,6 +195,7 @@ static vec3_t get_specular(vec3_t light_dir, vec3_t view_dir, Material_BlinnPhon
     {
 		return vec3_new(0, 0, 0);
 	}
+   
 }
 
 static vec4_t common_fragment_shader(varyings_blinnphong* varyings,
