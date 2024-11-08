@@ -1440,11 +1440,11 @@ for (int i = 0; i < 3; i++)
 
 我们的屏幕左下角是$(x_1,y_1)$, 右上角是$(x_2,y_2)$。也就是我们需要将我们的NDC空间的$[-1,1]^3$的坐标映射到这个范围内，本身是一个简单的缩放过程。同时，我们的z坐标也需要映射到0-1，后续在”深度”章节我们会细说z值的映射。
 
-![img](https://morakito-blog.oss-cn-beijing.aliyuncs.com/Real-Time-Rendering-4th/Chapter-2/202211042307276.png)
+![image-20241107162357092](lesson2_空间变换.assets/image-20241107162357092.png)
 
 一般来说，屏幕的最小值会被设置为$(0,0)$。 在OpenGL中，$(0,0)$位于左下角；而在DirectX中，$(0,0)$位于左上角。这个差异在迁移API时需要注意。
 
-![image-20241105151041707](lesson2_空间变换.assets/image-20241105151041707.png)
+![image-20241107162424705](lesson2_空间变换.assets/image-20241107162424705.png)
 
 如果我们的屏幕的宽度是$width$，高度是$height$，那么我们的映射矩阵就是：
 
