@@ -1053,7 +1053,7 @@ mat4_t mat4_orthographic(float right, float top, float near, float far) {
 
 
 
-在透视投影中，观察体就不再是立方体而是棱台。下图中的绿色部分就是矩形棱台观察体，只有位于其中的物体会被观察到。
+在透视投影中，观察体就不再是立方体而是棱台。下图中的绿色部分就是棱台观察体，只有位于其中的物体会被观察到。
 
 ![image-20241009104418556](lesson2_空间变换.assets/image-20241009104418556.png)
 
@@ -1396,9 +1396,9 @@ mat4_t camera_get_proj_matrix(Camera& camera)
 
 
 
-## 4.透视除法+视口映射
+## 4.裁剪空间->NDC空间（透视除法）
 
-经过透视投影之后，我们的点的齐次坐标（xyzw）中的w就有了数值而不再是1，接下来我们需要对其进行**透视除法**（同除w），具体的代码如下：
+经过透视投影之后，我们的点的齐次坐标（xyzw）中的w就有了数值而不再是1，接下来我们需要对其进行**透视除法**（同除w），将顶点从裁剪空间转为NDC空间。具体的代码如下：
 
 ```c++
 vec4_t clip_abc[3];
@@ -1408,23 +1408,48 @@ for (int i = 0; i < 3; i++)
 {
 	clip_abc[i] = mat4_mul_vec4(proj_matrix, mat4_mul_vec4(view_matrix, vec4_from_vec3(abc_3d[i], 1)));
 	vec3_t clip_coord = vec3_from_vec4(clip_abc[i]);
-	ndc_coords[i] = vec3_div(clip_coord, clip_abc[i].w);  //这一步是做透视除法
-	vec3_t window_coord = viewport_transform(width, height, ndc_coords[i]); //这一步是做视口变换
+	ndc_coords[i] = vec3_div(clip_coord, clip_abc[i].w);  //这一步是做透视除法 裁剪空间->NDC空间
+	......
+}
+
+```
+
+
+
+## 5.NDC空间->屏幕空间（视口映射）
+
+增加视口变换后，具体的代码如下：
+
+```c++
+vec4_t clip_abc[3];
+vec3_t ndc_coords[3];
+
+for (int i = 0; i < 3; i++)
+{
+	clip_abc[i] = mat4_mul_vec4(proj_matrix, mat4_mul_vec4(view_matrix, vec4_from_vec3(abc_3d[i], 1)));
+	vec3_t clip_coord = vec3_from_vec4(clip_abc[i]);
+	ndc_coords[i] = vec3_div(clip_coord, clip_abc[i].w);  //这一步是做透视除法  裁剪空间->NDC空间
+	vec3_t window_coord = viewport_transform(width, height, ndc_coords[i]); //这一步是做视口变换 NDC空间->屏幕空间
 }
 
 ```
 
 > **请注意！！这里有不少细节还没有处理好，但为了让读者能够很好地看到不错地效果，就先这样写着。**
 
-注意，做完透视除法之后，实际上将裁剪空间转为了NDC空间。
+接下来就是映射到视口了，进一步将NDC空间转到屏幕空间。
 
+我们的屏幕左下角是$(x_1,y_1)$, 右上角是$(x_2,y_2)$。也就是我们需要将我们的NDC空间的$[-1,1]^3$的坐标映射到这个范围内，本身是一个简单的缩放过程。同时，我们的z坐标也需要映射到0-1，后续在”深度”章节我们会细说z值的映射。
 
+![img](https://morakito-blog.oss-cn-beijing.aliyuncs.com/Real-Time-Rendering-4th/Chapter-2/202211042307276.png)
 
-接下来就是映射到视口了，
+一般来说，屏幕的最小值会被设置为$(0,0)$。 在OpenGL中，$(0,0)$位于左下角；而在DirectX中，$(0,0)$位于左上角。这个差异在迁移API时需要注意。
 
+![image-20241105151041707](lesson2_空间变换.assets/image-20241105151041707.png)
 
+如果我们的屏幕的宽度是$width$，高度是$height$，那么我们的映射矩阵就是：
 
-做了投影之后,范围会被规范化到$[-1,1]^3$,所以接下来要转换为屏幕坐标,这里我们认为像素的坐标是以左下角为定位点的,中心应该是(x+0.5,y+0.5),矩阵如下(复习前面的,先缩放再平移):
+>做了投影之后,范围会被规范化到$[-1,1]^3$,所以接下来要转换为屏幕坐标,这里我们认为像素的坐标是以左下角为定位点的,中心应该是(x+0.5,y+0.5),矩阵如下(复习前面的,先缩放再平移):
+
 $$
 M_{viewport}=\left[\begin{matrix} \frac{width}{2} & 0 & 0&\frac{width}{2} \\ 0&\frac{height}{2}&0&\frac{height}{2} \\ 0&0&\frac{1}{2}&\frac{1}{2} \\0&0&0&1 \end{matrix}\right]
 $$
@@ -1433,7 +1458,7 @@ $$
 
 这个函数这样写：
 
-我们之所有要保留z是为了后续的深度测试等操作，需要保留深度值。
+我们之所有要保留z是为了后续的深度测试等操作，需要保留深度值。（在后面的”深度“章节会细讲）
 
 ```c++
 /*
