@@ -65,7 +65,7 @@ static Scene_Blinn_t read_a_blinn_material(FILE* file)
 	assert(items == 1);
 	//add normal map
 	items = fscanf(file, " normal_map: %s", material.normal_map);
-
+	assert(items == 1);
 	items = fscanf(file, " alpha_blend: %d", &material.alpha_blend);
 	assert(items == 1);
 	UNUSED_VAR(items);  //消除未使用的变量的警告
@@ -233,7 +233,7 @@ static Scene* create_blinn_scene(Scene_Light_t& light, std::vector<Scene_Blinn_t
 		mat4_t transform = mat4_mul_mat4(root_transform, scene_transform.matrix);
 		material.basecolor = scene_material.basecolor;
 		material.diffuse_map = string_wrap_path(scene_material.diffuse_map);
-		//shabi C++, string_wrap_path返回nullptr或者NULL都会报错，这里直接返回空字符串，后面再处理了
+		//bad C++, string_wrap_path返回nullptr或者NULL都会报错，这里直接返回空字符串，后面再处理了
 		material.specular_map = string_wrap_path(scene_material.specular_map);
 		material.emission_map = string_wrap_path(scene_material.emission_map);
 		material.normal_map = string_wrap_path(scene_material.normal_map);

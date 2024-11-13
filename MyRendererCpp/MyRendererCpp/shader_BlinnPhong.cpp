@@ -111,14 +111,34 @@ static vec4_t common_vertex_shader(attribs_blinnphong* attribs,
     vec4_t world_position = mat4_mul_vec4(model_matrix, input_position);
     vec4_t clip_position = mat4_mul_vec4(camera_vp_matrix, world_position);//将世界空间变换到相机空间
     vec4_t depth_position = mat4_mul_vec4(light_vp_matrix, world_position);//将世界空间变换到光源空间
-
+    //std::cout<<attribs->tangent.x<<","<<attribs->tangent.y<<","<<attribs->tangent.z<<","<<attribs->tangent.w<<std::endl;
     vec3_t input_normal = attribs->normal;
     vec3_t world_normal = mat3_mul_vec3(normal_matrix, input_normal);
+    if (uniforms->normal_map.height() > 0)
+    {
+        mat3_t tangent_matrix = mat3_from_mat4(model_matrix);
+        vec3_t input_tangent = vec3_from_vec4(attribs->tangent);
+        vec3_t world_tangent = mat3_mul_vec3(tangent_matrix, input_tangent);
+        vec3_t world_bitangent;
+
+        world_normal = vec3_normalize(world_normal);
+        world_tangent = vec3_normalize(world_tangent);
+        world_bitangent = vec3_cross(world_normal, world_tangent);
+        world_bitangent = vec3_mul(world_bitangent, attribs->tangent.w);
+
+        varyings->normal = world_normal;
+        varyings->world_tangent = world_tangent;
+        varyings->world_bitangent = world_bitangent;
+    }
+    else
+    {
+        varyings->normal = vec3_normalize(world_normal);
+    }
 
     varyings->world_position = vec3_from_vec4(world_position);
     varyings->depth_position = vec3_from_vec4(depth_position);
     varyings->texcoord = attribs->texcoord;
-    varyings->normal = vec3_normalize(world_normal);
+    
     return clip_position;
 }
 
@@ -129,6 +149,36 @@ vec4_t blinnphong_vertex_shader(void* attribs_, void* varyings_, void* uniforms_
     auto* uniforms = static_cast<uniforms_blinnphong*>(uniforms_);
 
     return common_vertex_shader(attribs, varyings, uniforms);
+}
+
+static vec3_t get_normal_dir(varyings_blinnphong* varyings, uniforms_blinnphong* uniforms, int backface)
+{
+    //添加法线贴图的相关逻辑
+    vec3_t normal_dir = varyings->normal;
+    if (uniforms->normal_map.height() > 0) //用这种方式判断有使用法线贴图
+    {
+        vec4_t sample= sample2D(uniforms->normal_map, varyings->texcoord);
+        vec3_t tangent_normal = vec3_new(sample.x * 2 - 1,
+            sample.y * 2 - 1,
+            sample.z * 2 - 1);
+        float bump_intensity = 1;
+        vec2_t tangent_normal_xy = vec2_new(tangent_normal.x, tangent_normal.y);
+        tangent_normal_xy = vec2_mul(tangent_normal_xy, bump_intensity);
+        float new_tangent_z = sqrt(1 - tangent_normal_xy.x * tangent_normal_xy.x - tangent_normal_xy.y * tangent_normal_xy.y);
+        tangent_normal = vec3_new(tangent_normal_xy.x, tangent_normal_xy.y, new_tangent_z);
+        mat3_t tbn_matrix = mat3_from_cols(varyings->world_tangent,
+            varyings->world_bitangent,
+            varyings->normal);
+        vec3_t world_normal = mat3_mul_vec3(tbn_matrix, tangent_normal);
+        normal_dir = vec3_normalize(world_normal);
+    }
+    else
+    {
+        normal_dir = vec3_normalize(varyings->normal);
+	}
+    //vec4_t sample1 = sample2D(uniforms->normal_map, varyings->texcoord);
+    //return vec3_from_vec4(sample1);
+    return backface ? vec3_negate(normal_dir) : normal_dir;
 }
 
 static Material_BlinnPhong get_material(varyings_blinnphong* varyings, uniforms_blinnphong* uniforms, int backface)
@@ -150,10 +200,11 @@ static Material_BlinnPhong get_material(varyings_blinnphong* varyings, uniforms_
     //todo:test uniform specular value
     //specular = vec3_new(0.5, 0.5, 0.5);
     shininess = uniforms->shininess;
-    normal = varyings->normal;
+    /*normal = varyings->normal;
     if (backface) {
         normal = vec3_negate(normal);
-    }
+    }*/
+    normal = get_normal_dir(varyings, uniforms, backface);
 
     vec4_t emission_map = sample2D(uniforms->emission_map, texcoord);
     emission = vec3_from_vec4(emission_map);
@@ -214,6 +265,7 @@ static vec4_t common_fragment_shader(varyings_blinnphong* varyings,
     }
     //lambert and blinn_phong
     vec3_t light_dir = vec3_normalize(uniforms->light_dir); //注意Light方向要归一化
+    
     float n_dot_l = vec3_dot(material.normal, light_dir);
     //half lambert
     //n_dot_l = n_dot_l * 0.5 + 0.5;
@@ -227,7 +279,8 @@ static vec4_t common_fragment_shader(varyings_blinnphong* varyings,
     vec3_t diffuse = vec3_mul(material.diffuse, n_dot_l);
     color = vec3_add(color, vec3_add(diffuse, specular));
     //diffuse = material.diffuse;
-    return vec4_from_vec3(color, material.alpha);
+    vec3_t ndotL = vec3_new(n_dot_l, n_dot_l, n_dot_l);
+    return vec4_from_vec3(color , material.alpha);
 }
 
 vec4_t blinnphong_fragment_shader(void* varyings_, void* uniforms_, int* discard, int backface)
@@ -271,6 +324,7 @@ Model* shader_BlinnPhong_create_model(std::string mesh_path,std::string skeleton
     uniforms->diffuse_map = mesh->load_texture(material.diffuse_map);
     uniforms->specular_map = mesh->load_texture(material.specular_map);
     uniforms->emission_map = mesh->load_texture(material.emission_map);
+    uniforms->normal_map = mesh->load_texture(material.normal_map);
     uniforms->shininess = material.shininess;
     uniforms->basecolor = material.basecolor;
     uniforms->alpha_blend = material.alpha_blend;

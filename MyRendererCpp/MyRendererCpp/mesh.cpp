@@ -7,12 +7,13 @@
 #include "macro.h"
 #include "mesh.h"
 #include "private.h"
+#include "config.h"
 
 
 //buildMesh的作用是根据顶点数据构建一个Mesh对象。
 static Mesh* buildMesh
 (
-    std::vector<vec3_t>& positions, std::vector<vec2_t>& texcoords, std::vector<vec3_t>& normals,
+    std::vector<vec3_t>& positions, std::vector<vec2_t>& texcoords, std::vector<vec3_t>& normals, std::vector<vec4_t>& tangents,
     std::vector<int>& position_indices, std::vector<int>& texcoord_indices, std::vector<int>& normal_indices,
     std::vector<vec4_t>& joints, std::vector<vec4_t>& weights
 ) 
@@ -43,6 +44,17 @@ static Mesh* buildMesh
         vertices[i].position = positions[position_index];
         vertices[i].texcoord = texcoords[texcoord_index];
         vertices[i].normal = normals[normal_index];
+
+        if (tangents.size() > 0)
+        {
+            int tangent_index = position_index;
+            assert(tangent_index >= 0 && tangent_index < tangents.size());
+			vertices[i].tangent = tangents[tangent_index];
+		}
+        else
+        {
+			vertices[i].tangent = vec4_new(1, 0, 0, 1);
+		}
 
         if (joints.size() > 0 && weights.size() > 0)
         {
@@ -78,6 +90,7 @@ static Mesh* loadObj(std::string filename)
     //add joints and weights
     std::vector<vec4_t> joints;
     std::vector<vec4_t> weights;
+    std::vector<vec4_t> tangents;
     char line[LINE_SIZE];
     Mesh* mesh;
     FILE* file;
@@ -135,6 +148,14 @@ static Mesh* loadObj(std::string filename)
                 normal_indices.push_back(n_indices[i] - 1);
             }
         }
+        else if (strncmp(line, "# ext.tangent ", 14) == 0)
+        {
+            vec4_t tangent;
+            items = sscanf(line, "# ext.tangent %f %f %f %f",
+                &tangent.x, &tangent.y, &tangent.z, &tangent.w);
+            assert(items == 4);
+            tangents.push_back(tangent);
+        }
         else if (strncmp(line, "# ext.joint ", 12) == 0) {    /* joint */
             vec4_t joint;
             items = sscanf(line, "# ext.joint %f %f %f %f",
@@ -155,7 +176,7 @@ static Mesh* loadObj(std::string filename)
     }
     fclose(file);
 
-    mesh = buildMesh(positions, texcoords, normals, 
+    mesh = buildMesh(positions, texcoords, normals,tangents, 
         position_indices, texcoord_indices, normal_indices, joints, weights);
 
     return mesh;
@@ -210,6 +231,13 @@ TGAImage Mesh::load_texture(std::string filename)
     if (tmp.read_tga_file(texfile.c_str()))
     {
         std::cout << "load texture file " << texfile << " success" << std::endl;
+        
+        if (Global_Config::should_flip_uv_y)
+        {
+            TGAImage* tmp1 = &tmp;
+            tmp1->flip_vertically();
+        }
+        
         textures.push_back(tmp);
     }
     else

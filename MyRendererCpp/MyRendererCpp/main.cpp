@@ -13,12 +13,14 @@
 #include "test_blinn_phong_light.h"
 #include "win32.h"
 #include "scene.h"
+#include "config.h"
 
 
 typedef void testfunc_t();
 typedef struct { const char* testname; testfunc_t* testfunc; } testcase_t;
 float FrameInfo::frame_time = 0.0f; // 静态成员变量的定义与初始化
 float FrameInfo::ambient_intensity = 0.0f; // 静态成员变量的定义与初始化
+bool Global_Config::should_flip_uv_y = false;
 static testcase_t g_testcases[] = 
 {
     {"test_rasterization", test_rasterization},
@@ -34,8 +36,8 @@ int main(int argc, char* argv[])
 {
     platform_initialize();
     //now we test rasterization
-    const char* testname = g_testcases[6].testname;
-    testfunc_t* testfunc = g_testcases[6].testfunc;
+    const char* testname = g_testcases[0].testname;
+    testfunc_t* testfunc = g_testcases[0].testfunc;
     //使用函数指针调用函数，比如：调用test_model_input函数（因为引用了test_model_input.h，test_model_input.h中包含test_model_input函数）
     if (testfunc)
     {

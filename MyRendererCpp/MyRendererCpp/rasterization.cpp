@@ -71,7 +71,8 @@ void rasterization_tri(Mesh* mesh,Program* program, framebuffer_t* framebuffer)
 			attribs.normal = normal[i];
 			attribs.joint = vertices[index * 3 + i].joint;
 			attribs.weight = vertices[index * 3 + i].weight;
-
+			attribs.tangent = vertices[index * 3 + i].tangent;
+			
 			vec4_t clip_position = blinnphong_vertex_shader(&attribs, &varyings, program->get_uniforms());
 			recip_w[i] = 1 / clip_position.w;
 
@@ -124,6 +125,12 @@ void rasterization_tri(Mesh* mesh,Program* program, framebuffer_t* framebuffer)
 				// 对法线做重心插值
 				vec3_t normal_p = vec3_add(vec3_add(vec3_mul(normal[0], new_weights.x), vec3_mul(normal[1], new_weights.y)), vec3_mul(normal[2], new_weights.z));
 
+				//对切线进行重心插值
+				vec4_t tangent_p = vec4_add(vec4_add(vec4_mul(vertices[index * 3].tangent, new_weights.x), vec4_mul(vertices[index * 3 + 1].tangent, new_weights.y)), vec4_mul(vertices[index * 3 + 2].tangent, new_weights.z));
+
+				//对副切线进行重心插值
+				vec3_t bitangent_p = vec3_cross(normal_p, vec3_from_vec4(tangent_p));
+
 				// 对位置做重心插值
 				vec3_t position_p = vec3_add(vec3_add(vec3_mul(abc_3d[0], new_weights.x), vec3_mul(abc_3d[1], new_weights.y)), vec3_mul(abc_3d[2], new_weights.z));
 
@@ -132,6 +139,8 @@ void rasterization_tri(Mesh* mesh,Program* program, framebuffer_t* framebuffer)
 				varyings.texcoord = uv_p;
 				varyings.normal = normal_p;
 				varyings.world_position = position_p;
+				varyings.world_tangent = vec3_from_vec4(tangent_p);
+				varyings.world_bitangent = bitangent_p;
 
 				//--
 				vec4_t finalColor = blinnphong_fragment_shader(&varyings, program->get_uniforms(), nullptr, 0);

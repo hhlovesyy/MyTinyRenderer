@@ -155,6 +155,7 @@
   <ItemGroup>
     <ClInclude Include="build_scene.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="config.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="macro.h" />

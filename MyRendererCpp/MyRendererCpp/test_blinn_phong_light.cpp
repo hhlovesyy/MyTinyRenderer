@@ -9,6 +9,7 @@
 #include "scene_helper.h"
 #include "rasterization.h"
 #include "build_scene.h"
+#include "config.h"
 
 using namespace std;
 typedef void tickfunc_t(framebuffer_t* framebuffer, Camera* camera);
@@ -17,6 +18,7 @@ vector<Model*> models_blinnPhong;
 Scene scene_blinnPhong;
 void preLoadModel_blinnPhong()
 {
+	Global_Config::SetFlipUVY(true);
 	builder_blinnPhong = SceneBuilder();
 	//加载模型(新)
 	char cwd[1024];
