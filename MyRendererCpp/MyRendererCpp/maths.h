@@ -94,4 +94,5 @@ vec3_t vec3_negate(vec3_t v);
 
 vec4_t vec4_saturate(vec4_t v);
 float float_saturate(float f);
+mat3_t mat3_from_cols(vec3_t c0, vec3_t c1, vec3_t c2);
 #endif

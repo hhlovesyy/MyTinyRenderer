@@ -15,6 +15,7 @@ struct attribs_blinnphong
     vec3_t normal;
     vec4_t joint;
     vec4_t weight;
+    vec4_t tangent;
 };
 
 struct varyings_blinnphong 
@@ -23,6 +24,8 @@ struct varyings_blinnphong
     vec3_t depth_position;
     vec2_t texcoord;
     vec3_t normal;
+    vec3_t world_tangent;
+    vec3_t world_bitangent;
 };
 
 struct uniforms_blinnphong 
@@ -42,6 +45,7 @@ struct uniforms_blinnphong
     int alpha_blend;
     float shininess;
     float ambient_intensity;
+    bool isDrawShadowMap;
     std::vector<mat4_t> joint_matrices;
     std::vector<mat3_t> joint_n_matrices;
 };

@@ -9,6 +9,7 @@
 #include "scene_helper.h"
 #include "rasterization.h"
 #include "build_scene.h"
+#include "config.h"
 
 using namespace std;
 typedef void tickfunc_t(framebuffer_t* framebuffer, Camera* camera);
@@ -17,13 +18,16 @@ vector<Model*> models_blinnPhong;
 Scene scene_blinnPhong;
 void preLoadModel_blinnPhong()
 {
+	Global_Config::SetFlipUVY(false);
 	builder_blinnPhong = SceneBuilder();
 	//加载模型(新)
 	char cwd[1024];
 	_getcwd(cwd, sizeof(cwd));
 	printf("Current working directory: %s\n", cwd);
 	mat4_t root = mat4_identity();
-	scene_blinnPhong = scene_from_file("blinnPhong/Star/star.scene", root);
+
+	//scene_blinnPhong = scene_from_file("blinnPhong/Star/star.scene", root);
+	scene_blinnPhong = scene_from_file("blinnPhong/StarTestShadow/star.scene", root);
 	
 	models_blinnPhong = scene_blinnPhong.models;
 
@@ -68,6 +72,7 @@ void test_enter_mainloop_blinnPhong(tickfunc_t* tickfunc)
 		update_click(curr_time, &record);
 		FrameInfo::set_frame_time(curr_time);  //Time.time
 		FrameInfo::ambient_intensity = scene_blinnPhong.ambient_intensity;
+		/*FrameInfo::light_view_matrix = camera_get_view_matrix(*camera);*/
 
 		//调用传入的函数，main中将这个函数设置为此类下的model_input_transform
 		tickfunc(framebuffer, camera);

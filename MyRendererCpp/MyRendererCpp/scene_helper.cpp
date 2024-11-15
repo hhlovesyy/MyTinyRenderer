@@ -39,6 +39,7 @@ class Scene_Light_t
 public:
 	vec3_t background;
 	float ambient;
+	char shadow[LINE_SIZE];//Off表示不产生阴影，On表示产生阴影，也可以定义shadowmap的大小
 };
 
 static int equals_to(const char* str1, const char* str2) 
@@ -65,7 +66,7 @@ static Scene_Blinn_t read_a_blinn_material(FILE* file)
 	assert(items == 1);
 	//add normal map
 	items = fscanf(file, " normal_map: %s", material.normal_map);
-
+	assert(items == 1);
 	items = fscanf(file, " alpha_blend: %d", &material.alpha_blend);
 	assert(items == 1);
 	UNUSED_VAR(items);  //消除未使用的变量的警告
@@ -148,6 +149,8 @@ static void read_light(FILE* file, Scene_Light_t& light)
 	assert(items == 3);
 	items = fscanf(file, " ambient: %f", &light.ambient);
 	assert(items == 1);
+	items = fscanf(file, " shadow: %s", &light.shadow);
+	assert(items == 1);
 
 	UNUSED_VAR(items);
 }
@@ -197,16 +200,52 @@ static int wrap_knob(const char* knob)
 	}
 }
 
-static void scene_create(vec3_t background, Scene* scene, float ambient)
+static void scene_create(vec3_t background, Scene* scene, float ambient,
+int shadowmap_width, int shadowmap_height)
 {
 	scene->background = vec4_from_vec3(background, 1);
 	scene->ambient_intensity = ambient;
+	if (shadowmap_width > 0 && shadowmap_height > 0) 
+	{
+		scene->shadowmap_buffer = framebuffer_create(shadowmap_width, shadowmap_height);
+	}
+	else 
+	{
+		scene->shadowmap_buffer = NULL;
+	}
+	
 }
 
 
 static void create_scene(Scene_Light_t& light, Scene* scene)
 {
-	scene_create(light.background, scene, light.ambient);
+	//定义shadow的有无，以及shadowmap的大小
+	int shadowmap_width, shadowmap_height;
+	if (equals_to(light.shadow, "off")) 
+	{
+		shadowmap_width = -1;
+		shadowmap_height = -1;
+	}
+	else 
+	{
+		if (equals_to(light.shadow, "on"))
+		{
+			shadowmap_width = 800;
+			shadowmap_height = 600;
+		}
+		else 
+		{
+			int items;
+			items = sscanf(light.shadow, "%dx%d",
+				&shadowmap_width, &shadowmap_height);
+			assert(items == 2 && shadowmap_width > 0 && shadowmap_height > 0);
+			UNUSED_VAR(items);
+		}
+	}
+
+	scene_create(light.background, scene, light.ambient,
+	shadowmap_width, shadowmap_height
+	);
 }
 
 static Scene* create_blinn_scene(Scene_Light_t& light, std::vector<Scene_Blinn_t>& materials, std::vector<Scene_Transform_t>& transforms, std::vector<Scene_Model_t>& scene_models, mat4_t root_transform)
@@ -233,7 +272,7 @@ static Scene* create_blinn_scene(Scene_Light_t& light, std::vector<Scene_Blinn_t
 		mat4_t transform = mat4_mul_mat4(root_transform, scene_transform.matrix);
 		material.basecolor = scene_material.basecolor;
 		material.diffuse_map = string_wrap_path(scene_material.diffuse_map);
-		//shabi C++, string_wrap_path返回nullptr或者NULL都会报错，这里直接返回空字符串，后面再处理了
+		//bad C++, string_wrap_path返回nullptr或者NULL都会报错，这里直接返回空字符串，后面再处理了
 		material.specular_map = string_wrap_path(scene_material.specular_map);
 		material.emission_map = string_wrap_path(scene_material.emission_map);
 		material.normal_map = string_wrap_path(scene_material.normal_map);

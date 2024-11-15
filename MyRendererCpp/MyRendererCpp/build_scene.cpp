@@ -18,16 +18,15 @@ void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Came
 			model->update(model, camera);
 		}
 	}
-    //渲染顺序
-    
+
     //区分透明与非透明模型
-    vector<Model*> TransModels ;//透明物体
+    vector<Model*> TransModels;//透明物体
     vector<Model*> OpaqueModels;//非透明物体
     for (int index = 0; index < models.size(); index++)
     {  // 统计非透明模型的数量
         Model* model = models[index];
-        
-        if (model->transparent==0)
+
+        if (model->transparent == 0)
         {
             OpaqueModels.push_back(model);
         }
@@ -38,16 +37,33 @@ void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Came
         }
     }
 
+    //渲染shadowmap
+    if (scene.shadowmap_buffer)
+    {  // 如果场景有阴影缓冲区和阴影贴图
+        sort_models(models, FrameInfo::get_light_view_matrix());// 按照光源的视角矩阵对模型进行排序
+        framebuffer_clear_depth(framebuffer, 1);  // 清除阴影缓冲区的深度信息
+        for (int index = 0; index < OpaqueModels.size(); index++)
+        {  // 遍历所有模型
+            Model* model = models[index];
+            //model->draw(model, scene.shadowmap_buffer,true);  // 绘制模型到阴影缓冲区
+            model->draw(model, framebuffer, true);
+            //draw是函数指针，如可以指向draw_model(Model* model, framebuffer_t* framebuffer,bool isDrawShadowMap)
+        }
+        //texture_from_depthbuffer(scene->shadow_map, scene->shadow_buffer);  // 将阴影缓冲区的深度信息转换为阴影贴图
+    }
 
+    //渲染顺序
+
+    return;
     //先渲染不透明物体，再渲染透明物体
-    //绘制不透明模型 不需要关注顺序
+    //绘制不透明模型 为了优化性能 可以采用先近后远的顺序
     sort_models(OpaqueModels, camera_get_view_matrix(*camera));
     for (int index = 0; index < OpaqueModels.size(); index++)
 	{
 		Model* model = OpaqueModels[index];
         if (model->draw)
         {
-            model->draw(model, framebuffer);
+            model->draw(model, framebuffer, false);
         }
 	}
     //绘制透明模型
@@ -58,7 +74,7 @@ void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Came
 		Model* model = TransModels[index];
         if (model->draw)
         {
-			model->draw(model, framebuffer);
+			model->draw(model, framebuffer, false);
 		}
 	}
 }

@@ -11,6 +11,7 @@ materials 5:
         diffuse_map: combinePamu_diffuse.tga
         specular_map: null
         emission_map: null
+        normal_map: null
         alpha_blend: 1
     material 1:
         basecolor: 1 1 1 1
@@ -18,6 +19,7 @@ materials 5:
         diffuse_map: test_diffuse.tga
         specular_map: null
         emission_map: null
+        normal_map: null
         alpha_blend: 0	
     material 2:
         basecolor: 1 1 1 1
@@ -25,6 +27,7 @@ materials 5:
         diffuse_map: ProjectGrass_Sphere_AlbedoTransparency.tga
         specular_map: null
         emission_map: null
+        normal_map: null
         alpha_blend: 1
     material 3:
         basecolor: 1 1 1 1
@@ -32,6 +35,7 @@ materials 5:
         diffuse_map: ProjectGrass_Sphere_1_AlbedoTransparency.tga
         specular_map: null
         emission_map: null
+        normal_map: null
         alpha_blend: 0	
     material 4:
         basecolor: 1 1 1 1
@@ -39,6 +43,7 @@ materials 5:
         diffuse_map: ProjectGrass_Sphere_AlbedoTransparency.tga
         specular_map: null
         emission_map: null
+        normal_map: null
         alpha_blend: 1		
 
 transforms 1:

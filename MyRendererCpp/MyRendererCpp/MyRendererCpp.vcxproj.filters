@@ -145,6 +145,9 @@
     <ClInclude Include="test_blinn_phong_light.h">
       <Filter>test_unit\header</Filter>
     </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">

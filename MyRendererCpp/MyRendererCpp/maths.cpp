@@ -776,3 +776,17 @@ vec4_t vec4_saturate(vec4_t v) {
     float w = float_saturate(v.w);
     return vec4_new(x, y, z, w);
 }
+
+mat3_t mat3_from_cols(vec3_t c0, vec3_t c1, vec3_t c2) {
+    mat3_t m;
+    m.m[0][0] = c0.x;
+    m.m[1][0] = c0.y;
+    m.m[2][0] = c0.z;
+    m.m[0][1] = c1.x;
+    m.m[1][1] = c1.y;
+    m.m[2][1] = c1.z;
+    m.m[0][2] = c2.x;
+    m.m[1][2] = c2.y;
+    m.m[2][2] = c2.z;
+    return m;
+}

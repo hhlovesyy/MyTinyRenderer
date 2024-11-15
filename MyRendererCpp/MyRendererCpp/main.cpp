@@ -13,12 +13,15 @@
 #include "test_blinn_phong_light.h"
 #include "win32.h"
 #include "scene.h"
+#include "config.h"
 
 
 typedef void testfunc_t();
 typedef struct { const char* testname; testfunc_t* testfunc; } testcase_t;
 float FrameInfo::frame_time = 0.0f; // 静态成员变量的定义与初始化
 float FrameInfo::ambient_intensity = 0.0f; // 静态成员变量的定义与初始化
+vec3_t FrameInfo::light_dir = vec3_new(0.5f, 0.8f, 0.9f); // 静态成员变量的定义与初始化
+bool Global_Config::should_flip_uv_y = false;
 static testcase_t g_testcases[] = 
 {
     {"test_rasterization", test_rasterization},
@@ -27,7 +30,7 @@ static testcase_t g_testcases[] =
     {"test_space_transform", test_space_transform},
     {"test_camera_move", test_camera_move},
     {"test_skeleton_animation", test_skeleton_animation},
-    {"test_blinn_phong_light", test_blinn_phong_light},
+    {"test_blinn_phong_light", test_blinn_phong_light}
 };
 
 int main(int argc, char* argv[])

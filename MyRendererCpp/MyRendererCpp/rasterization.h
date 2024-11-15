@@ -7,5 +7,5 @@
 #include "macro.h"
 #include "test_helper.h"
 
-void rasterization_tri(Mesh* mesh, Program* program, framebuffer_t* framebuffer);
+void rasterization_tri(Mesh* mesh, Program* program, framebuffer_t* framebuffer,bool isDrawShadowMap);
 #endif // !RASTERIZATION_H

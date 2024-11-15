@@ -7,7 +7,7 @@
 #define TO_RADIANS(degrees) ((PI / 180) * (degrees))
 #define TO_DEGREES(radians) ((180 / PI) * (radians))
 
-#define LINE_SIZE 256
+#define LINE_SIZE 1024
 #define PATH_SIZE 256
 
 #define UNUSED_VAR(x) ((void)(x))
