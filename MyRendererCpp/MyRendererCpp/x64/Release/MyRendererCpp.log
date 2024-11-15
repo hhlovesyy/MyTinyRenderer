@@ -1,37 +1,13 @@
-﻿  build_scene.cpp
+﻿  shader_BlinnPhong.cpp
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,41): warning C4305: “初始化”: 从“double”到“float”截断
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\build_scene.cpp(100,20): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
-  main.cpp
-  rasterization.cpp
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,41): warning C4305: “初始化”: 从“double”到“float”截断
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\rasterization.cpp(57,10): warning C4101: “clip_abc”: 未引用的局部变量
-  scene_helper.cpp
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\scene_helper.cpp(253,20): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\scene_helper.cpp(254,21): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\scene_helper.cpp(255,17): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
-  shader_BlinnPhong.cpp
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,41): warning C4305: “初始化”: 从“double”到“float”截断
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
-  test_blinn_phong_light.cpp
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,41): warning C4305: “初始化”: 从“double”到“float”截断
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
-  test_model_input.cpp
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,41): warning C4305: “初始化”: 从“double”到“float”截断
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
-  test_skeleton_animation.cpp
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,41): warning C4305: “初始化”: 从“double”到“float”截断
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\shader_BlinnPhong.cpp(289,21): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\shader_BlinnPhong.cpp(292,21): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\shader_BlinnPhong.cpp(299,29): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
   正在生成代码
-  0 of 1383 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+  4 of 1384 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    2 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   MyRendererCpp.vcxproj -> D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\x64\Release\MyRendererCpp.exe

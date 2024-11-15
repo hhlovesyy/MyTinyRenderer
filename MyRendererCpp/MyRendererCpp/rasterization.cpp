@@ -59,6 +59,7 @@ void rasterization_tri(Mesh* mesh,Program* program, framebuffer_t* framebuffer,b
 
 		vec2_t screen_coords[3];
 		float screen_depths[3];
+		vec3_t light_depth[3];
 
 		float recip_w[3];
 
@@ -84,6 +85,7 @@ void rasterization_tri(Mesh* mesh,Program* program, framebuffer_t* framebuffer,b
 			vec3_t window_coord = viewport_transform(WINDOW_WIDTH, WINDOW_HEIGHT, ndc_coords[i]); //这一步是做视口变换
 			screen_coords[i] = vec2_new(window_coord.x, window_coord.y);
 			screen_depths[i] = window_coord.z;
+			light_depth[i] = varyings.depth_position;
 		}
 		//背面剔除
 		if(cull_back_efficient(ndc_coords))
@@ -144,14 +146,18 @@ void rasterization_tri(Mesh* mesh,Program* program, framebuffer_t* framebuffer,b
 				// 对位置做重心插值
 				vec3_t position_p = vec3_add(vec3_add(vec3_mul(abc_3d[0], new_weights.x), vec3_mul(abc_3d[1], new_weights.y)), vec3_mul(abc_3d[2], new_weights.z));
 
+				vec3_t current_light_depth=	vec3_add(vec3_add(vec3_mul(light_depth[0], new_weights.x), vec3_mul(light_depth[1], new_weights.y)), vec3_mul(light_depth[2], new_weights.z));
+
+				
 				// 传递插值后的属性给片元着色器
 				varyings_blinnphong varyings;
 				varyings.texcoord = uv_p;
 				varyings.normal = normal_p;
 				varyings.world_position = position_p;
 				varyings.world_tangent = vec3_from_vec4(tangent_p);
-				//varyings.world_bitangent = bitangent_p;
-				varyings.world_bitangent = vec3_new(depth,0,0);//测试
+				varyings.world_bitangent = bitangent_p;
+				varyings.depth_position = current_light_depth;
+
 
 				//--
 				uniforms_blinnphong* uniforms = static_cast<uniforms_blinnphong*>(program->get_uniforms());

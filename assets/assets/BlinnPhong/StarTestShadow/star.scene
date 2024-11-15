@@ -1,0 +1,41 @@
+type: blinn
+
+lighting:
+    background: 0.15 0.15 0.15
+    ambient: 0.2
+    shadow: on
+
+materials 2:
+    material 0:
+        basecolor: 1 1 1 1
+        shininess: 4
+        diffuse_map: test_diffuse.tga
+        specular_map: null
+        emission_map: null
+        normal_map: testStarOffset_Mesh_Normal.tga
+        alpha_blend: 0	
+    material 1:
+        basecolor: 1 1 1 1
+        shininess: 4
+        diffuse_map:  test_diffuse.tga
+        specular_map: null
+        emission_map: null
+        normal_map: null
+        alpha_blend: 0	
+
+transforms 1:
+    transform 0:
+        1  0  0  0
+        0  1  0  0
+        0  0  1  0
+        0  0  0  1
+
+models 2:
+    model 0:
+        mesh: test.obj
+        material: 0
+        transform: 0
+    model 1:
+        mesh: BlinnPhong\StarTestShadow\groundS1.obj
+        material: 1
+        transform: 0

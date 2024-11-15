@@ -42,10 +42,12 @@ struct uniforms_blinnphong
     TGAImage specular_map;
     TGAImage emission_map;
     TGAImage normal_map;
+    
     int alpha_blend;
     float shininess;
     float ambient_intensity;
     bool isDrawShadowMap;
+    framebuffer_t* shadowmap_buffer;
     std::vector<mat4_t> joint_matrices;
     std::vector<mat3_t> joint_n_matrices;
 };

@@ -137,7 +137,7 @@ static vec4_t common_vertex_shader(attribs_blinnphong* attribs,
     }
 
     varyings->world_position = vec3_from_vec4(world_position);
-    varyings->depth_position = vec3_from_vec4(depth_position);
+    varyings->depth_position = vec3_from_vec4(depth_position); //光照空间的depth
     varyings->texcoord = attribs->texcoord;
     
     return clip_position;
@@ -276,6 +276,38 @@ static vec3_t get_specular(vec3_t light_dir, vec3_t view_dir, Material_BlinnPhon
    
 }
 
+static int is_in_shadow(varyings_blinnphong* varyings,
+    uniforms_blinnphong* uniforms, 
+    float n_dot_l) 
+{
+    if (uniforms->shadowmap_buffer != nullptr)
+    {
+        //float d = (varyings->depth_position.z + 1) * 0.5f;
+        int width = uniforms->shadowmap_buffer->width;
+        int height = uniforms->shadowmap_buffer->height;
+
+        int sampleU = (varyings->depth_position.x + 1) * 0.5f * width;
+        float V = (varyings->depth_position.y + 1) * 0.5f;
+        //V = 1.0 - V;
+        int sampleV = V * height;
+
+
+        float depth_bias = float_max(0.05f * (1 - n_dot_l), 0.005f);
+        //float current_depth = d - depth_bias;
+        //vec2_t texcoord = vec2_new(u, v);
+        float closest_depth = uniforms->shadowmap_buffer->depth_buffer[sampleU + sampleV * width];
+        float current_depth = varyings->depth_position.z * 0.5 + 0.5;  //depth是-1到1的范围，转换到0到1的范围
+        current_depth = current_depth - depth_bias;
+        //std::cout<<"current_depth:"<<current_depth<<",closest_depth:"<<closest_depth<< std::endl;
+
+        return current_depth > closest_depth;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 static vec4_t common_fragment_shader(varyings_blinnphong* varyings,
     uniforms_blinnphong* uniforms,
     int* discard,
@@ -300,13 +332,17 @@ static vec4_t common_fragment_shader(varyings_blinnphong* varyings,
     {
 		n_dot_l = 0;
 	}
+    if (!is_in_shadow(varyings, uniforms, n_dot_l))
+    {
+        vec3_t view_dir = get_view_dir(varyings, uniforms);
+        vec3_t specular = get_specular(light_dir, view_dir, material);
+        vec3_t diffuse = vec3_mul(material.diffuse, n_dot_l);
+        color = vec3_add(color, vec3_add(diffuse, specular));
+    }
     //vec3_t test = vec3_new(n_dot_l, n_dot_l, n_dot_l);
-    vec3_t view_dir = get_view_dir(varyings, uniforms);
-    vec3_t specular = get_specular(light_dir, view_dir, material);
-    vec3_t diffuse = vec3_mul(material.diffuse, n_dot_l);
-    color = vec3_add(color, vec3_add(diffuse, specular));
+    
     //diffuse = material.diffuse;
-    vec3_t ndotL = vec3_new(n_dot_l, n_dot_l, n_dot_l);
+    //vec3_t ndotL = vec3_new(n_dot_l, n_dot_l, n_dot_l);
     return vec4_from_vec3(color , material.alpha);
 }
 
@@ -315,22 +351,7 @@ static vec4_t shadow_fragment_shader(varyings_blinnphong* varyings,
     int* discard,
     int backface)
 {
-    float depth = varyings->world_bitangent.x;
-    ////测试可视化shadowmap
-    //vec3_t depth_position = varyings->depth_position;
-    //float depth = depth_position.z;
-    /*float shadow = 0;
-    vec2_t texcoord = varyings->texcoord;
-    vec4_t shadowmap = sample2D(uniforms->diffuse_map, texcoord);
-    float shadow_depth = shadowmap.x;
-    if (depth < shadow_depth)
-	{
-		shadow = 1;
-	}*/
-    //std::cout<< depth << std::endl;
-    return vec4_new(depth, depth, depth, 1);
-    //return vec4_new(1, 1, 1, 1);
-    //return vec4_new(0, 0, 0, 0);
+    return vec4_new(0, 0, 0, 0);
 }
 
 vec4_t blinnphong_fragment_shader(void* varyings_, void* uniforms_, int* discard, int backface)

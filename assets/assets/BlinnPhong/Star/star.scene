@@ -23,6 +23,6 @@ transforms 1:
 
 models 1:
     model 0:
-        mesh: testStarOffset.obj
+        mesh: test.obj
         material: 0
         transform: 0
