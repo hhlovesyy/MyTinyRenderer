@@ -1,9 +1,9 @@
 #include "texture2D.h"
 
-vec4_t sample2D(TGAImage& image, vec2_t uv)
+vec4_t sample2D(Texture& texture, vec2_t uv)
 {
-	int width = image.width();
-	int height = image.height();
+	int width = texture.width;
+	int height = texture.height;
 	if (width <= 0 || height <= 0)
 	{
 		//说明贴图没有，或者出了问题
@@ -15,8 +15,29 @@ vec4_t sample2D(TGAImage& image, vec2_t uv)
 	if (x >= width) x = width - 1;
 	if (y < 0) y = 0;
 	if (y >= height) y = height - 1;
-	TGAColor color = image.get(x, y);
+	vec4_t color = texture.buffer[x + y * width];
 	/*std::cout << color.bgra[0] << " " << color.bgra[1] << " " << color.bgra[2] << " " << color.bgra[3] << std::endl;*/
-	return vec4_new(color.bgra[2]/255.0f, color.bgra[1] / 255.0f, color.bgra[0] / 255.0f, color.bgra[3] / 255.0f);
+	return color;
+
+}
+
+vec4_t sample2D(Texture* texture, vec2_t uv, SAMPLE_TYPE type=DEFAULT)
+{
+	int width = texture->width;
+	int height = texture->height;
+	if (width <= 0 || height <= 0)
+	{
+		//说明贴图没有，或者出了问题
+		return vec4_new(0, 0, 0, 0);
+	}
+	float x = uv.x * width;
+	float y = (1.0 - uv.y) * height;//纹理坐标的Y轴是反的
+	if (x < 0) x = 0;
+	if (x >= width) x = width - 1;
+	if (y < 0) y = 0;
+	if (y >= height) y = height - 1;
+	vec4_t color = texture->getColor(x, y, type);
+	//std::cout << color.x << color.y << color.z << std::endl;
+	return color;
 
 }

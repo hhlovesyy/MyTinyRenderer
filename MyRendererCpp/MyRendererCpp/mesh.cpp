@@ -223,9 +223,10 @@ vec3_t Mesh::getCenter() const
 
 //¼ÓÔØÎÆÀí
 
-TGAImage Mesh::load_texture(std::string filename) 
+Texture Mesh::load_texture(std::string filename) 
 {
     TGAImage tmp;
+    Texture res;
     std::string texfile = filename;
     //std::string texfile = "combinePamu_diffuse.tga";
     if (tmp.read_tga_file(texfile.c_str()))
@@ -237,12 +238,12 @@ TGAImage Mesh::load_texture(std::string filename)
             TGAImage* tmp1 = &tmp;
             tmp1->flip_vertically();
         }
-        
-        textures.push_back(tmp);
+        res.set_texture(tmp);
+        textures.push_back(res);
     }
     else
     {
         std::cerr << "load texture file " << texfile << " failed" << std::endl;
     }
-    return tmp;
+    return res;
 }

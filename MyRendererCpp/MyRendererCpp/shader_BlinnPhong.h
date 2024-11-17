@@ -38,16 +38,16 @@ struct uniforms_blinnphong
     mat4_t camera_vp_matrix;
     
     vec4_t basecolor;
-    TGAImage diffuse_map;
-    TGAImage specular_map;
-    TGAImage emission_map;
-    TGAImage normal_map;
+    Texture diffuse_map;
+    Texture specular_map;
+    Texture emission_map;
+    Texture normal_map;
     
     int alpha_blend;
     float shininess;
     float ambient_intensity;
     bool isDrawShadowMap;
-    framebuffer_t* shadowmap_buffer;
+    Texture* shadowmap;
     std::vector<mat4_t> joint_matrices;
     std::vector<mat3_t> joint_n_matrices;
 };

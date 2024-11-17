@@ -48,11 +48,18 @@ void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Came
             model->draw(model, scene.shadowmap_buffer,true);  // 绘制模型到阴影缓冲区
             //draw是函数指针，如可以指向draw_model(Model* model, framebuffer_t* framebuffer,bool isDrawShadowMap)
         }
+        if(scene.shadowmap == nullptr)
+            scene.shadowmap = new Texture();
+        scene.shadowmap->set_texture_from_depth_buffer(scene.shadowmap_buffer);
+        //scene.shadowmap->write_texture_to_file("shadowmap.tga");
+        // 将阴影缓冲区的深度信息转换为阴影贴图
+
         for(int index =0;index<OpaqueModels.size();index++) //todo:可以优化，现在是把总的shadowmap赋值给每个model的uniform的值，方便后面用
 		{
             Model* model = models[index];
             uniforms_blinnphong* uniforms = (uniforms_blinnphong*)model->program->get_uniforms();
-            uniforms->shadowmap_buffer = scene.shadowmap_buffer;
+            uniforms->shadowmap = scene.shadowmap;
+            
 		}
         
         //texture_from_depthbuffer(scene->shadow_map, scene->shadow_buffer);  // 将阴影缓冲区的深度信息转换为阴影贴图

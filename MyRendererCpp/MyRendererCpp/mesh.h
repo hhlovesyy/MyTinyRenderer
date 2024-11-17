@@ -4,6 +4,7 @@
 
 #include "maths.h"
 #include "tgaimage.h"
+#include "texture2D.h"
 #include <vector>
 
 class Mesh 
@@ -31,8 +32,8 @@ public:
     //获取模型的中心点
     vec3_t getCenter() const;
 
-    std::vector<TGAImage> textures;
-    TGAImage load_texture(std::string filename);
+    std::vector<Texture> textures;
+    Texture load_texture(std::string filename);
 
 private:
     Mesh() = default;

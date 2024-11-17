@@ -27,7 +27,7 @@ public:
 	/* light intensity */
 	float ambient_intensity;
 	framebuffer_t* shadowmap_buffer;
-	//TGAImage shadowmap;
+	Texture* shadowmap;
 	//framebuffer_t* shadowmap;//днЪБ
 	std::vector<Model*> models;
 
