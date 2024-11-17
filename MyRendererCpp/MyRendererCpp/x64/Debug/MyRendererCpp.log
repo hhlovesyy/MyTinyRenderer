@@ -1,14 +1,129 @@
-﻿  rasterization.cpp
+﻿  build_scene.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,42): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“build_scene.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“build_scene.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“build_scene.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\build_scene.cpp(105,20): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+  camera.cpp
+  graphics.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\graphics.cpp(100,15): warning C4305: “初始化”: 从“double”到“float”截断
+  image.cpp
+  main.cpp
+  maths.cpp
+  rasterization.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,42): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“rasterization.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“rasterization.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“rasterization.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\rasterization.cpp(57,10): warning C4101: “clip_abc”: 未引用的局部变量
   shader_BlinnPhong.cpp
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,41): warning C4305: “初始化”: 从“double”到“float”截断
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\rasterization.cpp(57,10): warning C4101: “clip_abc”: 未引用的局部变量
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,41): warning C4305: “初始化”: 从“double”到“float”截断
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\shader_BlinnPhong.cpp(289,21): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\shader_BlinnPhong.cpp(292,21): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\shader_BlinnPhong.cpp(299,29): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,42): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“shader_BlinnPhong.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“shader_BlinnPhong.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“shader_BlinnPhong.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\shader_BlinnPhong.cpp(289,21): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\shader_BlinnPhong.cpp(292,21): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\shader_BlinnPhong.cpp(299,29): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+  scene.cpp
+  scene_helper.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\scene_helper.cpp(253,20): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\scene_helper.cpp(254,21): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\scene_helper.cpp(255,17): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+  skeleton.cpp
+  test_blinn_phong_light.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,42): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_blinn_phong_light.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_blinn_phong_light.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_blinn_phong_light.cpp”)
+  
+  test_camera_move.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,42): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_camera_move.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_camera_move.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_camera_move.cpp”)
+  
+  test_helper.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,42): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_helper.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_helper.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_helper.cpp”)
+  
+  mesh.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\mesh.cpp(24,21): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+  private.cpp
+  test_model_input.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,42): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_model_input.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_model_input.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_model_input.cpp”)
+  
+  test_rasterization.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_rasterization.cpp(37,33): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_rasterization.cpp(37,63): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_rasterization.cpp(37,93): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
+  test_skeleton_animation.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,42): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_skeleton_animation.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_skeleton_animation.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_skeleton_animation.cpp”)
+  
+  test_space_transform.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,42): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_space_transform.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_space_transform.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
+  (编译源文件“test_space_transform.cpp”)
+  
   正在生成代码...
-  MyRendererCpp.vcxproj -> D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\x64\Debug\MyRendererCpp.exe
+  正在编译...
+  test_transform.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_transform.cpp(34,54): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_transform.cpp(34,36): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_transform.cpp(63,97): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_transform.cpp(63,64): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_transform.cpp(63,32): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+  texture2D.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.cpp(12,8): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.cpp(13,8): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+  tgaimage.cpp
+  win32.cpp
+  正在生成代码...
+  MyRendererCpp.vcxproj -> D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\x64\Debug\MyRendererCpp.exe
