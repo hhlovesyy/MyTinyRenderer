@@ -36,10 +36,10 @@ static testcase_t g_testcases[] =
 int main(int argc, char* argv[])
 {
     platform_initialize();
-    //now we test rasterization
-    const char* testname = g_testcases[6].testname;
-    testfunc_t* testfunc = g_testcases[6].testfunc;
-    //使用函数指针调用函数，比如：调用test_model_input函数（因为引用了test_model_input.h，test_model_input.h中包含test_model_input函数）
+    int test_index = 2;
+    const char* testname = g_testcases[test_index].testname;
+    testfunc_t* testfunc = g_testcases[test_index].testfunc;
+    //使用函数指针调用函数
     if (testfunc)
     {
         testfunc();

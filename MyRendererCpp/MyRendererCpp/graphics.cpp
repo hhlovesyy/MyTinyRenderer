@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <math.h>
 #include <vcruntime_string.h>
+#include "rasterization.h"
 
 /*
  * for depth interpolation, see subsection 3.5.1 of
@@ -207,4 +208,76 @@ vec3_t interpolate_varyings_weights(vec3_t& weights, float recip_w[3])
 	float weight2 = recip_w[2] * weights.z;
 	float normalizer = 1 / (weight0 + weight1 + weight2);
 	return vec3_t{ weight0 * normalizer, weight1 * normalizer, weight2 * normalizer };
+}
+
+void* program_get_attribs(Program* program, int nth_vertex) 
+{
+	assert(nth_vertex >= 0 && nth_vertex < 3);
+	return program->shader_attribs_[nth_vertex];
+}
+
+/*
+ * for perspective correct interpolation, see
+ * https://www.comp.nus.edu.sg/~lowkl/publications/lowk_persp_interp_techrep.pdf
+ * https://www.khronos.org/registry/OpenGL/specs/es/2.0/es_full_spec_2.0.pdf
+ *
+ * equation 15 in reference 1 (page 2) is a simplified 2d version of
+ * equation 3.5 in reference 2 (page 58) which uses barycentric coordinates
+ */
+void interpolate_varyings(
+	void* src_varyings[3], void* dst_varyings,
+	int sizeof_varyings, vec3_t weights, float recip_w[3])
+{
+	int num_floats = sizeof_varyings / sizeof(float);
+	float* src0 = (float*)src_varyings[0];
+	float* src1 = (float*)src_varyings[1];
+	float* src2 = (float*)src_varyings[2];
+	float* dst = (float*)dst_varyings;
+	float weight0 = recip_w[0] * weights.x;
+	float weight1 = recip_w[1] * weights.y;
+	float weight2 = recip_w[2] * weights.z;
+	float normalizer = 1 / (weight0 + weight1 + weight2);
+	int i;
+	for (i = 0; i < num_floats; i++) {
+		float sum = src0[i] * weight0 + src1[i] * weight1 + src2[i] * weight2;
+		dst[i] = sum * normalizer;
+	}
+}
+
+void draw_fragment_new(framebuffer_t* framebuffer, Program* program,
+	int backface, int index, float depth)
+{
+	vec4_t color;
+	int discard;
+	/* execute fragment shader */
+	discard = 0;
+	color = blinnphong_fragment_shader(program->shader_varyings_,
+		program->get_uniforms(),
+		&discard,
+		backface);
+	if (discard) 
+	{
+		return;
+	}
+	color = vec4_saturate(color);
+	int transparent = program->alpha_blend;
+	if (transparent == 1)
+	{
+		//float alpha = color.w;
+		float alpha = 0.6;
+		if (alpha < 1)
+		{
+			unsigned char dst_r = framebuffer->color_buffer[index * 4 + 0];
+			unsigned char dst_g = framebuffer->color_buffer[index * 4 + 1];
+			unsigned char dst_b = framebuffer->color_buffer[index * 4 + 2];
+			color.x = color.x * alpha + float_from_uchar(dst_r) * (1 - alpha);
+			color.y = color.y * alpha + float_from_uchar(dst_g) * (1 - alpha);
+			color.z = color.z * alpha + float_from_uchar(dst_b) * (1 - alpha);
+		}
+	}
+	/* write color and depth */
+	framebuffer->color_buffer[index * 4 + 0] = float_to_uchar(color.x);
+	framebuffer->color_buffer[index * 4 + 1] = float_to_uchar(color.y);
+	framebuffer->color_buffer[index * 4 + 2] = float_to_uchar(color.z);
+	framebuffer->depth_buffer[index] = depth;
 }

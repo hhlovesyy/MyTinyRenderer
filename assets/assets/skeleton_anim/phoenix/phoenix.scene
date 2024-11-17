@@ -3,6 +3,7 @@ type: blinn
 lighting:
     background: 0.15 0.15 0.15
     ambient: 0.5
+    shadow: on
 
 materials 2:
     material 0:

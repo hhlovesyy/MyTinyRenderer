@@ -92,10 +92,30 @@ static void update_model(Model* model, Camera* perframe)
 static void draw_model(Model* model, framebuffer_t* framebuffer,bool isDrawShadowMap)
 {
      Mesh* mesh = model->mesh;
+     int num_faces = mesh->getNumFaces();
+     std::vector<Vertex> vertices = mesh->getVertices();
      Program* program = model->program;
-     uniforms_blinnphong* uniforms = (uniforms_blinnphong*)program->get_uniforms();
 
-     rasterization_tri(mesh, program, framebuffer,isDrawShadowMap);
+     uniforms_blinnphong* uniforms = (uniforms_blinnphong*)program->get_uniforms();
+     attribs_blinnphong* attribs;
+     uniforms->isDrawShadowMap = isDrawShadowMap;
+     for (int i = 0; i < num_faces; i++)
+     {
+         for (int j = 0; j < 3; j++) //遍历每个顶点
+         {
+             Vertex vertex = vertices[i * 3 + j];
+             attribs = (attribs_blinnphong*)program_get_attribs(program, j);
+         	 attribs->position = vertex.position;  //由于是指针，直接赋值即可
+             attribs->normal = vertex.normal;
+             attribs->texcoord = vertex.texcoord;
+             attribs->tangent = vertex.tangent;
+             attribs->joint = vertex.joint;
+             attribs->weight = vertex.weight;
+         }
+         graphics_draw_triangle(framebuffer, program);  //一个一个三角形绘制
+     }
+     //rasterization_tri(mesh, program, framebuffer,isDrawShadowMap);
+     
 }
 
 

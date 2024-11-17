@@ -23,7 +23,7 @@ static Mesh* buildMesh
     vec3_t bbox_max = vec3_new(-1e6, -1e6, -1e6);
     int num_indices = position_indices.size();
     int num_faces = num_indices / 3;
-    std::vector<Mesh::Vertex> vertices(num_indices);
+    std::vector<Vertex> vertices(num_indices);
     Mesh* mesh = new Mesh();//buildMesh是Mesh 类的友元函数，这样它就可以访问私有构造函数
 
     // 断言检查
@@ -211,7 +211,7 @@ int Mesh::getNumFaces() const
     return num_faces;
 }
 
-const std::vector<Mesh::Vertex>& Mesh::getVertices() const 
+const std::vector<Vertex>& Mesh::getVertices() const 
 {
     return vertices;
 }
@@ -220,6 +220,7 @@ vec3_t Mesh::getCenter() const
 {
     return center;
 }
+
 
 //加载纹理
 
@@ -243,7 +244,9 @@ Texture Mesh::load_texture(std::string filename)
     }
     else
     {
-        std::cerr << "load texture file " << texfile << " failed" << std::endl;
+        std::string log_file_name = texfile.size() > 0 ? texfile : "null";
+        std::cerr << "load texture file " << log_file_name << " failed" << std::endl;
     }
     return res;
 }
+

@@ -312,7 +312,6 @@ Scene scene_from_file(const char* filename, mat4_t root)
 		read_blinn_materials(file, materials);
 		read_transforms(file, transforms);
 		read_models(file, models);
-		//scene = create_blinn_scene(materials, transforms, models);
 		scene = *create_blinn_scene(light, materials, transforms, models, root);
 	}
 	else

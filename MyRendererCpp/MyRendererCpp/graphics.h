@@ -6,6 +6,7 @@
 using vertex_shader_t = vec4_t(*)(void* attribs, void* varyings, void* uniforms);//函数指针。返回值为vec4_t，参数为void* attribs, void* varyings, void* uniforms
 using fragment_shader_t = vec4_t(*)(void* varyings, void* uniforms, int* discard, int backface);
 
+#define MAX_VARYINGS 10
 class Program {
 public:
 	Program(vertex_shader_t vertex_shader, fragment_shader_t fragment_shader,
@@ -15,19 +16,23 @@ public:
 	void* get_attribs(int nth_vertex);
 	void* get_uniforms();
 	int alpha_blend;
-
-private:
-	vertex_shader_t vertex_shader_;
-	fragment_shader_t fragment_shader_;
-	int sizeof_attribs_;
-	int sizeof_varyings_;
-	int sizeof_uniforms_;
-
 	void* shader_attribs_[3];
 	void* shader_varyings_;
 	void* shader_uniforms_;
 	void* in_varyings_[10];
 	void* out_varyings_[10];
+	bool double_sided;
+	int sizeof_attribs_;
+	int sizeof_varyings_;
+	int sizeof_uniforms_;
+
+	vec4_t in_coords[MAX_VARYINGS];
+	vec4_t out_coords[MAX_VARYINGS];
+
+private:
+	vertex_shader_t vertex_shader_;
+	fragment_shader_t fragment_shader_;
+	
 };
 
 
@@ -64,4 +69,12 @@ void draw_fragment(framebuffer_t* framebuffer, int index, vec4_t& color, Program
 vec3_t viewport_transform(int width, int height, vec3_t ndc_coord);
 float interpolate_depth(float screen_depths[3], vec3_t weights);
 vec3_t interpolate_varyings_weights(vec3_t& weights, float recip_w[3]);
+
+void* program_get_attribs(Program* program, int nth_vertex);
+void interpolate_varyings(
+	void* src_varyings[3], void* dst_varyings,
+	int sizeof_varyings, vec3_t weights, float recip_w[3]);
+
+void draw_fragment_new(framebuffer_t* framebuffer, Program* program,
+	int backface, int index, float depth);
 #endif

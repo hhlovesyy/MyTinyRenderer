@@ -7,18 +7,20 @@
 #include "texture2D.h"
 #include <vector>
 
+struct Vertex
+{
+    vec3_t position;
+    vec2_t texcoord;
+    vec3_t normal;
+    vec4_t joint;
+    vec4_t weight;
+    vec4_t tangent;
+};
+
 class Mesh 
 {
 public:
-    struct Vertex 
-    {
-        vec3_t position;
-        vec2_t texcoord;
-        vec3_t normal;
-        vec4_t joint;
-        vec4_t weight;
-        vec4_t tangent;
-    };
+    
 
     //º”‘ÿƒ£–Õ
     static Mesh* load(std::string  filename);
@@ -34,6 +36,7 @@ public:
 
     std::vector<Texture> textures;
     Texture load_texture(std::string filename);
+    std::vector<Vertex> get_vertices();
 
 private:
     Mesh() = default;
