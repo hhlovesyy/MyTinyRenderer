@@ -36,7 +36,7 @@ static testcase_t g_testcases[] =
 int main(int argc, char* argv[])
 {
     platform_initialize();
-    int test_index = 2;
+    int test_index = 6;
     const char* testname = g_testcases[test_index].testname;
     testfunc_t* testfunc = g_testcases[test_index].testfunc;
     //使用函数指针调用函数

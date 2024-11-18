@@ -230,8 +230,8 @@ static void create_scene(Scene_Light_t& light, Scene* scene)
 	{
 		if (equals_to(light.shadow, "on"))
 		{
-			shadowmap_width = 800;
-			shadowmap_height = 600;
+			shadowmap_width = 512;
+			shadowmap_height = 512;
 		}
 		else 
 		{

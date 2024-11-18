@@ -6,7 +6,7 @@
 #include <algorithm> // for std::sort
 using namespace std;
 
-void SceneBuilder::test_draw_scene(Scene scene, framebuffer_t* framebuffer, Camera* camera)
+void SceneBuilder::test_draw_scene(Scene& scene, framebuffer_t* framebuffer, Camera* camera)
 {
     vector<Model*> models = scene.models;
     // 新增：更新场景的所有mesh

@@ -3,7 +3,7 @@
 #include "win32.h"
 #include "camera.h"
 
-static const char* const WINDOW_TITLE = "test";
+static const char* const WINDOW_TITLE = "blinn_phong";
 static const int WINDOW_WIDTH = 800;
 static const int WINDOW_HEIGHT = 600;
 
