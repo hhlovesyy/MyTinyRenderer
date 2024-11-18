@@ -12,8 +12,6 @@
 
 /* program management */
 
-/* program management */
-
 #define MAX_VARYINGS 10
 
 Program::Program(vertex_shader_t vertex_shader, fragment_shader_t fragment_shader,

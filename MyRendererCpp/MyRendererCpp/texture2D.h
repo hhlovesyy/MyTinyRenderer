@@ -5,6 +5,7 @@
 #include "tgaimage.h"
 #include "graphics.h"
 #include <iostream>
+#include "image.h"
 
 //Enum
 enum SAMPLE_TYPE
@@ -16,12 +17,123 @@ enum SAMPLE_TYPE
 	DEFAULT = 4
 };
 
+typedef enum 
+{
+	USAGE_LDR_COLOR,
+	USAGE_LDR_DATA,
+	USAGE_HDR_COLOR,
+	USAGE_HDR_DATA
+} usage_t;
+
 class Texture
 {
 public:
 	int width;
 	int height;
 	std::vector<vec4_t> buffer; //存储纹理数据
+	Texture() = default;
+
+	Texture(std::string filename, usage_t usage) : width(0), height(0)
+	{
+		std::string extension = filename.substr(filename.find_last_of(".") + 1);
+		if(extension == "tga")
+		{
+			std::unique_ptr<TGAImage> image = std::make_unique<TGAImage>();
+			if (!image->read_tga_file(filename))
+			{
+				std::cerr << "Failed to read texture file: " << filename << std::endl;
+				return;
+			}
+			set_texture(std::move(image));
+		}
+		else if (extension == "hdr")
+		{
+			//load hdr image, 读取hdr格式的图片，具体的细节不需要关心
+			std::shared_ptr<image_t> image = load_hdr_image(filename);
+			set_texture(image, image->format,usage);
+		}
+		
+	}
+
+	void hdr_image_to_texture(std::shared_ptr<image_t> image)
+	{
+		width = image->width;
+		height = image->height;
+		int num_pixels = image->width * image->height;
+		buffer.resize(num_pixels);
+		for (int i = 0; i < num_pixels; i++)
+		{
+			float* pixel = &image->hdr_buffer[i * image->channels];
+			vec4_t texel = { 0, 0, 0, 1 };
+			if (image->channels == 1) {             /* GL_LUMINANCE */
+				texel.x = texel.y = texel.z = pixel[0];
+			}
+			else if (image->channels == 2) {      /* GL_LUMINANCE_ALPHA */
+				texel.x = texel.y = texel.z = pixel[0];
+				texel.w = pixel[1];
+			}
+			else if (image->channels == 3) {      /* GL_RGB */
+				texel.x = pixel[0];
+				texel.y = pixel[1];
+				texel.z = pixel[2];
+			}
+			else {                                /* GL_RGBA */
+				texel.x = pixel[0];
+				texel.y = pixel[1];
+				texel.z = pixel[2];
+				texel.w = pixel[3];
+			}
+			buffer[i] = texel;
+		}
+	}
+
+	void linear_to_srgb() 
+	{
+		int num_pixels = width * height;
+		for (int i = 0; i < num_pixels; i++)
+		{
+			vec4_t* pixel = &buffer[i];
+			pixel->x = float_linear2srgb(float_aces(pixel->x));
+			pixel->y = float_linear2srgb(float_aces(pixel->y));
+			pixel->z = float_linear2srgb(float_aces(pixel->z));
+		}
+	}
+
+	void set_texture(std::shared_ptr<image_t> image, format_t format, usage_t usage)
+	{
+		//todo:目前的cubemap支持的image是HDR的，但是usage是LDR的
+		if (image->format == FORMAT_LDR) 
+		{
+			/*ldr_image_to_texture(image, texture);
+			if (usage == USAGE_HDR_COLOR) 
+			{
+				srgb_to_linear(texture);
+			}*/
+		}
+		else 
+		{
+			hdr_image_to_texture(image);
+			if (usage == USAGE_LDR_COLOR)
+			{
+				linear_to_srgb();  //todo:演示一下不开这个的后果是什么
+			}
+		}
+	}
+
+	void set_texture(std::unique_ptr<TGAImage> image)
+	{
+		width = image->width();
+		height = image->height();
+		buffer.resize(width * height);
+		for (int i = 0; i < width; i++)
+		{
+			for (int j = 0; j < height; j++)
+			{
+				TGAColor color = image->get(i, j);
+				buffer[i + j * width] = vec4_new(color.bgra[2] / 255.0f, color.bgra[1] / 255.0f, color.bgra[0] / 255.0f, color.bgra[3] / 255.0f);
+			}
+		}
+	}
 
 	void set_texture(TGAImage& image)
 	{
@@ -98,6 +210,26 @@ public:
 		//image.flip_vertically();
 		image.write_tga_file(filename);
 	}
+};
+
+class CubeMap
+{
+public:
+	//shared_ptr
+	std::shared_ptr<Texture> front;
+	std::shared_ptr<Texture> back;
+	std::shared_ptr<Texture> left;
+	std::shared_ptr<Texture> right;
+	std::shared_ptr<Texture> top;
+	std::shared_ptr<Texture> bottom;
+	CubeMap() = default;
+	CubeMap(std::string name, int blur_level)
+	{
+		load_skybox(name, blur_level);
+	}
+
+	int blur_level;
+	void load_skybox(std::string name, int blur_level);
 };
 
 vec4_t sample2D(Texture& texture, vec2_t uv);
