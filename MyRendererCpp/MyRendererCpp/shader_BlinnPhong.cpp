@@ -298,7 +298,7 @@ static int is_in_shadow(varyings_blinnphong* varyings,
         float closest_depth = uniforms->shadowmap_buffer->depth_buffer[sampleU + sampleV * width];
         float current_depth = varyings->depth_position.z * 0.5 + 0.5;  //depth是-1到1的范围，转换到0到1的范围
         current_depth = current_depth - depth_bias;
-        //std::cout<<"current_depth:"<<current_depth<<",closest_depth:"<<closest_depth<< std::endl;
+        std::cout<<"current_depth:"<<current_depth<<",closest_depth:"<<closest_depth<< std::endl;
 
         return current_depth > closest_depth;
     }
