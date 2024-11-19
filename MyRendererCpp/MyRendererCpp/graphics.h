@@ -29,7 +29,6 @@ public:
 	vec4_t in_coords[MAX_VARYINGS];
 	vec4_t out_coords[MAX_VARYINGS];
 
-private:
 	vertex_shader_t vertex_shader_;
 	fragment_shader_t fragment_shader_;
 	

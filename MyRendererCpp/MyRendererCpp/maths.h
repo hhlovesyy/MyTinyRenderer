@@ -98,4 +98,6 @@ mat3_t mat3_from_cols(vec3_t c0, vec3_t c1, vec3_t c2);
 
 float float_linear2srgb(float value);
 float float_aces(float value);
+
+vec4_t vec4_lerp(vec4_t a, vec4_t b, float t);
 #endif

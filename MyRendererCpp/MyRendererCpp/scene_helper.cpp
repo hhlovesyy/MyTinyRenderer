@@ -207,11 +207,12 @@ static int wrap_knob(const char* knob)
 	}
 }
 
-static void scene_create(vec3_t background, Scene* scene, float ambient,
+static void scene_create(vec3_t background, std::shared_ptr<Model> skybox, Scene* scene, float ambient,
 int shadowmap_width, int shadowmap_height)
 {
 	scene->background = vec4_from_vec3(background, 1);
 	scene->ambient_intensity = ambient;
+	scene->skybox = skybox;
 	if (shadowmap_width > 0 && shadowmap_height > 0) 
 	{
 		scene->shadowmap_buffer = framebuffer_create(shadowmap_width, shadowmap_height);
@@ -274,7 +275,7 @@ static void create_scene(Scene_Light_t& light, Scene* scene)
 		}
 	}
 
-	scene_create(light.background, scene, light.ambient,
+	scene_create(light.background, skybox, scene, light.ambient,
 	shadowmap_width, shadowmap_height
 	);
 }

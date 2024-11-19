@@ -24,6 +24,7 @@ std::shared_ptr<image_t> load_hdr_image(std::string filename)
         read_hdr_scanline(file, image, row);
     }
     fclose(file);
+    //std::cout << "load_hdr_image function" << image.use_count() << std::endl;
     return image;
 }
 

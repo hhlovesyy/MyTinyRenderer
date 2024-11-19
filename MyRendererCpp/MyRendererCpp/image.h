@@ -3,6 +3,7 @@
 #define IMAGE_H
 #include <memory>
 #include <string>
+#include <iostream>
 
 typedef enum {
 	FORMAT_LDR,

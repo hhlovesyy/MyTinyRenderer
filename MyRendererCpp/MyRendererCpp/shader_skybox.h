@@ -3,6 +3,7 @@
 #include "mesh.h"
 #include "scene.h"
 #include "graphics.h"
+#include "rasterization.h"
 #include <memory>
 
 struct attribs_skybox

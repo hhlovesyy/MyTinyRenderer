@@ -48,9 +48,9 @@ public:
 		}
 		else if (extension == "hdr")
 		{
-			//load hdr image, 读取hdr格式的图片，具体的细节不需要关心
+			//load hdr image, 读取hdr格式的图片，具体的细节暂时不需要关心
 			std::shared_ptr<image_t> image = load_hdr_image(filename);
-			set_texture(image, image->format,usage);
+			set_texture(image, image->format, usage);
 		}
 		
 	}
@@ -112,10 +112,10 @@ public:
 		}
 		else 
 		{
-			hdr_image_to_texture(image);
-			if (usage == USAGE_LDR_COLOR)
+			hdr_image_to_texture(image); //如果是hdr空间的图像，那么其实是线性空间的
+			if (usage == USAGE_LDR_COLOR) //不在HDR空间做着色，就要把线性空间的颜色进行gamma校正
 			{
-				linear_to_srgb();  //todo:演示一下不开这个的后果是什么
+				linear_to_srgb(); 
 			}
 		}
 	}
@@ -197,6 +197,8 @@ public:
 
 	void write_texture_to_file(const char* filename)
 	{
+		//todo：如果buffer中此时存储的是gamma校正之后的颜色，则写入gamma校正之后的颜色即可；
+		//否则如果存储的是线性空间的颜色，则进行gamma校正之后再写入，比如那张shadowmap
 		TGAImage image(width, height, TGAImage::RGB);
 		for (int i = 0; i < width; i++)
 		{

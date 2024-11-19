@@ -1,8 +1,8 @@
 #include "camera.h"
 #include "macro.h"
 #include <assert.h>
-static const float NEAR = 0.01f;
-static const float FAR = 1000;
+static const float NEAR = 0.1f;
+static const float FAR = 10000;
 static const float FOVY = TO_RADIANS(60);
 static const vec3_t UP = { 0, 1, 0 };
 

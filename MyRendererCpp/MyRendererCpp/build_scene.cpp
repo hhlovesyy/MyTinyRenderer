@@ -19,6 +19,18 @@ void SceneBuilder::test_draw_scene(Scene& scene, framebuffer_t* framebuffer, Cam
 		}
 	}
 
+    std::shared_ptr<Model> skybox = scene.skybox;
+    if (skybox != nullptr)
+    {
+        skybox->update_new(skybox, camera);
+	}
+    //绘制天空盒
+    //if (skybox != nullptr)
+    //{
+    //    skybox->draw_new(skybox, framebuffer, false);
+    //}
+    //return;
+
     //区分透明与非透明模型
     vector<Model*> TransModels;//透明物体
     vector<Model*> OpaqueModels;//非透明物体
@@ -51,7 +63,10 @@ void SceneBuilder::test_draw_scene(Scene& scene, framebuffer_t* framebuffer, Cam
         if(scene.shadowmap == nullptr)
             scene.shadowmap = new Texture();
         scene.shadowmap->set_texture_from_depth_buffer(scene.shadowmap_buffer);
-        //scene.shadowmap->write_texture_to_file("shadowmap.tga");
+        //以下三句可以把阴影贴图保存到文件，方便debug，注意要做一步gamma校正
+        /*std::unique_ptr<Texture> dump_shadowmap = std::make_unique<Texture>(*scene.shadowmap);
+        dump_shadowmap->linear_to_srgb();
+        dump_shadowmap->write_texture_to_file("shadowmap_srgb.tga");*/
         // 将阴影缓冲区的深度信息转换为阴影贴图
 
         for(int index =0;index<OpaqueModels.size();index++) //todo:可以优化，现在是把总的shadowmap赋值给每个model的uniform的值，方便后面用
@@ -78,6 +93,13 @@ void SceneBuilder::test_draw_scene(Scene& scene, framebuffer_t* framebuffer, Cam
             model->draw(model, framebuffer, false);
         }
 	}
+    //绘制天空盒
+    if (skybox != nullptr)
+    {
+        skybox->draw_new(skybox, framebuffer, false);
+    }
+    
+    
     //绘制透明模型
     //绘制透明物体时，应该采用先远后近的顺序
     sort_models(TransModels, camera_get_view_matrix(*camera),false);

@@ -249,7 +249,7 @@ void draw_fragment_new(framebuffer_t* framebuffer, Program* program,
 	int discard;
 	/* execute fragment shader */
 	discard = 0;
-	color = blinnphong_fragment_shader(program->shader_varyings_,
+	color = program->fragment_shader_(program->shader_varyings_,
 		program->get_uniforms(),
 		&discard,
 		backface);

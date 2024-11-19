@@ -808,3 +808,11 @@ float float_aces(float value) {
     value = (value * (a * value + b)) / (value * (c * value + d) + e);
     return float_saturate(value);
 }
+
+vec4_t vec4_lerp(vec4_t a, vec4_t b, float t) {
+    float x = float_lerp(a.x, b.x, t);
+    float y = float_lerp(a.y, b.y, t);
+    float z = float_lerp(a.z, b.z, t);
+    float w = float_lerp(a.w, b.w, t);
+    return vec4_new(x, y, z, w);
+}
