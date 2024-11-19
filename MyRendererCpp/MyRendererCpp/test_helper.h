@@ -7,7 +7,7 @@ static const char* const WINDOW_TITLE = "blinn_phong";
 static const int WINDOW_WIDTH = 800;
 static const int WINDOW_HEIGHT = 600;
 
-static const vec3_t CAMERA_POSITION = { 0, 0, 1.5f };
+static const vec3_t CAMERA_POSITION = { 2, 2, 1.5f };
 static const vec3_t CAMERA_TARGET = { 0, 0, 0 };
 
 static const float CLICK_DELAY = 0.25f;

@@ -224,6 +224,7 @@ public:
 	std::shared_ptr<Texture> right;
 	std::shared_ptr<Texture> top;
 	std::shared_ptr<Texture> bottom;
+	std::vector<std::weak_ptr<Texture>> textures;
 	CubeMap() = default;
 	CubeMap(std::string name, int blur_level)
 	{
@@ -236,5 +237,7 @@ public:
 
 vec4_t sample2D(Texture& texture, vec2_t uv);
 vec4_t sample2D(Texture* texture, vec2_t uv, SAMPLE_TYPE type);
-
+vec4_t cubemap_sample(std::shared_ptr<CubeMap> cubemap, vec3_t direction);
+vec4_t cubemap_repeat_sample(std::shared_ptr<CubeMap> cubemap, vec3_t direction);
+static int select_cubemap_face(vec3_t direction, vec2_t* texcoord);
 #endif

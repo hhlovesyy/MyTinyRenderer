@@ -13,11 +13,17 @@ vec4_t skybox_vertex_shader(void* attribs_, void* varyings_, void* uniforms_)
     return clip_pos;
 }
 
-vec4_t skybox_fragment_shader(void* varyings, void* uniforms,
+vec4_t skybox_fragment_shader(void* varys, void* unis,
     int* discard, int backface)
 {
-    //std::cout<<*discard<<"  "<<backface<<std::endl;
-    return vec4_new(0, 0, 1, 1);
+    auto* varyings = static_cast<varyings_skybox*>(varys);
+    auto* uniforms = static_cast<uniforms_skybox*>(unis);
+    //return vec4_t{ 0,0,1,1 };
+    /*float a = varyings->direction.x * 0.5 + 0.5;
+    float b = varyings->direction.y * 0.5 + 0.5;
+    float c = varyings->direction.z * 0.5 + 0.5;
+    return vec4_t{ a,b,c,1 };*/
+    return cubemap_sample(uniforms->skybox, varyings->direction);
 }
 
 static void update_skybox_model(std::shared_ptr<Model> model, Camera* perframe)
