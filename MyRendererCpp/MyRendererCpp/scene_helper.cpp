@@ -230,8 +230,8 @@ static void create_scene(Scene_Light_t& light, Scene* scene)
 	{
 		if (equals_to(light.shadow, "on"))
 		{
-			shadowmap_width = 800;
-			shadowmap_height = 600;
+			shadowmap_width = 512;
+			shadowmap_height = 512;
 		}
 		else 
 		{
@@ -312,7 +312,6 @@ Scene scene_from_file(const char* filename, mat4_t root)
 		read_blinn_materials(file, materials);
 		read_transforms(file, transforms);
 		read_models(file, models);
-		//scene = create_blinn_scene(materials, transforms, models);
 		scene = *create_blinn_scene(light, materials, transforms, models, root);
 	}
 	else

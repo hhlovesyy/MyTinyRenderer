@@ -4,20 +4,23 @@
 
 #include "maths.h"
 #include "tgaimage.h"
+#include "texture2D.h"
 #include <vector>
+
+struct Vertex
+{
+    vec3_t position;
+    vec2_t texcoord;
+    vec3_t normal;
+    vec4_t joint;
+    vec4_t weight;
+    vec4_t tangent;
+};
 
 class Mesh 
 {
 public:
-    struct Vertex 
-    {
-        vec3_t position;
-        vec2_t texcoord;
-        vec3_t normal;
-        vec4_t joint;
-        vec4_t weight;
-        vec4_t tangent;
-    };
+    
 
     //加载模型
     static Mesh* load(std::string  filename);
@@ -31,8 +34,9 @@ public:
     //获取模型的中心点
     vec3_t getCenter() const;
 
-    std::vector<TGAImage> textures;
-    TGAImage load_texture(std::string filename);
+    std::vector<Texture> textures;
+    Texture load_texture(std::string filename);
+    std::vector<Vertex> get_vertices();
 
 private:
     Mesh() = default;

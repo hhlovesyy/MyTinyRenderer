@@ -92,10 +92,30 @@ static void update_model(Model* model, Camera* perframe)
 static void draw_model(Model* model, framebuffer_t* framebuffer,bool isDrawShadowMap)
 {
      Mesh* mesh = model->mesh;
+     int num_faces = mesh->getNumFaces();
+     std::vector<Vertex> vertices = mesh->getVertices();
      Program* program = model->program;
-     uniforms_blinnphong* uniforms = (uniforms_blinnphong*)program->get_uniforms();
 
-     rasterization_tri(mesh, program, framebuffer,isDrawShadowMap);
+     uniforms_blinnphong* uniforms = (uniforms_blinnphong*)program->get_uniforms();
+     attribs_blinnphong* attribs;
+     uniforms->isDrawShadowMap = isDrawShadowMap;
+     for (int i = 0; i < num_faces; i++)
+     {
+         for (int j = 0; j < 3; j++) //遍历每个顶点
+         {
+             Vertex vertex = vertices[i * 3 + j];
+             attribs = (attribs_blinnphong*)program_get_attribs(program, j);
+         	 attribs->position = vertex.position;  //由于是指针，直接赋值即可
+             attribs->normal = vertex.normal;
+             attribs->texcoord = vertex.texcoord;
+             attribs->tangent = vertex.tangent;
+             attribs->joint = vertex.joint;
+             attribs->weight = vertex.weight;
+         }
+         graphics_draw_triangle(framebuffer, program);  //一个一个三角形绘制
+     }
+     //rasterization_tri(mesh, program, framebuffer,isDrawShadowMap);
+     
 }
 
 
@@ -115,7 +135,7 @@ static vec4_t common_vertex_shader(attribs_blinnphong* attribs,
     //std::cout<<attribs->tangent.x<<","<<attribs->tangent.y<<","<<attribs->tangent.z<<","<<attribs->tangent.w<<std::endl;
     vec3_t input_normal = attribs->normal;
     vec3_t world_normal = mat3_mul_vec3(normal_matrix, input_normal);
-    if (uniforms->normal_map.height() > 0)
+    if (uniforms->normal_map.height > 0)
     {
         mat3_t tangent_matrix = mat3_from_mat4(model_matrix);
         vec3_t input_tangent = vec3_from_vec4(attribs->tangent);
@@ -182,7 +202,7 @@ static vec3_t get_normal_dir(varyings_blinnphong* varyings, uniforms_blinnphong*
 {
     //添加法线贴图的相关逻辑
     vec3_t normal_dir = varyings->normal;
-    if (uniforms->normal_map.height() > 0) //用这种方式判断有使用法线贴图
+    if (uniforms->normal_map.height > 0) //用这种方式判断有使用法线贴图
     {
         vec4_t sample= sample2D(uniforms->normal_map, varyings->texcoord);
         vec3_t tangent_normal = vec3_new(sample.x * 2 - 1,
@@ -280,25 +300,21 @@ static int is_in_shadow(varyings_blinnphong* varyings,
     uniforms_blinnphong* uniforms, 
     float n_dot_l) 
 {
-    if (uniforms->shadowmap_buffer != nullptr)
+    if (uniforms->shadowmap != nullptr)
     {
-        //float d = (varyings->depth_position.z + 1) * 0.5f;
-        int width = uniforms->shadowmap_buffer->width;
-        int height = uniforms->shadowmap_buffer->height;
+        float sampleU = (varyings->depth_position.x + 1) * 0.5f;
+        float sampleV = (varyings->depth_position.y + 1) * 0.5f;
+        sampleV = 1.0 - sampleV;
 
-        int sampleU = (varyings->depth_position.x + 1) * 0.5f * width;
-        float V = (varyings->depth_position.y + 1) * 0.5f;
-        //V = 1.0 - V;
-        int sampleV = V * height;
+        //增加bias 避免阴影痤疮
+        //float depth_bias = float_max(0.05f * (1 - n_dot_l), 0.005f);
+        float depth_bias = float_max(0.01f * (1 - n_dot_l), 0.001f);
+        float closest_depth = sample2D(uniforms->shadowmap, vec2_new(sampleU, sampleV), DEFAULT).x;
+        //uniforms->shadowmap->write_texture_to_file("shadowmap11111.tga");
 
-
-        float depth_bias = float_max(0.05f * (1 - n_dot_l), 0.005f);
-        //float current_depth = d - depth_bias;
-        //vec2_t texcoord = vec2_new(u, v);
-        float closest_depth = uniforms->shadowmap_buffer->depth_buffer[sampleU + sampleV * width];
         float current_depth = varyings->depth_position.z * 0.5 + 0.5;  //depth是-1到1的范围，转换到0到1的范围
         current_depth = current_depth - depth_bias;
-        std::cout<<"current_depth:"<<current_depth<<",closest_depth:"<<closest_depth<< std::endl;
+        //std::cout<<"current_depth:"<<current_depth<<",closest_depth:"<<closest_depth<< std::endl;
 
         return current_depth > closest_depth;
     }

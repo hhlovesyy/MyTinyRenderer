@@ -14,7 +14,7 @@ using namespace std;
 typedef void tickfunc_t(framebuffer_t* framebuffer, Camera* camera);
 
 int num_faces = 0;
-std::vector<Mesh::Vertex> vertices;
+std::vector<Vertex> vertices;
 //ªÒ»°≤ƒ÷ 
 std::vector<TGAImage> img;
 vector<Model*> models;

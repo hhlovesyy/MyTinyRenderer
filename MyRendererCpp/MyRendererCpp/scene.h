@@ -27,7 +27,7 @@ public:
 	/* light intensity */
 	float ambient_intensity;
 	framebuffer_t* shadowmap_buffer;
-	//TGAImage shadowmap;
+	Texture* shadowmap;
 	//framebuffer_t* shadowmap;//днЪБ
 	std::vector<Model*> models;
 
@@ -65,7 +65,7 @@ public:
 	}
 	static mat4_t get_light_proj_matrix()
 	{
-		return mat4_orthographic(1, 1, 0, 2);
+		return mat4_orthographic(1, 1, 0, 5);
 	}
 };
 

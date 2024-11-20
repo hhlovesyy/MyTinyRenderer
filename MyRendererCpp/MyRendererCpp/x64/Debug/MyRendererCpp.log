@@ -1,8 +1,18 @@
-﻿  shader_BlinnPhong.cpp
+﻿  build_scene.cpp
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(62,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(63,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(64,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(65,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(94,33): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(94,33): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(94,48): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(94,48): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(94,63): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(94,63): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(94,78): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(94,78): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,41): warning C4305: “初始化”: 从“double”到“float”截断
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,47): warning C4305: “初始化”: 从“double”到“float”截断
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_helper.h(10,52): warning C4305: “初始化”: 从“double”到“float”截断
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\shader_BlinnPhong.cpp(289,21): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\shader_BlinnPhong.cpp(292,21): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\shader_BlinnPhong.cpp(299,29): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\build_scene.cpp(112,20): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
   MyRendererCpp.vcxproj -> D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\x64\Debug\MyRendererCpp.exe

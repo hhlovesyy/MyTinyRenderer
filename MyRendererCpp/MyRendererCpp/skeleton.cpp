@@ -257,7 +257,8 @@ Skeleton* Skeleton::load(std::string filename)
 	FILE* file = fopen(filename.c_str(), "rb");
 	if (file == nullptr)
 	{
-		std::cerr << "Failed to open skeleton file: " << filename << std::endl;
+        std::string log_file_name = filename.size()> 0 ? filename : "null";
+		std::cerr << "Failed to open skeleton file: " << log_file_name << std::endl;
 		return nullptr;
 	}
 	int items = fscanf(file, " joint-size: %d", &skeleton->num_joints);

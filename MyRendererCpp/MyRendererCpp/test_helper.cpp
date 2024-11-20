@@ -65,10 +65,11 @@ void update_camera(window_t* window, Camera* camera,
     }
     else
     {
-        motion_t motion;
-        motion.orbit = record->orbit_delta;
-        motion.pan = record->pan_delta;
-        motion.dolly = record->dolly_delta;
+        //motion_t motion;
+        std::shared_ptr<motion_t> motion = std::make_shared<motion_t>();
+        motion->orbit = record->orbit_delta;
+        motion->pan = record->pan_delta;
+        motion->dolly = record->dolly_delta;
         camera_update_transform(camera, motion);
     }
 }

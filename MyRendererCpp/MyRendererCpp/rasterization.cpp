@@ -1,4 +1,5 @@
 #include "rasterization.h"
+#include "graphics.h"
 #include <iostream>
 
 //用于背面剔除
@@ -27,9 +28,104 @@ bool cull_back_efficient(vec3_t ndc_coords[3])
 	return signed_area <= 0;
 }
 
+void graphics_draw_triangle(framebuffer_t* framebuffer, Program* program)
+{
+	int num_vertices;
+	for (int i = 0; i < 3; i++)  //走一遍顶点着色器
+	{
+		vec4_t clip_position = blinnphong_vertex_shader(program->shader_attribs_[i], program->in_varyings_[i], program->get_uniforms());
+		program->in_coords[i] = clip_position;  //保存顶点着色器的输出,指的是三个顶点的裁剪空间坐标
+	}
+	//这里我们先不考虑裁剪，因为软件做这步不一定快
+	for (int i = 0; i < 3; i++) //不裁剪剔除
+	{
+		program->out_coords[i] = program->in_coords[i];
+		program->out_varyings_[i] = program->in_varyings_[i];
+	}
+	
+	vec4_t clip_coords[3];
+	void* varyings[3];
+	for (int i = 0; i < 3; i++)  // 三角形设置、遍历、光栅化
+	{
+		clip_coords[i] = program->out_coords[i];
+		varyings[i] = program->out_varyings_[i];
+	}
+	int is_culled;
+	is_culled = rasterize_triangle(framebuffer, program,
+		clip_coords, varyings);
+	//if(is_culled) //如果有后续操作可以操作一下
+}
+
+static int rasterize_triangle(framebuffer_t* framebuffer, Program* program,
+	vec4_t clip_coords[3], void* varyings[3])
+{
+	int width = framebuffer->width;
+	int height = framebuffer->height;
+	vec3_t ndc_coords[3];
+	vec2_t screen_coords[3];
+	float screen_depths[3];
+	float recip_w[3];
+	int backface;
+	bbox_t bbox;
+	int i, x, y;
+	/* perspective division */
+	for (i = 0; i < 3; i++) 
+	{
+		vec3_t clip_coord = vec3_from_vec4(clip_coords[i]);
+		ndc_coords[i] = vec3_div(clip_coord, clip_coords[i].w);
+	}
+	/* back-face culling */
+	backface = cull_back_efficient(ndc_coords);
+	if (backface && !program->double_sided) {
+		return 1;
+	}
+	/* reciprocals of w */
+	for (i = 0; i < 3; i++)
+	{
+		recip_w[i] = 1 / clip_coords[i].w;
+	}
+
+	/* viewport mapping */
+	for (i = 0; i < 3; i++)
+	{
+		vec3_t window_coord = viewport_transform(width, height, ndc_coords[i]);
+		screen_coords[i] = vec2_new(window_coord.x, window_coord.y);
+		screen_depths[i] = window_coord.z;
+	}
+
+	/* perform rasterization */
+	bbox = find_bounding_box(screen_coords, width, height);
+	for (x = bbox.min_x; x <= bbox.max_x; x++)
+	{
+		for (y = bbox.min_y; y <= bbox.max_y; y++)
+		{
+			vec2_t point = vec2_new((float)x + 0.5f, (float)y + 0.5f);
+			vec3_t weights = calculate_weights(screen_coords, point);
+			bool weight0_okay = weights.x > -EPSILON;
+			bool weight1_okay = weights.y > -EPSILON;
+			bool weight2_okay = weights.z > -EPSILON;
+			if (weight0_okay && weight1_okay && weight2_okay)
+			{
+				int index = y * width + x;
+				float depth = interpolate_depth(screen_depths, weights);
+				/* early depth testing */
+				if (depth <= framebuffer->depth_buffer[index])
+				{
+					//插值
+					interpolate_varyings(varyings, program->shader_varyings_,
+						program->sizeof_varyings_,
+						weights, recip_w);
+					draw_fragment_new(framebuffer, program, backface, index, depth);
+				}
+			}
+		}
+	}
+
+}
+
 void rasterization_tri(Mesh* mesh,Program* program, framebuffer_t* framebuffer,bool isDrawShadowMap)
 {
-	std::vector<Mesh::Vertex> vertices = mesh->getVertices();
+	std::vector<Vertex> vertices = mesh->getVertices();
 	int num_faces = mesh->getNumFaces();
 	
 	for (int index = 0; index < num_faces; index++)
