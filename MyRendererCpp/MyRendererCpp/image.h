@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <iostream>
+#include <vector>
 
 typedef enum {
 	FORMAT_LDR,
@@ -15,19 +16,32 @@ class image_t
 public:
 	format_t format;
 	int width, height, channels;
-	unsigned char* color_buffer;
-	float* hdr_buffer;
-	image_t() : width(0), height(0), channels(0), color_buffer(nullptr) {}
-	image_t(int width, int height, int channels) : width(width), height(height), channels(channels), color_buffer(new unsigned char[width * height * channels]()) {}
+	//unsigned char* color_buffer;
+	std::vector<char> color_buffer;
+	//float* hdr_buffer;
+	std::vector<float> hdr_buffer;
+	image_t(int width, int height, int channels)
+	{
+		this->width = width;
+		this->height = height;
+		this->channels = channels;
+		color_buffer.resize(width * height * channels);
+		//hdr_buffer = nullptr;
+	}
+	image_t() : width(0), height(0), channels(0)
+	{
+		color_buffer.resize(width* height* channels); 
+	}
 	image_t(int width, int height, int channels, format_t format): width(width), height(height), channels(channels)
 	{
+		this->format = format;
 		if (format == FORMAT_LDR)
 		{
-			color_buffer = new unsigned char[width * height * channels]();
+			color_buffer.resize(width * height * channels);
 		}
-		else
+		else if (format == FORMAT_HDR)
 		{
-			hdr_buffer = new float[width * height * channels]();
+			hdr_buffer.resize(width * height * channels);
 		}
 	}
 	~image_t() { 

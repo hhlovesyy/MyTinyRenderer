@@ -130,8 +130,8 @@ void private_blit_bgr(framebuffer_t* src, image_t* dst)
             int flipped_r = height - 1 - r;
             int src_index = (r * width + c) * 4;
             int dst_index = (flipped_r * width + c) * 4;
-            unsigned char* src_pixel = &src->color_buffer[src_index];
-            unsigned char* dst_pixel = &dst->color_buffer[dst_index];
+            char* src_pixel = &src->color_buffer[src_index];
+            char* dst_pixel = &dst->color_buffer[dst_index];
             dst_pixel[0] = src_pixel[2];  /* blue */
             dst_pixel[1] = src_pixel[1];  /* green */
             dst_pixel[2] = src_pixel[0];  /* red */
@@ -184,7 +184,7 @@ void window_destroy(window_t* window)
     DeleteDC(window->memory_dc);
     DestroyWindow(window->handle);
 
-    window->surface->color_buffer = NULL;
+    window->surface->color_buffer.clear();
     //maybe we need image release: image_release(window->surface);
     free(window);
 }

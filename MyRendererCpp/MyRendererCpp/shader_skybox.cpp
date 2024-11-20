@@ -19,10 +19,8 @@ vec4_t skybox_fragment_shader(void* varys, void* unis,
     auto* varyings = static_cast<varyings_skybox*>(varys);
     auto* uniforms = static_cast<uniforms_skybox*>(unis);
     //return vec4_t{ 0,0,1,1 };
-    /*float a = varyings->direction.x * 0.5 + 0.5;
-    float b = varyings->direction.y * 0.5 + 0.5;
-    float c = varyings->direction.z * 0.5 + 0.5;
-    return vec4_t{ a,b,c,1 };*/
+   
+    //assert(uniforms->skybox != nullptr);
     return cubemap_sample(uniforms->skybox, varyings->direction);
 }
 

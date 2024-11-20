@@ -50,9 +50,9 @@ public:
 		{
 			//load hdr image, 读取hdr格式的图片，具体的细节暂时不需要关心
 			std::shared_ptr<image_t> image = load_hdr_image(filename);
+
 			set_texture(image, image->format, usage);
 		}
-		
 	}
 
 	void hdr_image_to_texture(std::shared_ptr<image_t> image)
@@ -218,13 +218,7 @@ class CubeMap
 {
 public:
 	//shared_ptr
-	std::shared_ptr<Texture> front;
-	std::shared_ptr<Texture> back;
-	std::shared_ptr<Texture> left;
-	std::shared_ptr<Texture> right;
-	std::shared_ptr<Texture> top;
-	std::shared_ptr<Texture> bottom;
-	std::vector<std::weak_ptr<Texture>> textures;
+	std::vector<std::shared_ptr<Texture>> textures;
 	CubeMap() = default;
 	CubeMap(std::string name, int blur_level)
 	{

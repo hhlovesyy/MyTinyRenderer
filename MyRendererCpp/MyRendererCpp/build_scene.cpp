@@ -24,12 +24,6 @@ void SceneBuilder::test_draw_scene(Scene& scene, framebuffer_t* framebuffer, Cam
     {
         skybox->update_new(skybox, camera);
 	}
-    //绘制天空盒
-    //if (skybox != nullptr)
-    //{
-    //    skybox->draw_new(skybox, framebuffer, false);
-    //}
-    //return;
 
     //区分透明与非透明模型
     vector<Model*> TransModels;//透明物体

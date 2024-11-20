@@ -64,19 +64,13 @@ void CubeMap::load_skybox(std::string name, int blur_level)
 		}
 		sprintf(paths[i], format, filename, faces[i]);
 	}
-	right = std::make_shared<Texture>(paths[0], USAGE_LDR_COLOR); //positive X
-	left = std::make_shared<Texture>(paths[1], USAGE_LDR_COLOR); //negative X
-	top = std::make_shared<Texture>(paths[2], USAGE_LDR_COLOR); //positive Y
-	bottom = std::make_shared<Texture>(paths[3], USAGE_LDR_COLOR); //negative Y
-	front = std::make_shared<Texture>(paths[4], USAGE_LDR_COLOR); //positive Z
-	back = std::make_shared<Texture>(paths[5], USAGE_LDR_COLOR); //negative Z
-	textures.push_back(right);
-	textures.push_back(left);
-	textures.push_back(top);
-	textures.push_back(bottom);
-	textures.push_back(front);
-	textures.push_back(back);
-	std::cout<<front.use_count()<<std::endl;
+	textures.push_back(std::make_shared<Texture>(paths[0], USAGE_LDR_COLOR)); //positive X, right
+	textures.push_back(std::make_shared<Texture>(paths[1], USAGE_LDR_COLOR)); //negative X, left
+	textures.push_back(std::make_shared<Texture>(paths[2], USAGE_LDR_COLOR)); //positive Y, top
+	textures.push_back(std::make_shared<Texture>(paths[3], USAGE_LDR_COLOR)); //negative Y, bottom
+	textures.push_back(std::make_shared<Texture>(paths[4], USAGE_LDR_COLOR)); //positive Z, front
+	textures.push_back(std::make_shared<Texture>(paths[5], USAGE_LDR_COLOR)); //negative Z, back
+	//std::cout<<front.use_count()<<std::endl;
 	//确认一下 dump出来看看结果
 	/*right->write_texture_to_file("right.tga");
 	left->write_texture_to_file("left.tga");
@@ -142,14 +136,19 @@ static int select_cubemap_face(vec3_t direction, vec2_t* texcoord) {
 	return face_index;
 }
 
-vec4_t texture_repeat_sample(std::weak_ptr<Texture> face, vec2_t texcoord) 
+vec4_t texture_repeat_sample(std::shared_ptr<Texture> tex, vec2_t texcoord) 
 {
-	std::shared_ptr<Texture> texture = face.lock();
+	std::shared_ptr<Texture> texture = tex;
 	float u = texcoord.x - (float)floor(texcoord.x);
 	float v = texcoord.y - (float)floor(texcoord.y);
 	int c = (int)((texture->width - 1) * u);
 	int r = (int)((texture->height - 1) * v);
 	int index = r * texture->width + c;
+	if (texture->buffer.size() == 0)
+	{
+		//std::cout << "buffer size is 0" << std::endl;
+		return vec4_new(0, 0, 0, 0);
+	}
 	return texture->buffer[index];
 }
 

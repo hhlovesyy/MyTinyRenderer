@@ -2,6 +2,7 @@
 #define GRAPHICS_H
 #include "maths.h"
 #include <cfloat>
+#include <vector>
 
 using vertex_shader_t = vec4_t(*)(void* attribs, void* varyings, void* uniforms);//函数指针。返回值为vec4_t，参数为void* attribs, void* varyings, void* uniforms
 using fragment_shader_t = vec4_t(*)(void* varyings, void* uniforms, int* discard, int backface);
@@ -39,18 +40,19 @@ class framebuffer_t
 {
 public:
     int width, height;
-    unsigned char* color_buffer;
-	float* depth_buffer;
-    framebuffer_t(int width, int height, int color_buffer_size) : width(width), height(height), color_buffer(new unsigned char[color_buffer_size]()) 
+	std::vector<char> color_buffer;
+	std::vector<float> depth_buffer;
+    framebuffer_t(int width, int height, int color_buffer_size) : width(width), height(height)
 	{
-		depth_buffer = new float[width * height];
+		depth_buffer.resize(width * height);
+		color_buffer.resize(color_buffer_size, 0);
 		for (int i = 0; i < width * height; i++) 
 		{
 			//float max
 			depth_buffer[i] = FLT_MAX;
 		}
 	}
-	~framebuffer_t() { delete[] color_buffer; delete[] depth_buffer; }
+	~framebuffer_t() {}
 };
 
 struct bbox_t
