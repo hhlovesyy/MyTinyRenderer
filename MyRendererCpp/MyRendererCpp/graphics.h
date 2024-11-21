@@ -66,7 +66,6 @@ void framebuffer_clear_color(framebuffer_t* framebuffer, vec4_t color);
 void framebuffer_clear_depth(framebuffer_t* framebuffer, float depth);
 vec3_t calculate_weights(vec2_t abc[3], vec2_t& p);
 bbox_t find_bounding_box(vec2_t abc[3], int width, int height);
-void draw_fragment(framebuffer_t* framebuffer, int index, vec4_t& color, Program* program=nullptr);
 vec3_t viewport_transform(int width, int height, vec3_t ndc_coord);
 float interpolate_depth(float screen_depths[3], vec3_t weights);
 vec3_t interpolate_varyings_weights(vec3_t& weights, float recip_w[3]);
@@ -75,7 +74,7 @@ void* program_get_attribs(Program* program, int nth_vertex);
 void interpolate_varyings(
 	void* src_varyings[3], void* dst_varyings,
 	int sizeof_varyings, vec3_t weights, float recip_w[3]);
-
+void draw_fragment(framebuffer_t* framebuffer, int index, vec4_t& color, Program* program);
 void draw_fragment_new(framebuffer_t* framebuffer, Program* program,
 	int backface, int index, float depth);
 #endif

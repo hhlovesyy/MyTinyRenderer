@@ -104,7 +104,7 @@ void rasterization_triangle2(framebuffer_t* framebuffer)
 					1
 				);
 
-				draw_fragment(framebuffer, j * width + i, color);
+				draw_fragment(framebuffer, j * width + i, color,nullptr);
 			}
 		}
 	}

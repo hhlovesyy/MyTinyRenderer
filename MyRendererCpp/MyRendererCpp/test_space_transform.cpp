@@ -132,7 +132,7 @@ void space_transform(framebuffer_t* framebuffer)
 				vec4_t color =vec4_add(vec4_mul(color1,new_weights.x), vec4_add(vec4_mul(color2, new_weights.y),vec4_mul(color3,new_weights.z)));
 				vec4_t zBufferValue{ zbuffer[screen_index],zbuffer[screen_index], zbuffer[screen_index], zbuffer[screen_index] };
 				//std::cout << zbuffer[screen_index] << std::endl;
-				draw_fragment(framebuffer, j* width + i, color);
+				draw_fragment(framebuffer, j* width + i, color, nullptr);
 		
 			}
 		}

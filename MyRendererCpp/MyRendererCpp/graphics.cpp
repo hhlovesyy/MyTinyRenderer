@@ -83,6 +83,9 @@ bbox_t find_bounding_box(vec2_t abc[3], int width, int height)
 	return bbox;
 }
 
+/*
+[Obselete] 不要调用这个函数！是前几次课时需要的测试函数，现在不走相关逻辑了
+*/
 //目前只是简单的将颜色写入到framebuffer中，并做透明度混合
 void draw_fragment(framebuffer_t* framebuffer, int index, vec4_t& color,Program* program)
 {
