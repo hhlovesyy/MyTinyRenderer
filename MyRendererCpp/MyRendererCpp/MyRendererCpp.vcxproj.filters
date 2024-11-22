@@ -71,6 +71,9 @@
     <ClCompile Include="test_blinn_phong_light.cpp">
       <Filter>test_unit\source</Filter>
     </ClCompile>
+    <ClCompile Include="shader_skybox.cpp">
+      <Filter>core\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -147,6 +150,9 @@
     </ClInclude>
     <ClInclude Include="config.h">
       <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="shader_skybox.h">
+      <Filter>core\header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -790,3 +790,29 @@ mat3_t mat3_from_cols(vec3_t c0, vec3_t c1, vec3_t c2) {
     m.m[2][2] = c2.z;
     return m;
 }
+
+float float_linear2srgb(float value) {
+    return (float)pow(value, 1 / 2.2);
+}
+
+/*
+ * for aces filmic tone mapping curve, see
+ * https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/
+ */
+float float_aces(float value) {
+    float a = 2.51f;
+    float b = 0.03f;
+    float c = 2.43f;
+    float d = 0.59f;
+    float e = 0.14f;
+    value = (value * (a * value + b)) / (value * (c * value + d) + e);
+    return float_saturate(value);
+}
+
+vec4_t vec4_lerp(vec4_t a, vec4_t b, float t) {
+    float x = float_lerp(a.x, b.x, t);
+    float y = float_lerp(a.y, b.y, t);
+    float z = float_lerp(a.z, b.z, t);
+    float w = float_lerp(a.w, b.w, t);
+    return vec4_new(x, y, z, w);
+}

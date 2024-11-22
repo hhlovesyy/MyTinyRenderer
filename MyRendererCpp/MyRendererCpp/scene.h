@@ -15,6 +15,10 @@ public:
 	void (*update)(Model* model, Camera* camera);
 	void (*draw)(Model* model, framebuffer_t* framebuffer,bool isDrawShadowMap);
 	void (*release)(Model* model);
+
+	void (*update_new)(std::shared_ptr<Model> model, Camera* camera);
+	void (*draw_new)(std::shared_ptr<Model> model, framebuffer_t* framebuffer,bool isDrawShadowMap);
+
 	Program* program;
 	Skeleton* skeleton;
 	int transparent;//是否是透明物体 用于渲染顺序
@@ -30,7 +34,7 @@ public:
 	Texture* shadowmap;
 	//framebuffer_t* shadowmap;//暂时
 	std::vector<Model*> models;
-
+	std::shared_ptr<Model> skybox;
 };
 
 class FrameInfo

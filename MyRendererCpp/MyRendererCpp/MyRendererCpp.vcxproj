@@ -137,6 +137,7 @@
     <ClCompile Include="shader_BlinnPhong.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="scene_helper.cpp" />
+    <ClCompile Include="shader_skybox.cpp" />
     <ClCompile Include="skeleton.cpp" />
     <ClCompile Include="test_blinn_phong_light.cpp" />
     <ClCompile Include="test_camera_move.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="shader_BlinnPhong.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="scene_helper.h" />
+    <ClInclude Include="shader_skybox.h" />
     <ClInclude Include="skeleton.h" />
     <ClInclude Include="test_blinn_phong_light.h" />
     <ClInclude Include="test_camera_move.h" />

@@ -12,8 +12,6 @@
 
 /* program management */
 
-/* program management */
-
 #define MAX_VARYINGS 10
 
 Program::Program(vertex_shader_t vertex_shader, fragment_shader_t fragment_shader,
@@ -85,6 +83,9 @@ bbox_t find_bounding_box(vec2_t abc[3], int width, int height)
 	return bbox;
 }
 
+/*
+[Obselete] 不要调用这个函数！是前几次课时需要的测试函数，现在不走相关逻辑了
+*/
 //目前只是简单的将颜色写入到framebuffer中，并做透明度混合
 void draw_fragment(framebuffer_t* framebuffer, int index, vec4_t& color,Program* program)
 {
@@ -251,7 +252,7 @@ void draw_fragment_new(framebuffer_t* framebuffer, Program* program,
 	int discard;
 	/* execute fragment shader */
 	discard = 0;
-	color = blinnphong_fragment_shader(program->shader_varyings_,
+	color = program->fragment_shader_(program->shader_varyings_,
 		program->get_uniforms(),
 		&discard,
 		backface);

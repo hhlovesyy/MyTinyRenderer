@@ -4,6 +4,8 @@ lighting:
     background: 0.15 0.15 0.15
     ambient: 0.5
     shadow: on
+    environment: workshop
+    skybox: on
 
 materials 2:
     material 0:

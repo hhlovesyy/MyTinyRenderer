@@ -3,6 +3,8 @@ type: blinn
 lighting:
     background: 0.15 0.15 0.15
     ambient: 0.2
+    environment: workshop
+    skybox: on
 
 materials 1:
     material 0:

@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "scene_helper.h"
+#include "shader_skybox.h"
 #include "macro.h"
 #include <assert.h>
 #include <vector>
@@ -40,6 +41,8 @@ public:
 	vec3_t background;
 	float ambient;
 	char shadow[LINE_SIZE];//Off表示不产生阴影，On表示产生阴影，也可以定义shadowmap的大小
+	char skybox[LINE_SIZE]; //环境贴图的种类
+	char environment[LINE_SIZE]; //环境贴图
 };
 
 static int equals_to(const char* str1, const char* str2) 
@@ -151,6 +154,10 @@ static void read_light(FILE* file, Scene_Light_t& light)
 	assert(items == 1);
 	items = fscanf(file, " shadow: %s", &light.shadow);
 	assert(items == 1);
+	items = fscanf(file, " environment: %s", light.environment);
+	assert(items == 1);
+	items = fscanf(file, " skybox: %s", &light.skybox);
+	assert(items == 1);
 
 	UNUSED_VAR(items);
 }
@@ -200,11 +207,12 @@ static int wrap_knob(const char* knob)
 	}
 }
 
-static void scene_create(vec3_t background, Scene* scene, float ambient,
+static void scene_create(vec3_t background, std::shared_ptr<Model> skybox, Scene* scene, float ambient,
 int shadowmap_width, int shadowmap_height)
 {
 	scene->background = vec4_from_vec3(background, 1);
 	scene->ambient_intensity = ambient;
+	scene->skybox = skybox;
 	if (shadowmap_width > 0 && shadowmap_height > 0) 
 	{
 		scene->shadowmap_buffer = framebuffer_create(shadowmap_width, shadowmap_height);
@@ -219,6 +227,30 @@ int shadowmap_width, int shadowmap_height)
 
 static void create_scene(Scene_Light_t& light, Scene* scene)
 {
+	//增加对于skybox的判断,引入shared_ptr
+	std::shared_ptr<Model> skybox;
+	if (equals_to(light.skybox, "off"))
+	{
+		skybox = nullptr;
+	}
+	else
+	{
+		std::string skybox_path = string_wrap_path(light.environment);
+		int blur_level = 0; //模糊系数，目前先支持不模糊的版本
+		if (equals_to(light.skybox, "ambient")){
+			blur_level=-1;
+		}
+		else if (equals_to(light.skybox, "blurred")){
+			blur_level = 1;
+		}
+		else {
+			assert(equals_to(light.skybox, "on"));
+			blur_level = 0;
+		}
+		assert(skybox_path.c_str()!=nullptr);
+		skybox = skybox_create_model(skybox_path, blur_level);
+	}
+	
 	//定义shadow的有无，以及shadowmap的大小
 	int shadowmap_width, shadowmap_height;
 	if (equals_to(light.shadow, "off")) 
@@ -243,7 +275,7 @@ static void create_scene(Scene_Light_t& light, Scene* scene)
 		}
 	}
 
-	scene_create(light.background, scene, light.ambient,
+	scene_create(light.background, skybox, scene, light.ambient,
 	shadowmap_width, shadowmap_height
 	);
 }
