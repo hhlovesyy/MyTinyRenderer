@@ -304,7 +304,7 @@ static int is_in_shadow(varyings_blinnphong* varyings,
     {
         float sampleU = (varyings->depth_position.x + 1) * 0.5f;
         float sampleV = (varyings->depth_position.y + 1) * 0.5f;
-        sampleV = 1.0 - sampleV;
+        sampleV = 1.0 - sampleV; //sample函数会再做一次翻转，所以这里为了逻辑复用提前翻转一次，实际shadow map做的时候是不用翻转的
 
         //增加bias 避免阴影痤疮
         //float depth_bias = float_max(0.05f * (1 - n_dot_l), 0.005f);

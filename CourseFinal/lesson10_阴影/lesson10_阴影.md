@@ -40,9 +40,9 @@
 
 
 
-接下来，我们的相机看向场景，下图中，假设相机能够看到点a和b，我们要如何知道这两个点是不是阴影呢？
+接下来在开始渲染物体的时候，我们用相机看向场景，下图中，假设相机能够看到点a和b，我们要如何知道这两个点是不是阴影呢？
 
-我们将a和b转到光源的”相机空间“（将光源作为相机），进一步转到光源的”屏幕空间“（shadow map），也就是找到a和b对应到光源的shadow map上显示的点A和B。
+我们将a和b转到光源的”相机空间“（将光源作为相机，这一步可以通过矩阵运算来实现，这个矩阵叫做`lightVP`矩阵，跟我们之前讲解空间变换的时候很像，只是此时就好像有一个相机在光源的位置，光源的照射方向就是相机lookat的方向），进一步转到光源的”屏幕空间“（shadow map），也就是找到a和b对应到光源的shadow map上显示的点A和B。
 
 我们发现，shadow map上A的深度与a一致，因此a不在阴影中，被照亮。
 
@@ -54,7 +54,7 @@ shadow map上B的深度小于b的深度，即可能有东西距离光源比b点�
 
 ### 10.2.2 shadow caster（能够投射阴影的遮挡物）
 
-这时候有的读者可能会有疑惑，假设此时是一个点光源，那么光源会向着四面八方各个方向投射光线，那么我们的shadow map应当是它看向哪个方向的时候渲染出来的呢。确实如此，单个shadow map，即是光源单个方向的z-buffer，必须指定一个特定方向，即只有场景中的一部分会被渲染到shadow map上。
+这时候有的读者可能会有疑惑，假设此时是一个点光源，那么光源会向着四面八方各个方向投射光线，那么我们的shadow map应当是它看向哪个方向的时候渲染出来的呢？确实如此，单个shadow map，即是光源单个方向的z-buffer，必须指定一个特定方向，即只有场景中的一部分会被渲染到shadow map上。
 
 如果有一些物体根本不会遮挡住光线，也就是说光线可以穿过它而不是在它背后留下阴影的话，这种物体并不需要被渲染到shaow map上（比如有的项目中会简化的认为玻璃等透明物体并不会遮挡住光线，投射下阴影）。shadow map只需要渲染能够遮挡住光线投射阴影的物体，我们称这种物体为**shadow caster（能够投射阴影的遮挡物）**。
 
@@ -68,19 +68,19 @@ shadow map上B的深度小于b的深度，即可能有东西距离光源比b点�
 
 ![image-20241119151554747](lesson10_阴影.assets/image-20241119151554747.png)
 
-（上图来自Real-Time Rendering, Fourth Edition）
+​										（上图来自Real-Time Rendering, Fourth Edition）
 
 如上图所示：
 
-左图中：光源的视野范围中包含了相机的观察体。可以看到，红色，绿色和浅蓝色的三个shadow caster是在相机观察体之外，不会被相机看到的。
+- 左图中：光源的视野范围中包含了相机的观察体。可以看到，红色，绿色和浅蓝色的三个shadow caster是在相机观察体之外，不会被相机看到。
 
-中间的图中：
+- 中间的图展示了优化的过程：
 
-将光源的远裁剪面推向靠近近裁剪面的方向，将相机不可见的浅蓝色shadow caster排除在外；
+  - 将光源的远裁剪面推向靠近近裁剪面的方向，将相机不可见的浅蓝色shadow caster排除在外；
 
-将光源的近裁剪面推向靠近远裁剪面的方向，提升z-buffer的有效精度从而提升阴影贴图的质量。
+  - 将光源的近裁剪面推向靠近远裁剪面的方向，提升z-buffer的有效精度从而提升阴影贴图的质量。
 
-右图中：将相机观察体的侧面进行收缩，将相机不可见的绿色shadow caster排除在外；
+- 右图中继续优化：将相机观察体的侧面进行收缩，将相机不可见的绿色shadow caster排除在外；
 
 
 
@@ -92,15 +92,15 @@ shadow map上B的深度小于b的深度，即可能有东西距离光源比b点�
 
 
 
-我们在场景文件中增加配置了”是否渲染阴影“的选项，如果我们选择开启，那么我们在代码中也会获取到这个配置，并绘制shadow map。
+我们在场景文件中增加配置了”是否渲染阴影“的选项，如果选择开启，那么我们在代码中也会获取到这个配置，并绘制shadow map。
 
-我们暂时简化地认为，只有不透明物体是**shadow caster（能够投射阴影的遮挡物）**；且只有一个点光源。
+我们暂时简化地认为，只有不透明物体是**shadow caster（能够投射阴影的遮挡物）**；且场景只有一个点光源。
 
 
 
 #### 1、渲染shadow map
 
-我们需要在正常渲染场景中所有物体之前，增加一个pass，渲染一个shadow map
+我们需要在正常渲染场景中所有物体之前，增加一个pass，渲染一个shadow map：
 
 ```C++
 //区分透明与非透明模型
@@ -133,8 +133,6 @@ if (scene.shadowmap_buffer)
         model->draw(model, scene.shadowmap_buffer,true);  // 绘制模型到阴影缓冲区
         //draw是函数指针，如可以指向draw_model(Model* model, framebuffer_t* framebuffer,bool isDrawShadowMap)
     }
-    if(scene.shadowmap == nullptr)
-        scene.shadowmap = new Texture();
     scene.shadowmap->set_texture_from_depth_buffer(scene.shadowmap_buffer);// 将阴影缓冲区的深度信息转换为阴影贴图
     //scene.shadowmap->write_texture_to_file("shadowmap.tga");
     // 将阴影缓冲区的深度信息转换为阴影贴图
@@ -157,7 +155,7 @@ if (scene.shadowmap_buffer)
 
 <img src="lesson10_阴影.assets/image-20241119160808432.png" alt="image-20241119160808432" style="zoom:50%;" />
 
-接下来我们来逐步看一看
+接下来我们来逐步看一看。
 
 ##### 渲染shadow map的顶点着色器
 
@@ -189,7 +187,7 @@ static vec4_t shadow_vertex_shader(attribs_blinnphong* attribs,
     uniforms_blinnphong* uniforms) 
 {
     mat4_t model_matrix = get_model_matrix(attribs, uniforms);
-    mat4_t light_vp_matrix = uniforms->light_vp_matrix;
+    mat4_t light_vp_matrix = uniforms->light_vp_matrix; //lightVP矩阵是把光源当作“相机”，从而转到对应裁剪空间的矩阵
 
     vec4_t input_position = vec4_from_vec3(attribs->position, 1);
     vec4_t world_position = mat4_mul_vec4(model_matrix, input_position);
@@ -218,7 +216,7 @@ void graphics_draw_triangle(framebuffer_t* framebuffer, Program* program)
 
 ##### 渲染shadow map的片元着色器
 
-渲染shadow map的片元着色器阶段并不需要做什么，我们只需要取得每个像素的深度作为shadow map。
+渲染shadow map的片元着色器阶段并不需要做什么，我们只需要取得每个像素的深度作为shadow map，而颜色通道输出什么并不重要，所以我们直接输出黑色。
 
 ```C++
 static vec4_t shadow_fragment_shader(varyings_blinnphong* varyings,
@@ -252,7 +250,7 @@ void set_texture_from_depth_buffer(framebuffer_t* buffer)
 
 
 
-接下来我们可以可视化的查看这张shadow map（阴影贴图）试试：可以看到，靠近光源的部分较黑，因为数值较小。
+接下来我们可以可视化的查看这张shadow map（阴影贴图）试试：可以看到，靠近光源的部分较黑，因为数值较小（更接近光源）。
 
 ![shadowmap11111](lesson10_阴影.assets/shadowmap11111.png)
 
@@ -271,9 +269,8 @@ static int is_in_shadow(varyings_blinnphong* varyings,
 {
     if (uniforms->shadowmap != nullptr)
     {
-        float sampleU = (varyings->depth_position.x + 1) * 0.5f;
+        float sampleU = (varyings->depth_position.x + 1) * 0.5f;  //xy范围是-1~1，转为0~1，方便后续的UV坐标采样
         float sampleV = (varyings->depth_position.y + 1) * 0.5f;
-        sampleV = 1.0 - sampleV;
         float closest_depth = sample2D(uniforms->shadowmap, vec2_new(sampleU, sampleV), DEFAULT).x;
         float current_depth = varyings->depth_position.z * 0.5 + 0.5;  //depth是-1到1的范围，转换到0到1的范围
         return current_depth > closest_depth;
@@ -332,7 +329,7 @@ static vec4_t common_fragment_shader(varyings_blinnphong* varyings,
 
 <img src="lesson10_阴影.assets/image-20241119190652946.png" alt="image-20241119190652946" style="zoom: 67%;" /><img src="lesson10_阴影.assets/image-20241119152659640.png" alt="image-20241119152659640" style="zoom:67%;" />
 
-
+------
 
 
 
@@ -350,9 +347,9 @@ shadow map的分辨率会很大的影响生成阴影的质量。
 
 
 
-上图中，橙色表示光线，接受物上的矩形线表示 shadow map中的对应值的情况。
+上图中，橙色表示光线，接受物上的zigzag的线表示 shadow map中的对应值的情况。
 
-由于shadow map是离散采样的，可以看到在实际的接收物（shadow caster）表面上，有一部分片元比shadow map深度要大（对应图中黑色部分），在判断是否是阴影的时候，因为比shadow map中记录的离散的深度更大，因此会错误地认为这一部分是阴影，最终会出现错误的条纹状的阴影。
+由于shadow map是离散采样的，可以看到在实际的接收物（shadow caster）表面上，有一部分片元比shadow map深度要大（对应图中黑色部分），在判断是否是阴影的时候，因为比shadow map中记录的离散的深度更大，因此会错误地认为这一部分是阴影，最终会出现错误的条纹状的阴影（但实际上整个平面的深度应该都是一样的）。
 
 如下图，假设此时相机要渲染c点，那么在片元着色器中会查询是否在阴影中，这一步会将c点转到光源空间，对shadow map进行采样。然后就会发现，shadow map中对应位置记录的深度比c点的深度要小！这就说明，是有东西遮住了光线，c点是在阴影中的!但实际上，遮住光线的是c点自己。这种情况，是物体的实际深度，与自己的采样深度，相比较不相等（实际深度大于采样深度）导致的，所以可谓是自己（采样的副本）遮挡了自己（实际的物体），所以被称为 self shadowing / 自阴影锯齿（self-shadow aliasing）/ 阴影痤疮（shadow acne）。
 
@@ -395,14 +392,11 @@ static int is_in_shadow(varyings_blinnphong* varyings,
         sampleV = 1.0 - sampleV;
 
         //增加bias 避免阴影痤疮
-        //float depth_bias = float_max(0.05f * (1 - n_dot_l), 0.005f);
         float depth_bias = float_max(0.15f * (1 - n_dot_l), 0.15f);
         float closest_depth = sample2D(uniforms->shadowmap, vec2_new(sampleU, sampleV), DEFAULT).x;
-        //uniforms->shadowmap->write_texture_to_file("shadowmap11111.tga");
 
         float current_depth = varyings->depth_position.z * 0.5 + 0.5;  //depth是-1到1的范围，转换到0到1的范围
         current_depth = current_depth - depth_bias;
-        //std::cout<<"current_depth:"<<current_depth<<",closest_depth:"<<closest_depth<< std::endl;
 
         return current_depth > closest_depth;
     }
@@ -425,7 +419,7 @@ static int is_in_shadow(varyings_blinnphong* varyings,
 
 这个小星星是紧贴着下面的大星星的，小星星的脚部应该产生阴影的地方，出现了隔断现象，detached shadow。
 
-过大的偏移量会导致所谓的漏光（light leak）或者Peter Panning问题，即物体看起来像是悬浮在表面上方一样。这种瑕疵的出现，是因为物体接触点下方的区域（例如脚下的地面），被向前偏移得太多，因此并没有接收到阴影。
+过大的偏移量会导致所谓的漏光（light leak）或者Peter Panning问题（一种工业界的叫法），即物体看起来像是悬浮在表面上方一样。这种瑕疵的出现，是因为物体接触点下方的区域（例如脚下的地面），被向前偏移得太多，因此并没有接收到阴影。
 
 工业界的解决方法大都是找到一个合适的bias值，使得既没有出现自遮挡，也没有出现detached shadow现象。
 
@@ -451,19 +445,23 @@ static int is_in_shadow(varyings_blinnphong* varyings,
 
 想要解决以上问题，可以采用接下来要讲的级联阴影贴图方式.
 
+
+
 ### 10.2.5 级联阴影贴图（cascade shadow maps，CSM）
 
 在更靠近相机的地方添加更多的样本，比方说，使用多张shadow map。让距离相机最近的物体对应shadow map中更高的分辨率。而距离相机比较远的大量物体物体可以公用一张shadow，给与它们每个物体的精度都相对较低。
 
 ![image-20241119204326577](lesson10_阴影.assets/image-20241119204326577.png)
 
-图片来自[ShaderX5 2006] Cascaded Shadow Maps
+​									图片来自[ShaderX5 2006] Cascaded Shadow Maps
 
 左图中，我们将相机的观察体分为了从近到远的四个区域，其中我们希望更近的物体有更高的精度，因此，近的区域划分更密集。
 
-右图中，我们为每个划分后的观察体区域创建了对应的包围盒，左下角的方向光源对应生成四个阴影贴，每一个包围盒决定了对应阴影贴图的渲染范围。
+右图中，我们为每个划分后的观察体区域创建了对应的包围盒，左下角的方向光源对应生成四个阴影贴图，每一个包围盒决定了对应阴影贴图的渲染范围。右图当中的每个矩形（包住视锥体对应区域）对应的区域就是这级阴影的绘制区域。当前我们也可以拿到渲染这张shadow map对应的lightVP矩阵。
 
+这样在做第一个pass的时候，就可以渲染出每个层级的shadowmap，并记录每个层级对应的lightVP矩阵；
 
+在第二个pass的时候（渲染物体），找到物体应该对应哪个层级的shadowmap，依据记录的lightVP矩阵将其转到对应的光源空间，再和前面描述的一样，做阴影的渲染。
 
 
 
