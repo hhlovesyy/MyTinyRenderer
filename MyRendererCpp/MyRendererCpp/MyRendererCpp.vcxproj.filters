@@ -74,6 +74,9 @@
     <ClCompile Include="shader_skybox.cpp">
       <Filter>core\source</Filter>
     </ClCompile>
+    <ClCompile Include="test_maths.cpp">
+      <Filter>test_unit\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -153,6 +156,9 @@
     </ClInclude>
     <ClInclude Include="shader_skybox.h">
       <Filter>core\header</Filter>
+    </ClInclude>
+    <ClInclude Include="test_maths.h">
+      <Filter>test_unit\header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

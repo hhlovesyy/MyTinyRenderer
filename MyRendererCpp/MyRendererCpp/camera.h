@@ -15,8 +15,8 @@ public:
 class motion_t
 { 
 public:
-	vec2_t orbit; 
-	vec2_t pan; 
+	vec2<float> orbit; 
+	vec2<float> pan;
 	float dolly;
 } ;
 
