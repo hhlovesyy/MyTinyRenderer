@@ -2,7 +2,7 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\x64\Release\MyRendererCpp.exe</FullPath>
+      <FullPath>D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\x64\Release\MyRendererCpp.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />
