@@ -51,7 +51,9 @@
 
 ​	我们先解决第一个问题，将Cubemap显示在场景当中，但先不对其进行采样。解决这个问题的核心在于要知道每个面会被贴在哪里。例如OpenGL会对此进行约定，如下图：
 
-![img](./assets/cubemaps_skybox.png)
+![img](立方体贴图Cubemap.assets/cubemaps_skybox.png)<img src="立方体贴图Cubemap.assets/image-20241203150427179.png" alt="image-20241203150427179" style="zoom: 80%;" />
+
+​	
 
 ​	上图还是比较清晰的，top就是上面，left就是左面，依次类推。读者可以想象一下上述的Cubemap被”折成“一个立方体的过程，容易发现它是基于左手系的（top对应Y轴正方向，right对应X轴正方向，而front则对应Z轴正方向，指向的是前面，也就是屏幕里面，这一点不要理解错误）。再比如Unity，它是基于左手系的。上图的left，right，bottom，top，front，back为了方便理解，很多渲染器/引擎也会将其命名为-X，+X，-Y，+Y，+Z和-Z（基于左手系）。Cubemap也可以使用右手系。在以下的理论部分中，我们使用左手系进行讲解。而渲染器的实现也是基于左手系。
 
@@ -148,7 +150,7 @@ vec4_t skybox_vertex_shader(void* attribs_, void* varyings_, void* uniforms_)
 
 回顾一下Cubemap采样的图：
 
-<img src="./assets/image-20241118112026045.png" alt="image-20241118112026045" style="zoom:67%;" />
+<img src="立方体贴图Cubemap.assets/image-20241118112026045.png" alt="image-20241118112026045" style="zoom:67%;" />![image-20241203151005118](立方体贴图Cubemap.assets/image-20241203151005118.png)
 
 怎么确定黄色的向量与整个Cube的交点是什么呢？我们假设将一个**长宽都为2**的正方体放在坐标原点，将一张Cubemap贴上去，那么各点的坐标将如下图所示（注意，这个坐标系是左手坐标系，+Z指的是forward，前面，也就是屏幕向里的里面）：
 
