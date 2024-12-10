@@ -11,6 +11,7 @@
 #include "test_camera_move.h"
 #include "test_skeleton_animation.h"
 #include "test_blinn_phong_light.h"
+#include "test_maths.h"
 #include "win32.h"
 #include "scene.h"
 #include "config.h"
@@ -30,13 +31,14 @@ static testcase_t g_testcases[] =
     {"test_space_transform", test_space_transform},
     {"test_camera_move", test_camera_move},
     {"test_skeleton_animation", test_skeleton_animation},
-    {"test_blinn_phong_light", test_blinn_phong_light}
+    {"test_blinn_phong_light", test_blinn_phong_light},
+    {"test_maths", test_all_maths},
 };
 
 int main(int argc, char* argv[])
 {
     platform_initialize();
-    int test_index = 6;
+    int test_index = 5;
     const char* testname = g_testcases[test_index].testname;
     testfunc_t* testfunc = g_testcases[test_index].testfunc;
     //使用函数指针调用函数

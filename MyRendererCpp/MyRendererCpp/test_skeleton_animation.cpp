@@ -90,8 +90,8 @@ void test_enter_mainloop_skeleton_anim(tickfunc_t* tickfunc)
 		}
 		prev_time = curr_time;
 
-		record.orbit_delta = vec2_new(0, 0);
-		record.pan_delta = vec2_new(0, 0);
+		record.orbit_delta.reset();
+		record.pan_delta.reset();
 		record.dolly_delta = 0;
 		record.single_click = 0;
 		record.double_click = 0;

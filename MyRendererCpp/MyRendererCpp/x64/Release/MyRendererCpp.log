@@ -144,6 +144,7 @@ D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,78): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\mesh.cpp(24,21): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
   private.cpp
+  test_maths.cpp
   test_model_input.cpp
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(174,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(175,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
@@ -161,6 +162,7 @@ D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_rasterization.cpp(37,33): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_rasterization.cpp(37,63): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_rasterization.cpp(37,93): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
+  正在编译...
   test_skeleton_animation.cpp
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(174,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(175,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
@@ -174,7 +176,6 @@ D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,63): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,78): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,78): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
-  正在编译...
   test_space_transform.cpp
   test_transform.cpp
 D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\test_transform.cpp(34,54): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
@@ -203,7 +204,7 @@ D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.c
   tgaimage.cpp
   win32.cpp
   正在生成代码
-  Previous IPDB was built with incompatible compiler, fall back to full compilation.
-  All 1741 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Compiler switch has changed, fall back to full compilation.
+  All 1764 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   已完成代码的生成
   MyRendererCpp.vcxproj -> D:\MRenderer\TinyRenderer\MyTinyRenderer\MyRendererCpp\x64\Release\MyRendererCpp.exe

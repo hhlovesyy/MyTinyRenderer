@@ -1,10 +1,264 @@
 #ifndef MATHS_H
 #define MATHS_H
 #include <math.h>
+#include <iostream>
+#include <initializer_list>
 
 #define TO_RADIANS(degrees) ((PI / 180) * (degrees))
 #define TO_DEGREES(radians) ((180 / PI) * (radians))
 #define PI 3.1415927f
+
+//模板改造数学库计划
+//1.将数学库的函数全部改为模板函数
+
+template<typename T, int dim> 
+class vec
+{
+public:
+	vec() { for (int i = 0; i < dim; i++) data[i] = 0; }
+
+    vec(std::initializer_list<T> list)
+    {
+        int i = 0;
+        for (auto& e : list)
+        {
+            data[i] = e;
+            i++;
+        }
+    }
+
+    // 拷贝构造函数
+    vec(const vec& v)
+    {
+        for (int i = 0; i < dim; i++)
+        {
+            data[i] = v.data[i];
+        }
+    }
+
+    //// 移动构造函数
+    //vec(vec&& v)
+    //{
+    //    data = v.data;
+    //    v.data = nullptr;
+    //}
+
+    //重载赋值，移动语义
+    /*vec& operator=(vec&& v)
+    {
+        data = v.data;
+        v.data = nullptr;
+        return *this;
+    }*/
+
+    vec& operator=(const vec& v)
+    {
+        for (int i = 0; i < dim; i++)
+        {
+            data[i] = v.data[i];
+        }
+        return *this;
+    }
+
+    //重载+
+    vec operator+(const vec& v)
+    {
+        vec res;
+        for (int i = 0; i < dim; i++)
+        {
+            res.data[i] = data[i] + v.data[i];
+        }
+        return res;
+    }
+
+    //重载-
+    vec operator-(const vec& v)
+	{
+		vec res;
+		for (int i = 0; i < dim; i++)
+		{
+			res.data[i] = data[i] - v.data[i];
+		}
+		return res;
+	}
+
+    // 重载 * 操作符，支持任意类型的因子
+    template<typename U>
+    vec operator*(U factor) const 
+    {
+        vec res; // 结果向量
+        for (int i = 0; i < dim; ++i) 
+        {
+            res.data[i] = data[i] * factor; // 将每个分量与因子相乘
+        }
+        return res; // 返回结果
+    }
+
+    // 重载 / 操作符，支持任意类型的除数
+    template<typename U>
+    vec operator/(U divisor) const
+    {
+        static_assert(std::is_arithmetic<U>::value, "divisor must be an arithmetic type."); // 确保 U 是算术类型
+        if (divisor == 0) // 检查除数是否为零
+        { 
+            throw std::invalid_argument("Division by zero is not allowed."); // 抛出异常
+        }
+		vec res; // 结果向量
+		for (int i = 0; i < dim; ++i) 
+		{
+			res.data[i] = data[i] / divisor; // 将每个分量与除数相除
+		}
+		return res; // 返回结果
+	}
+
+    //重载+=
+    vec& operator+=(const vec& v)
+	{
+		for (int i = 0; i < dim; i++)
+		{
+			data[i] += v.data[i];
+		}
+		return *this;
+	}
+
+    vec cross(const vec& v)
+    {
+        std::cout << "请检查叉乘的维度是否正确！2/3" << std::endl;
+        return vec();
+    }
+
+    //求解向量的模
+    T length()
+    {
+		T sum = 0;
+		for (int i = 0; i < dim; i++)
+		{
+			sum += data[i] * data[i];
+		}
+		return sqrt(sum);
+    }
+
+    //normalized 函数的实现
+    vec normalized()
+	{
+		T len = length();
+        if (len == 0)
+		{
+            std::cout << "向量长度为0，无法归一化" << std::endl;
+			return vec();
+		}
+        vec result;
+        for (int i = 0; i < dim; i++)
+        {
+            result.data[i] = data[i] / len;
+        }
+        return result;
+	}
+
+    void reset()
+	{
+		for (int i = 0; i < dim; i++)
+		{
+			data[i] = 0;
+		}
+	}
+
+    //重载索引运算符
+    T& operator[](int index)
+	{
+		return data[index];
+	}
+
+    const T& operator[](int index) const 
+    {
+        return data[index];
+    }
+
+    void print() const
+    {
+        if (data == nullptr)
+        {
+            std::cout << "data is nullptr" << std::endl;
+            return;
+        }
+        for (int i = 0; i < dim; i++)
+        {
+            std::cout << data[i] << " ";
+        }
+        std::cout << std::endl;
+    }
+
+
+protected:
+	T data[dim];
+};
+
+//比较两个vec各分量的最小值，然后返回一个新的vec
+template<typename T, int dim>
+vec<T, dim> vec_min(const vec<T, dim>& a, const vec<T, dim>& b)
+{
+    vec<T, dim> result; // 创建结果向量
+    for (int i = 0; i < dim; ++i) 
+    {
+        result.data[i] = (a.data[i] < b.data[i]) ? a.data[i] : b.data[i]; // 比较并赋值
+    }
+    return result; // 返回结果向量
+}
+
+//比较两个vec各分量的最大值，然后返回一个新的vec
+template<typename T, int dim>
+vec<T, dim> vec_max(const vec<T, dim>& a, const vec<T, dim>& b)
+{
+	vec<T, dim> result; // 创建结果向量
+	for (int i = 0; i < dim; ++i) 
+    {
+		result.data[i] = (a.data[i] > b.data[i]) ? a.data[i] : b.data[i]; // 比较并赋值
+	}
+	return result; // 返回结果向量
+}
+
+// vec2 类，继承自 vec<T, 2>
+template<typename T>
+class vec2 : public vec<T, 2> {
+public:
+    using vec<T, 2>::vec; // 继承构造函数
+
+    // 特定于2D的交叉乘积返回标量
+    T cross(const vec2<T>& v) const {
+        return this->data[0] * v.data[1] - this->data[1] * v.data[0];
+    }
+
+    // 从 vec<T, 2> 转换构造函数
+    vec2(const vec<T, 2>& v) {
+        this->data[0] = v[0];
+        this->data[1] = v[1];
+    }
+};
+
+// vec3 类，继承自 vec<T, 3>
+template<typename T>
+class vec3 : public vec<T, 3> {
+public:
+    using vec<T, 3>::vec; // 继承构造函数
+
+    // 特定于3D的交叉乘积，返回vec3对象
+    vec3<T> cross(const vec3<T>& v) const {
+        vec3<T> result;
+        result[0] = this->data[1] * v.data[2] - this->data[2] * v.data[1];
+        result[1] = this->data[2] * v.data[0] - this->data[0] * v.data[2];
+        result[2] = this->data[0] * v.data[1] - this->data[1] * v.data[0];
+        return result;
+    }
+
+    // 从 vec<T, 3> 转换构造函数
+    vec3(const vec<T, 3>& v) {
+        this->data[0] = v[0];
+        this->data[1] = v[1];
+        this->data[2] = v[2];
+    }
+};
+
+
 typedef struct { float x, y; } vec2_t;
 typedef struct { float x, y, z; } vec3_t;
 typedef struct { float x, y, z, w; } vec4_t;

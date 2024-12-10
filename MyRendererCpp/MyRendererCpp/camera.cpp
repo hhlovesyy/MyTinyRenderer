@@ -25,7 +25,7 @@ void camera_set_transform(Camera* camera, vec3_t position, vec3_t target)
     camera->target = target;
 }
 
-static vec3_t calculate_pan(vec3_t from_camera, std::shared_ptr<motion_t> motion)
+static vec3_t calculate_pan(vec3_t& from_camera, std::shared_ptr<motion_t> motion)
 {
     vec3_t forward = vec3_normalize(from_camera);
     vec3_t left = vec3_cross(UP, forward);
@@ -33,8 +33,8 @@ static vec3_t calculate_pan(vec3_t from_camera, std::shared_ptr<motion_t> motion
 
     float distance = vec3_length(from_camera);
     float factor = distance * (float)tan(FOVY / 2) * 2;
-    vec3_t delta_x = vec3_mul(left, motion->pan.x * factor);
-    vec3_t delta_y = vec3_mul(up, motion->pan.y * factor);
+    vec3_t delta_x = vec3_mul(left, motion->pan[0] * factor);
+    vec3_t delta_y = vec3_mul(up, motion->pan[1] * factor);
     return vec3_add(delta_x, delta_y);
 }
 
@@ -47,8 +47,8 @@ static vec3_t calculate_offset(vec3_t from_target, std::shared_ptr<motion_t> mot
     vec3_t offset;
 
     radius *= (float)pow(0.95, motion->dolly);
-    theta -= motion->orbit.x * factor;
-    phi -= motion->orbit.y * factor;
+    theta -= motion->orbit[0] * factor;
+    phi -= motion->orbit[1] * factor;
     phi = float_clamp(phi, EPSILON, PI - EPSILON);
 
     offset.x = radius * (float)sin(phi) * (float)sin(theta);

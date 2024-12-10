@@ -18,23 +18,23 @@ class record_t
 public:
     /* orbit */
     int is_orbiting;
-    vec2_t orbit_pos;
-    vec2_t orbit_delta;
+    vec2<float> orbit_pos;
+    vec2<float> orbit_delta;
     /* pan */
     int is_panning;
-    vec2_t pan_pos;
-    vec2_t pan_delta;
+    vec2<float> pan_pos;
+    vec2<float> pan_delta;
     /* zoom */
     float dolly_delta;
 
     /* click */
     float press_time;
     float release_time;
-    vec2_t press_pos;
-    vec2_t release_pos;
+    vec2<float> press_pos;
+    vec2<float> release_pos;
     int single_click;
     int double_click;
-    vec2_t click_pos;
+    vec2<float> click_pos;
 };
 
 void button_callback(window_t* window, button_t button, int pressed);
