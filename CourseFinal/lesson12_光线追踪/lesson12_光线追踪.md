@@ -14,7 +14,7 @@
 
 ![image-20241205162438446](lesson12_光线追踪.assets/image-20241205162438446.png)
 
-​	根据光路可逆性，我们同样可以从眼睛/相机出发，回溯这根光线在到达相之前是怎样的传播路径，打到了什么物体，经过了几次的反射，几次折射等。我们要做的就是追踪光线，这就是光线追踪的思想.对于每个像素，我们从相机开始发射一根（或者多根）光线穿过这个像素，追踪这根光线，如果这根光线与场景中的物体相交，我们就计算着色，并模拟光线的反射或者折射行为，例如此时光线打到了如图所示的光滑镜面材质上，那我们就进行镜面反射的计算，创建新的光线往镜面反射的方向出发。最后把这根光线这一路上的颜色相加，就是最终呈现在屏幕像素上的颜色。
+​	根据光路可逆性，我们同样可以从眼睛/相机出发，回溯这根光线在到达相之前是怎样的传播路径，打到了什么物体，经过了几次的反射，几次折射等。我们要做的就是追踪光线，这就是光线追踪的思想。对于每个像素，我们从相机开始发射一根（或者多根）光线穿过这个像素，追踪这根光线，如果这根光线与场景中的物体相交，我们就计算着色，并模拟光线的反射或者折射行为，例如此时光线打到了如图所示的光滑镜面材质上，那我们就进行镜面反射的计算，创建新的光线往镜面反射的方向出发。最后把这根光线这一路上的颜色相加，就是最终呈现在屏幕像素上的颜色。
 
 ![image-20241205163344639](lesson12_光线追踪.assets/image-20241205163344639.png)
 
@@ -91,7 +91,7 @@ struct IntersectInfo
 
 ##### 2.1.2光线与屏幕坐标的关联
 
-得到了光线的定义之后，我们要决定这条光线要往哪个方向去发射呢？$Ray(t)=\mathbf{o}+t \mathbf{d}$中的$\mathbf{o} 和\mathbf{d}$是多少呢？（已知t可以是不同的值，让光线到达不同的地方）
+得到了光线的定义之后，我们要决定这条光线要往哪个方向去发射呢？$Ray(t)=\mathbf{o}+t \mathbf{d}$中的$\mathbf{o} 和\mathbf{d}$是多少呢？（已知$t$可以是不同的值，让光线到达不同的地方）
 
 光线应当从相机出发，往屏幕上的每一个像素发射。因而起点$o(origin)$是相机，那么方向$d(direction)$呢？
 
@@ -105,20 +105,20 @@ struct IntersectInfo
 
 
 
-- 在本项目当中，为了防止混淆导致不好Debug，我们选择不同长宽的图像
+- 在本项目当中，为了防止混淆导致不好Debug，我们选择不同长宽的图像；
 
-- 暂时来说，认为视角的aspect ratio就是渲染画面的宽高比。定义viewport的高度是2.0，同时定义被投影点与投影平面的距离是焦距，为1.0。我们将相机放置在o点，同时认为**X轴向右，Y轴向上，Z轴正方向指向屏幕外面**（也就是说，这是一个**右手坐标系**）（补充一下，**Unity的模型坐标系和世界坐标系都是左手坐标系**，Z轴正方向是指向屏幕内侧的）。从左上角开始遍历屏幕空间。
+- 暂时来说，认为视角的aspect ratio就是渲染画面的宽高比。定义viewport的高度是2.0，同时定义被投影点与投影平面的距离是焦距，为1.0。我们将相机放置在o点，同时认为**X轴向右，Y轴向上，Z轴正方向指向屏幕外面**（也就是说，这是一个**右手坐标系**）（补充一下，**类似Unity的模型坐标系和世界坐标系都是左手坐标系**，Z轴正方向是指向屏幕内侧的）。从左上角开始遍历屏幕空间。
 
 - 此时，如何表示从视角打向成像平面的像素光线的方向？
 
-  - 认为屏幕左下角为`lower_left_corner`,例如可以是坐标（-2，-1，-1）；
+  - 认为屏幕左下角为`lower_left_corner`,例如对应上述的情景（我们假定宽高比是2：1）可以是坐标（-2，-1，-1）；
   - 认为水平方向为`horizontal`,例如可以是(4.0,0.0,0.0),而竖直方向为`vertical`,例如可以是(0.0,2.0,0.0)，后面将会用比例系数来表示点在屏幕中的位置；
 
   ![image-20241206120520390](lesson12_光线追踪.assets/image-20241206120520390.png)
 
   - 在上图当中，$\vec{direction}=\vec{b}+\vec{a}$
-    - $\vec{b}=lowerleftcorner-origin$
-    - $\vec{a}=u*\vec{horizontal}+v*\vec{vertical}$ 
+    - $\vec{a}=lowerleftcorner-origin$
+    - $\vec{b}=u*\vec{horizontal}+v*\vec{vertical}$ 
 
   - 代入$\vec{a}和\vec{b}$,得到结果为$\vec{direction}=lowerleftcorner-origin+u*\vec{horizontal}+v*\vec{vertical}$
 
@@ -142,21 +142,23 @@ Ray Camera_getRay(Camera camera, float u, float v)
 
 至此，我们就可以完成穿过所有像素的我们想要的所有光线的生成。那么接下来，就要让光线不断往前走，直到与场景中的物体相交（也可能最后都没有与任何物体相交），计算光线与物体的交点，然后计算光线的颜色以及光线接下来往那个方向发射（比如反射或者折射）。
 
+> 读者这里可能会疑惑，为什么要把origin做一个随机的偏移呢？
+>
+> A：主要是为了实现类似景深的效果。在现实世界中，**摄影镜头并不是一个理想的点源，而是有一定的光圈大小。**当光线通过镜头时，不同位置的光线会聚焦到不同的地方。在这个光线追踪项目中，我们通过给光线的起始位置添加随机偏移，来模拟镜头的光圈效应，使得不同的光线源自于不同的起点，从而产生更加柔和和自然的模糊效果。
+
 
 
 #### 2.2 光线与物体求交
 
-我们将光线从相机中发射出来之后，
+我们将光线从相机中发射出来之后，接下来要做的事情是和场景内的物体求交。这里我们**先考虑三种情况：光线和球面相交、光线和普通的隐式平面相交、以及一般化一些的光线与三角形求交。**
 
 ##### 2.2.1 光线与球面相交
 
-(1)光线方程
+**(1)光线方程**
 
 $Ray(t)=\mathbf{o}+t \mathbf{d}(0≤t<∞)\quad$
 
-(2)球面方程
-
-
+**(2)球面方程**
 
 - 半径为R的球体的方程：
 
@@ -168,7 +170,7 @@ $Ray(t)=\mathbf{o}+t \mathbf{d}(0≤t<∞)\quad$
 
   - $(x-cx)^2+(y-cy)^2+(z-cz)^2=R^2$
 
-- 再次推广，此时对于球面上的点p，有：
+- 再次推广，此时对于光线和球面的交点$p(t)$，有：
 
   - $(p(t)-C)^2-R^2=0\quad$,其中c为中心点的坐标
 
@@ -182,7 +184,7 @@ $ t^2·\vec{d}·\vec{d}+2·t·\vec{d}·\vec{(o-C)}+\vec{(o-C)}·\vec{(o-C)}-R^2=
 
 可以看到，通过这个式子求解二次方程,**就可以求解出t的值**，通过t的值来判定是否相交以及相交的交点数
 
-对于求根公式来说，可以令$b_o=2b$，则此时求根公式可以简化如下：
+对于求根公式来说（这其实就是高中数学介绍的正常二次方程的求根公式），此时可以简化如下（可以令$b = \frac{1}{2}b_0$, $b_0$是初始的求根公式当中的B项）：
 $$
 \begin{aligned}
 & \frac{-b_o \pm \sqrt{b_o^{2}-4 a c}}{2 a} \\
@@ -285,7 +287,7 @@ $$
 判断光线是否与三角形相交,可以按照下面的步骤(**注:该算法需要进行优化**):
 
 - 1.判断光线是否与三角形所在平面相交;
-- 2.判断交点是否在三角形的内部(**使用重心**)
+- 2.判断交点是否在三角形的内部(**使用重心**)；
 
 **1.判断光线是否与三角形所在平面相交;**
 
@@ -535,7 +537,7 @@ $$
 
 那么接下来我们就知道相交的物体与相交的点，我们应该做些什么，直接计算返回交点的颜色？还是继续反射/折射光线？实际上，这取决于光线相交的物体的材质等各种因素。
 ##### 2.3.2.镜面反射-金属材质
-假设相交的物体材质是金属类型的，表面很光滑，那么光线大概率会沿着反射方向反射出去。
+假设相交的物体材质是金属类型的，表面很光滑，那么光线大概率会沿着反射方向反射出去（读者可以回忆前面讲的BlinnPhong模型）。
 
 <img src="lesson12_光线追踪.assets/image-20241206162620524.png" alt="image-20241206162620524" style="zoom:50%;" />
 
@@ -553,7 +555,7 @@ $\vec{r}=\vec{v}+2*\vec{b}$
 
 其中，已知法线方向$\vec{N}$是一个单位向量，所以我们假设向量$\vec{v}$与水平方向的夹角为θ，则$\left|\vec{b}\right |=\left|\vec{v}\right|*sin(\theta)=-\left|\vec{v}\right|*cos(90°+\theta)$
 
-所以$\left|\vec{b}\right |=-\vec{v}·\vec{N}$,又因为向量$\vec{b}$ 的方向与$\vec{N}$保持一致，所以$\vec{b}=(-\vec{v}·\vec{N})*\vec{N}$
+所以$\left|\vec{b}\right |=-\vec{v}·\vec{N}$（这是因为点乘的定义，读者可以回忆点乘与$\cos$之间的关系，$||\vec{N}||=1$）,又因为向量$\vec{b}$ 的方向与$\vec{N}$保持一致，所以$\vec{b}=(-\vec{v}·\vec{N})*\vec{N}$
 
 可以推导出：
 
@@ -569,7 +571,7 @@ vec3 m_reflect(vec3 v, vec3 n)
 }
 ```
 
-实际上shaertoy中也自带refrect函数，我们使用shadertoy中的refrect函数也一样。
+实际上shadertoy中也自带reflect函数，我们使用shadertoy中的reflect函数也一样。
 
 ![image-20241210120115375](lesson12_光线追踪.assets/image-20241210120115375.png)
 
@@ -579,11 +581,13 @@ vec3 m_reflect(vec3 v, vec3 n)
 
 ![image-20241210120416650](lesson12_光线追踪.assets/image-20241210120416650.png)
 
-我们还可以给反射方向**加入一点点随机性, 只要在算出反射向量后**, 在其终点为球心的球内随机选取一个点作为最终的终点，如下图所示：
+为了完成这种需求，我们可以给镜面反射反射出去的方向**加入一点点随机性, 只要在算出反射向量后**, 在其终点为球心的球内随机选取一个点作为最终的终点，如下图所示：
 
 
 
 <img src="lesson12_光线追踪.assets/image-20241210153710107.png" alt="image-20241210153710107" style="zoom:67%;" />
+
+就好像我们在镜面反射方向上加了一些偏移（如下图），这样就能更好地实现磨砂的效果：
 
 <img src="lesson12_光线追踪.assets/image-20241210153720584.png" alt="image-20241210153720584" style="zoom:67%;" />
 
@@ -595,30 +599,36 @@ vec3 m_reflect(vec3 v, vec3 n)
 
 ```GLSL
 else if(materialType == METAL)  // 金属材质
-    {
-        float fuzz = isectInfo.fuzz;  // 金属表面的粗糙度（模糊程度）
+{
+    float fuzz = isectInfo.fuzz;  // 金属表面的粗糙度（模糊程度）
 
-        // 计算反射光线的方向
-        vec3 reflected = m_reflect(normalize(wo.direction), isectInfo.normal);
+    // 计算反射光线的方向
+    vec3 reflected = m_reflect(normalize(wo.direction), isectInfo.normal);
 
-        wi.origin = isectInfo.p;
-        wi.direction = reflected + fuzz * random_in_unit_sphere();  ////增加对模糊情况的判断，通过对反射光实现一定范围的偏移得到最终的反射光线
+    wi.origin = isectInfo.p;
+    wi.direction = reflected + fuzz * random_in_unit_sphere();  ////增加对模糊情况的判断，通过对反射光实现一定范围的偏移得到最终的反射光线
 
-        attenuation = isectInfo.albedo;
+    attenuation = isectInfo.albedo; //光线每次弹射会乘一个衰减系数
 
-        return (dot(wi.direction, isectInfo.normal) > 0.0f);  // 确保反射光线朝向表面
-    }
+    return (dot(wi.direction, isectInfo.normal) > 0.0f);  // 确保反射光线朝向表面
+}
 ```
+
+> 对attenuation的补充说明：之前我们提到过光追的时候每次打到某个物体光线就会被弹射出来（当然也很可能会被吸收一部分），因此针对下次弹射出来的光的”颜色“需要乘一个衰减系数。**那么如何计算这个衰减系数呢？**
+>
+> 实际上，**这个衰减系数就是物体表面的albedo属性**，这里也是归于物理学上的定律，即我们之所以看到某个表面呈现A颜色，是因为A颜色的光打到了我们的眼睛。因此假设初始光是”白色“(1.0,1.0,1.0)，打到了一个红色的表面，这意味着反射出来的光应该是红色（1.0，0.0，0.0）。假设反射出来的光到进入人眼前没有再打到其他物体了，那么进入人眼（即相机）的就是红光。此时可以发现就好像attenuation就是(1.0，0.0，0.0)，即红色，这也就是上面代码中attenuation项如此计算的原因。对于多次弹射的情况也可以类比推理成立。
+>
+> **注意，由于我们还没有讲到辐射度量学，因此上面的说法是不够严谨的，但可以让读者更容易理解。**
 
 
 
 ##### 2.3.3 漫反射材质
 
-如果是漫反射材质，比如很多绝缘体（塑料，橡皮,  木头桌子）等等粗糙材质，光线打到表面后，反射光线会向四面八方发射，而不是集中反射到某个区域被我们捕捉到.
+如果是漫反射材质，比如很多绝缘体（塑料，橡皮,  木头桌子）等等粗糙材质，光线打到表面后，反射光线会向四面八方发射，而不是集中反射到某个区域被我们捕捉到。
 
 <img src="lesson12_光线追踪.assets/image-20241206164547209.png" alt="image-20241206164547209" style="zoom:50%;" />
 
->回忆与对比Phong模型或者Blinn-Phong模型中的漫反射处理
+>回忆与对比Phong模型或者Blinn-Phong模型中的漫反射处理：
 >
 >在之前的"基础光照"章节中,我们使用Phong模型或者Blinn-Phong模型来模拟漫反射,我们复习一下其公式$L_d = k_d(I/r^2)max(0, \vec{n} · \vec{l})$,其中$\vec{l}$为指向光源的方向.实际上,这模拟的是如果光“直接照射”到的表面会更亮一些，而非直接照射的区域会更暗，背光侧最暗。
 >
@@ -630,9 +640,9 @@ else if(materialType == METAL)  // 金属材质
 >
 >因此, Phong模型或者Blinn-Phong模型中的漫反射处理实际上是对真实的漫反射的一种模拟, 在光追中, 我们可以更真实地实现它.
 
-​	我们可以采用在与漫反射材质的交点处,发射非常多的光线并追踪光线; 当然发射的光线越多, 计算量越大, 速度也就越慢.  如果想要加快速度, 我们也可以牺牲一定的质量做简化, 例如随机采样一个或者几个方向作为反射方向.
+​	我们可以采用在与漫反射材质的交点处,发射非常多的光线并追踪光线; 当然发射的光线越多, 计算量越大, 速度也就越慢.  如果想要加快速度, 我们也可以牺牲一定的质量做简化, 例如随机采样一个或者几个方向作为反射方向。**在本篇的光线追踪教程中，我们每次只会打出一根光线做追踪。**
 
-​	如何随机采样呢?实际上, 这也是有说法的, 我们应该选择在**单位球面**选取一个随机点, 长度固定为单位向量长度, 来作为随机发射的方向.
+​	如何随机采样呢?实际上, 这也是有说法的, 我们应该选择在**单位球面**选取一个随机点, 长度固定为单位向量长度, 来作为随机发射的方向。
 
 ​	要得到这个反射想象，我们可以从交点出发，向法线方向走单位距离，然后随机取一个单位长度的方向，到达目标点，类似于：
 
@@ -646,17 +656,17 @@ else if(materialType == METAL)  // 金属材质
 
 ```GLSL
 if(materialType == LAMBERT)  // 漫反射材质
-    {
-        // 计算一个随机散射方向
-        vec3 target = isectInfo.p + isectInfo.normal + random_in_unit_sphere();
+{
+    // 计算一个随机散射方向
+    vec3 target = isectInfo.p + isectInfo.normal + random_in_unit_sphere();
 
-        wi.origin = isectInfo.p;  // 散射光线的起始位置为交点
-        wi.direction = target - isectInfo.p;  // 散射光线的方向
+    wi.origin = isectInfo.p;  // 散射光线的起始位置为交点
+    wi.direction = target - isectInfo.p;  // 散射光线的方向
 
-        attenuation = isectInfo.albedo;  // 反射衰减（反射率）
+    attenuation = isectInfo.albedo;  // 反射衰减（反射率）
 
-        return true;
-    }
+    return true;
+}
 ```
 
 效果如下：
@@ -682,7 +692,7 @@ $$
 
 ​	透明物体的章节中我们没有考虑折射,而是直接假设所有介质的折射率都是一样的，这样折射角总是与入射角相等。对于很薄的表面来说，效果其实是可以接受的.但我们既然实现了光线追踪,就可以做更真实的效果.
 
-​      我们在前面的镜面反射部分已经求得反射方向,我们现在的目的是求出折射方向,推导过程如下
+​      我们在前面的镜面反射部分已经求得反射方向,我们现在的目的是求出折射方向,推导过程如下：
 
 (参考[3]De Greve, Bram. "Reflections and refractions in ray tracing." *Retrived Oct* 16 (2006): 2014.及https://www.zhihu.com/people/cjt-83-73/posts ):
 
@@ -750,7 +760,7 @@ $$
 r=\frac{\eta_1}{\eta_2}i-(\frac{\eta_1}{\eta_2}(i\cdot n)+\sqrt{1-(\frac{\eta_1}{\eta_2})^2(1-(i\cdot n)^2)})n
 $$
 
-需要注意的是，上述式子在根号内的值大于等于0时才成立。
+**需要注意的是，上述式子在根号内的值大于等于0时才成立。**
 
 当$\eta_1\leq\eta_2$ 时，根号内始终大于等于0。
 
@@ -762,9 +772,11 @@ $$
 
 <img src="lesson12_光线追踪.assets/image-20241210145305786.png" alt="image-20241210145305786" style="zoom: 67%;" />
 
-由此,我们就可以求出不出现全反射情况下的折射方向r.
+由此,我们就可以求出不出现全反射情况下的折射方向$r$。
 
 但是，如图上蓝色线所示，当$\eta_1>\eta_2$ 时，在特定入射角度(超过临界角)会发生全内反射的现象。此时折射分量为0，那么我们也需要表现出这个全反射的情况。
+
+
 
 ###### 全反射情况
 
@@ -783,11 +795,15 @@ $$
 $$
 其中的$cos\theta$为$$cos\theta=dot(-i,n)$$,其中i是入射光线，n是法线。
 
+> 下图就是一个全内反射的例子（图源：维基百科）：
+>
+> <img src="./assets/1280px-Total_internal_reflection_of_Chelonia_mydas.jpg" alt="undefined" style="zoom:80%;" />
+
 
 
 ##### Schlick近似方法
 
-现实世界中的玻璃, **发生反射的概率会随着入射角而改变**——从一个很狭窄的角度去看玻璃窗, 它会变成一面镜子。如果要完全精确地描述这件事公式是十分痛苦的（参考学习链接：https://zhuanlan.zhihu.com/p/372110183），不过有一个数学上近似的等式, 它是由Christophe Schlick提出的。Schlick 反射率函数如下：
+现实世界中的玻璃, **发生反射的概率会随着入射角而改变**——从一个很狭窄的角度去看玻璃窗（也就是说你的视线方向几乎垂直于玻璃窗的法线方向）, 它会变成一面镜子。如果要完全精确地描述这件事公式是十分痛苦的（参考学习链接：https://zhuanlan.zhihu.com/p/372110183），不过有一个数学上近似的等式, 它是由Christophe Schlick提出的。Schlick 反射率函数如下：
 $$
 F_{\text {Schlick }}\left(n, v, F_{0}\right)=F_{0}+\left(1-F_{0}\right)(1-(n \cdot v))^{5} 
 $$
@@ -797,56 +813,54 @@ F_{0}=\left(\frac{\eta_{1}-\eta_{2}}{\eta_{1}+\eta_{2}}\right)^{2}=\left(\frac{\
 $$
 下面展示了用使用schlick近似方法来实现折射：
 
-
-
 ```GLSL
 else if(materialType == DIELECTRIC)  // 介电质（玻璃等）材质
+{
+    vec3 outward_normal;
+    vec3 reflected = reflect(wo.direction, isectInfo.normal);  // 计算反射光线
+
+    float ni_over_nt;  // 折射率
+
+    attenuation = vec3(1.0f, 1.0f, 1.0f);  // 介电质材质的衰减一般为1，即不衰减
+    vec3 refracted;  // 折射光线
+    float reflect_prob;  // 反射概率
+    float cosine;
+
+    float rafractionIndex = isectInfo.refractionIndex;  // 介电质的折射率
+
+    if (dot(wo.direction, isectInfo.normal) > 0.0f)  // 如果光线从物体内部出射
     {
-        vec3 outward_normal;
-        vec3 reflected = reflect(wo.direction, isectInfo.normal);  // 计算反射光线
+        outward_normal = -isectInfo.normal;  // 法线方向取反
+        ni_over_nt = rafractionIndex;
 
-        float ni_over_nt;  // 折射率
-
-        attenuation = vec3(1.0f, 1.0f, 1.0f);  // 介电质材质的衰减一般为1
-        vec3 refracted;  // 折射光线
-        float reflect_prob;  // 反射概率
-        float cosine;
-
-        float rafractionIndex = isectInfo.refractionIndex;  // 介电质的折射率
-
-        if (dot(wo.direction, isectInfo.normal) > 0.0f)  // 如果光线从物体内部出射
-        {
-            outward_normal = -isectInfo.normal;  // 法线方向取反
-            ni_over_nt = rafractionIndex;
-           
-            cosine = dot(wo.direction, isectInfo.normal) / length(wo.direction);
-            cosine = sqrt(1.0f - rafractionIndex * rafractionIndex * (1.0f - cosine * cosine));  // 计算折射角度
-        }
-        else  // 如果光线从物体外部入射
-        {
-            outward_normal = isectInfo.normal;
-            ni_over_nt = 1.0f / rafractionIndex;
-            cosine = -dot(wo.direction, isectInfo.normal) / length(wo.direction);
-        }
-        
-        if (refractVec(wo.direction, outward_normal, ni_over_nt, refracted))  // 尝试计算折射光线
-            reflect_prob = schlick(cosine, rafractionIndex);  // 计算反射概率（使用Schlick近似）
-        else
-            reflect_prob = 1.0f;  // 如果折射失败，反射概率为1
-        
-        if (rand2D() < reflect_prob)  // 根据反射概率决定是否反射
-        {
-            wi.origin = isectInfo.p;
-            wi.direction = reflected;
-        }
-        else
-        {
-            wi.origin = isectInfo.p;
-            wi.direction = refracted;
-        }
-
-        return true;
+        cosine = dot(wo.direction, isectInfo.normal) / length(wo.direction);
+        cosine = sqrt(1.0f - rafractionIndex * rafractionIndex * (1.0f - cosine * cosine));  // 计算折射角度
     }
+    else  // 如果光线从物体外部入射
+    {
+        outward_normal = isectInfo.normal;
+        ni_over_nt = 1.0f / rafractionIndex;
+        cosine = -dot(wo.direction, isectInfo.normal) / length(wo.direction);
+    }
+
+    if (refractVec(wo.direction, outward_normal, ni_over_nt, refracted))  // 尝试计算折射光线
+        reflect_prob = schlick(cosine, rafractionIndex);  // 计算反射概率（使用Schlick近似）
+    else
+        reflect_prob = 1.0f;  // 如果折射失败，反射概率为1
+
+    if (rand2D() < reflect_prob)  // 根据反射概率决定是否反射
+    {
+        wi.origin = isectInfo.p;
+        wi.direction = reflected;
+    }
+    else
+    {
+        wi.origin = isectInfo.p;
+        wi.direction = refracted;
+    }
+
+    return true;
+}
 ```
 
 
@@ -874,6 +888,16 @@ else if(materialType == DIELECTRIC)  // 介电质（玻璃等）材质
 
 
 ![image-20241210154440207](lesson12_光线追踪.assets/image-20241210154440207.png)
+
+
+
+#### 2.4 整体光线追踪的细节补充
+
+在前面的部分中我们介绍了光线打到不同材质物体上之后的反射/折射效果，但读者可能还不太清楚整个光线追踪的过程。在这部分中，我们会对上述没有说明完全的地方进行补充说明，并结合在shadertoy中可以直接运行的代码进行补充讲解。
+
+==todo：明天来补充，主要是每次递归弹射的逻辑和每次计算阴影的逻辑，还有杂七杂八的比如相机之类的~==
+
+
 
 参考文章：
 
