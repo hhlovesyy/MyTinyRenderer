@@ -13,69 +13,69 @@ typedef enum {
 } plane_t;
 
 //用于背面剔除
-bool cull_back(vec3_t ndc_coords[3])
+bool cull_back(vec3 ndc_coords[3])
 {
-	vec3_t a = ndc_coords[0];
-	vec3_t b = ndc_coords[1];
-	vec3_t c = ndc_coords[2];
+	vec3 a = ndc_coords[0];
+	vec3 b = ndc_coords[1];
+	vec3 c = ndc_coords[2];
 
-	vec3_t ab = vec3_sub(b, a);
-	vec3_t bc = vec3_sub(c, b);
+	vec3 ab = b - a;
+	vec3 bc = c - b;
 
-	float cross = ab.x * bc.y - ab.y * bc.x;
+	float cross = ab[0] * bc[1] - ab[1] * bc[0];
 	return cross <= 0;
 }
-bool cull_back_efficient(vec3_t ndc_coords[3])
+bool cull_back_efficient(vec3 ndc_coords[3])
 {
-	vec3_t a = ndc_coords[0];
-	vec3_t b = ndc_coords[1];
-	vec3_t c = ndc_coords[2];
+	vec3 a = ndc_coords[0];
+	vec3 b = ndc_coords[1];
+	vec3 c = ndc_coords[2];
 
 	float signed_area =
-		a.x * b.y - a.y * b.x +
-		b.x * c.y - b.y * c.x +
-		c.x * a.y - c.y * a.x;
+		a[0] * b[1] - a[1] * b[0] +
+		b[0] * c[1] - b[1] * c[0] +
+		c[0] * a[1] - c[1] * a[0];
 	return signed_area <= 0;
 }
 
-static int is_inside_plane(vec4_t coord, plane_t plane) {
+static int is_inside_plane(vec4 coord, plane_t plane) {
 	switch (plane) {
 	case POSITIVE_W:
-		return coord.w >= EPSILON;
+		return coord[3] >= EPSILON;
 	case POSITIVE_X:
-		return coord.x <= +coord.w;
+		return coord[0] <= +coord[3];
 	case NEGATIVE_X:
-		return coord.x >= -coord.w;
+		return coord[0] >= -coord[3];
 	case POSITIVE_Y:
-		return coord.y <= +coord.w;
+		return coord[1] <= +coord[3];
 	case NEGATIVE_Y:
-		return coord.y >= -coord.w;
+		return coord[1] >= -coord[3];
 	case POSITIVE_Z:
-		return coord.z <= +coord.w;
+		return coord[2] <= +coord[3];
 	case NEGATIVE_Z:
-		return coord.z >= -coord.w;
+		return coord[2] >= -coord[3];
 	default:
 		assert(0);
 		return 0;
 	}
 }
 
-static float get_intersect_ratio(vec4_t prev, vec4_t curr, plane_t plane) {
+static float get_intersect_ratio(vec4 prev, vec4 curr, plane_t plane) {
 	switch (plane) {
 	case POSITIVE_W:
-		return (prev.w - EPSILON) / (prev.w - curr.w);
+		return (prev[3] - EPSILON) / (prev[3] - curr[3]);
 	case POSITIVE_X:
-		return (prev.w - prev.x) / ((prev.w - prev.x) - (curr.w - curr.x));
+		return (prev[3] - prev[0]) / ((prev[3] - prev[0]) - (curr[3] - curr[0]));
 	case NEGATIVE_X:
-		return (prev.w + prev.x) / ((prev.w + prev.x) - (curr.w + curr.x));
+		return (prev[3] + prev[0]) / ((prev[3] + prev[0]) - (curr[3] + curr[0]));
 	case POSITIVE_Y:
-		return (prev.w - prev.y) / ((prev.w - prev.y) - (curr.w - curr.y));
+		return (prev[3] - prev[1]) / ((prev[3] - prev[1]) - (curr[3] - curr[1]));
 	case NEGATIVE_Y:
-		return (prev.w + prev.y) / ((prev.w + prev.y) - (curr.w + curr.y));
+		return (prev[3] + prev[1]) / ((prev[3] + prev[1]) - (curr[3] + curr[1]));
 	case POSITIVE_Z:
-		return (prev.w - prev.z) / ((prev.w - prev.z) - (curr.w - curr.z));
+		return (prev[3] - prev[2]) / ((prev[3] - prev[2]) - (curr[3] - curr[2]));
 	case NEGATIVE_Z:
-		return (prev.w + prev.z) / ((prev.w + prev.z) - (curr.w + curr.z));
+		return (prev[3] + prev[2]) / ((prev[3] + prev[2]) - (curr[3] + curr[2]));
 	default:
 		assert(0);
 		return 0;
@@ -84,8 +84,8 @@ static float get_intersect_ratio(vec4_t prev, vec4_t curr, plane_t plane) {
 
 static int clip_against_plane(
 	plane_t plane, int in_num_vertices, int varying_num_floats,
-	vec4_t in_coords[MAX_VARYINGS], void* in_varyings[MAX_VARYINGS],
-	vec4_t out_coords[MAX_VARYINGS], void* out_varyings[MAX_VARYINGS]) {
+	vec4 in_coords[MAX_VARYINGS], void* in_varyings[MAX_VARYINGS],
+	vec4 out_coords[MAX_VARYINGS], void* out_varyings[MAX_VARYINGS]) {
 	int out_num_vertices = 0;
 	int i, j;
 
@@ -93,19 +93,19 @@ static int clip_against_plane(
 	for (i = 0; i < in_num_vertices; i++) {
 		int prev_index = (i - 1 + in_num_vertices) % in_num_vertices;
 		int curr_index = i;
-		vec4_t prev_coord = in_coords[prev_index];
-		vec4_t curr_coord = in_coords[curr_index];
+		vec4 prev_coord = in_coords[prev_index];
+		vec4 curr_coord = in_coords[curr_index];
 		float* prev_varyings = (float*)in_varyings[prev_index];
 		float* curr_varyings = (float*)in_varyings[curr_index];
 		int prev_inside = is_inside_plane(prev_coord, plane);
 		int curr_inside = is_inside_plane(curr_coord, plane);
 
 		if (prev_inside != curr_inside) {
-			vec4_t* dest_coord = &out_coords[out_num_vertices];
+			vec4* dest_coord = &out_coords[out_num_vertices];
 			float* dest_varyings = (float*)out_varyings[out_num_vertices];
 			float ratio = get_intersect_ratio(prev_coord, curr_coord, plane);
 
-			*dest_coord = vec4_lerp(prev_coord, curr_coord, ratio);
+			*dest_coord = lerp(prev_coord, curr_coord, ratio);
 			/*
 			 * since this computation is performed in clip space before
 			 * division by w, clipped varying values are perspective-correct
@@ -119,7 +119,7 @@ static int clip_against_plane(
 		}
 
 		if (curr_inside) {
-			vec4_t* dest_coord = &out_coords[out_num_vertices];
+			vec4* dest_coord = &out_coords[out_num_vertices];
 			float* dest_varyings = (float*)out_varyings[out_num_vertices];
 			int sizeof_varyings = varying_num_floats * sizeof(float);
 
@@ -153,14 +153,14 @@ static int clip_against_plane(
     } while (0)
 
 
-static int is_vertex_visible(vec4_t v) {
-	return fabs(v.x) <= v.w && fabs(v.y) <= v.w && fabs(v.z) <= v.w;
+static int is_vertex_visible(vec4 v) {
+	return fabs(v[0]) <= v[3] && fabs(v[1]) <= v[3] && fabs(v[2]) <= v[3];
 }
 
 static int clip_triangle(
 	int sizeof_varyings,
-	vec4_t in_coords[MAX_VARYINGS], void* in_varyings[MAX_VARYINGS],
-	vec4_t out_coords[MAX_VARYINGS], void* out_varyings[MAX_VARYINGS]) {
+	vec4 in_coords[MAX_VARYINGS], void* in_varyings[MAX_VARYINGS],
+	vec4 out_coords[MAX_VARYINGS], void* out_varyings[MAX_VARYINGS]) {
 	int v0_visible = is_vertex_visible(in_coords[0]);
 	int v1_visible = is_vertex_visible(in_coords[1]);
 	int v2_visible = is_vertex_visible(in_coords[2]);
@@ -192,7 +192,7 @@ void graphics_draw_triangle(framebuffer_t* framebuffer, Program* program)
 	int num_vertices;
 	for (int i = 0; i < 3; i++)  //走一遍顶点着色器
 	{
-		vec4_t clip_position = program->vertex_shader_(program->shader_attribs_[i], program->in_varyings_[i], program->get_uniforms());
+		vec4 clip_position = program->vertex_shader_(program->shader_attribs_[i], program->in_varyings_[i], program->get_uniforms());
 		program->in_coords[i] = clip_position;  //保存顶点着色器的输出,指的是三个顶点的裁剪空间坐标
 	}
 	/* triangle clipping */
@@ -205,7 +205,7 @@ void graphics_draw_triangle(framebuffer_t* framebuffer, Program* program)
 		int index0 = 0;
 		int index1 = i + 1;
 		int index2 = i + 2;
-		vec4_t clip_coords[3];
+		vec4 clip_coords[3];
 		void* varyings[3];
 		int is_culled = 0;
 
@@ -225,12 +225,12 @@ void graphics_draw_triangle(framebuffer_t* framebuffer, Program* program)
 }
 
 int rasterize_triangle(framebuffer_t* framebuffer, Program* program,
-	vec4_t clip_coords[3], void* varyings[3])
+	vec4 clip_coords[3], void* varyings[3])
 {
 	int width = framebuffer->width;
 	int height = framebuffer->height;
-	vec3_t ndc_coords[3];
-	vec2_t screen_coords[3];
+	vec3 ndc_coords[3];
+	vec2 screen_coords[3];
 	float screen_depths[3];
 	float recip_w[3];
 	int backface;
@@ -239,8 +239,8 @@ int rasterize_triangle(framebuffer_t* framebuffer, Program* program,
 	/* perspective division */
 	for (i = 0; i < 3; i++) 
 	{
-		vec3_t clip_coord = vec3_from_vec4(clip_coords[i]);
-		ndc_coords[i] = vec3_div(clip_coord, clip_coords[i].w);
+		vec3 clip_coord = vec3_from_vec4(clip_coords[i]);
+		ndc_coords[i] = clip_coord /clip_coords[i][3];
 	}
 	/* back-face culling */
 	backface = cull_back_efficient(ndc_coords);
@@ -250,15 +250,15 @@ int rasterize_triangle(framebuffer_t* framebuffer, Program* program,
 	/* reciprocals of w */
 	for (i = 0; i < 3; i++)
 	{
-		recip_w[i] = 1 / clip_coords[i].w;
+		recip_w[i] = 1 / clip_coords[i][3];
 	}
 
 	/* viewport mapping */
 	for (i = 0; i < 3; i++)
 	{
-		vec3_t window_coord = viewport_transform(width, height, ndc_coords[i]);
-		screen_coords[i] = vec2_new(window_coord.x, window_coord.y);
-		screen_depths[i] = window_coord.z;
+		vec3 window_coord = viewport_transform(width, height, ndc_coords[i]);
+		screen_coords[i] = vec2{ window_coord[0], window_coord[1]};
+		screen_depths[i] = window_coord[2];
 	}
 
 	/* perform rasterization */
@@ -267,11 +267,11 @@ int rasterize_triangle(framebuffer_t* framebuffer, Program* program,
 	{
 		for (y = bbox.min_y; y <= bbox.max_y; y++)
 		{
-			vec2_t point = vec2_new((float)x + 0.5f, (float)y + 0.5f);
-			vec3_t weights = calculate_weights(screen_coords, point);
-			bool weight0_okay = weights.x > -EPSILON;
-			bool weight1_okay = weights.y > -EPSILON;
-			bool weight2_okay = weights.z > -EPSILON;
+			vec2 point = vec2{ (float)x + 0.5f, (float)y + 0.5f };
+			vec3 weights = calculate_weights(screen_coords, point);
+			bool weight0_okay = weights[0] > -EPSILON;
+			bool weight1_okay = weights[1] > -EPSILON;
+			bool weight2_okay = weights[2] > -EPSILON;
 			if (weight0_okay && weight1_okay && weight2_okay)
 			{
 				int index = y * width + x;

@@ -4,7 +4,7 @@
 static const float NEAR = 0.1f;
 static const float FAR = 10000;
 static const float FOVY = TO_RADIANS(60);
-static const vec3_t UP = { 0, 1, 0 };
+static const vec3 UP = { 0, 1, 0 };
 
 mat4_t camera_get_view_matrix(Camera& camera)
 {
@@ -18,55 +18,55 @@ mat4_t camera_get_proj_matrix(Camera& camera)
 
 /* camera updating */
 
-void camera_set_transform(Camera* camera, vec3_t position, vec3_t target)
+void camera_set_transform(Camera* camera, vec3 position, vec3 target)
 {
-    assert(vec3_length(vec3_sub(position, target)) > EPSILON);
+    assert((pos - target).length() > EPSILON);
     camera->position = position;
     camera->target = target;
 }
 
-static vec3_t calculate_pan(vec3_t& from_camera, std::shared_ptr<motion_t> motion)
+static vec3 calculate_pan(vec3& from_camera, std::shared_ptr<motion_t> motion)
 {
-    vec3_t forward = vec3_normalize(from_camera);
-    vec3_t left = vec3_cross(UP, forward);
-    vec3_t up = vec3_cross(forward, left);
+    vec3 forward = from_camera.normalized();
+    vec3 left = cross(UP, forward);
+    vec3 up = cross(forward, left);
 
-    float distance = vec3_length(from_camera);
+    float distance = from_camera.length();
     float factor = distance * (float)tan(FOVY / 2) * 2;
-    vec3_t delta_x = vec3_mul(left, motion->pan[0] * factor);
-    vec3_t delta_y = vec3_mul(up, motion->pan[1] * factor);
-    return vec3_add(delta_x, delta_y);
+    vec3 delta_x = left * (motion->pan[0] * factor);
+    vec3 delta_y = up *(motion->pan[1] * factor);
+    return delta_x + delta_y;
 }
 
-static vec3_t calculate_offset(vec3_t from_target, std::shared_ptr<motion_t> motion)
+static vec3 calculate_offset(vec3 from_target, std::shared_ptr<motion_t> motion)
 {
-    float radius = vec3_length(from_target);
-    float theta = (float)atan2(from_target.x, from_target.z);  /* azimuth */
-    float phi = (float)acos(from_target.y / radius);           /* polar */
+    float radius = from_target.length();
+    float theta = (float)atan2(from_target[0], from_target[2]);  /* azimuth */
+    float phi = (float)acos(from_target[1] / radius);           /* polar */
     float factor = PI * 2;
-    vec3_t offset;
+    vec3 offset;
 
     radius *= (float)pow(0.95, motion->dolly);
     theta -= motion->orbit[0] * factor;
     phi -= motion->orbit[1] * factor;
     phi = float_clamp(phi, EPSILON, PI - EPSILON);
 
-    offset.x = radius * (float)sin(phi) * (float)sin(theta);
-    offset.y = radius * (float)cos(phi);
-    offset.z = radius * (float)sin(phi) * (float)cos(theta);
+    offset[0] = radius * (float)sin(phi) * (float)sin(theta);
+    offset[1] = radius * (float)cos(phi);
+    offset[2] = radius * (float)sin(phi) * (float)cos(theta);
 
     return offset;
 }
 
 void camera_update_transform(Camera* camera, std::shared_ptr<motion_t> motion)
 {
-    vec3_t from_target = vec3_sub(camera->position, camera->target);
-    vec3_t from_camera = vec3_sub(camera->target, camera->position);
+    vec3 from_target = camera->position - camera->target;
+    vec3 from_camera = camera->target- camera->position;
     //std::cout<<motion.use_count()<<std::endl;
-    vec3_t pan = calculate_pan(from_camera, motion);
+    vec3 pan = calculate_pan(from_camera, motion);
     //std::cout << motion.use_count() << std::endl;
-    vec3_t offset = calculate_offset(from_target, motion);
+    vec3 offset = calculate_offset(from_target, motion);
     //std::cout << motion.use_count() << std::endl;
-    camera->target = vec3_add(camera->target, pan);
-    camera->position = vec3_add(camera->target, offset);
+    camera->target = camera->target + pan;
+    camera->position = camera->target + offset;
 }

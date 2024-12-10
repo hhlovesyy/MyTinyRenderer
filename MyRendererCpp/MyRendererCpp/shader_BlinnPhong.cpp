@@ -11,12 +11,12 @@
 class Material_BlinnPhong
 {
 public:
-    vec3_t diffuse;
-    vec3_t specular;
+    vec3 diffuse;
+    vec3 specular;
     float alpha;
     float shininess;
-    vec3_t normal;
-    vec3_t emission;
+    vec3 normal;
+    vec3 emission;
 };
 
 //返回模型矩阵，将模型从模型空间变换到世界空间
@@ -26,10 +26,10 @@ static mat4_t get_model_matrix(attribs_blinnphong* attribs, uniforms_blinnphong*
         mat4_t joint_matrices[4];
         mat4_t skin_matrix;
 
-        joint_matrices[0] = uniforms->joint_matrices[(int)attribs->joint.x];
-        joint_matrices[1] = uniforms->joint_matrices[(int)attribs->joint.y];
-        joint_matrices[2] = uniforms->joint_matrices[(int)attribs->joint.z];
-        joint_matrices[3] = uniforms->joint_matrices[(int)attribs->joint.w];
+        joint_matrices[0] = uniforms->joint_matrices[(int)attribs->joint[0]];
+        joint_matrices[1] = uniforms->joint_matrices[(int)attribs->joint[1]];
+        joint_matrices[2] = uniforms->joint_matrices[(int)attribs->joint[2]];
+        joint_matrices[3] = uniforms->joint_matrices[(int)attribs->joint[3]];
 
         skin_matrix = mat4_combine(joint_matrices, attribs->weight);
         return mat4_mul_mat4(uniforms->model_matrix, skin_matrix);
@@ -47,10 +47,10 @@ static mat3_t get_normal_matrix(attribs_blinnphong* attribs, uniforms_blinnphong
         mat3_t joint_n_matrices[4];
         mat3_t skin_n_matrix;
 
-        joint_n_matrices[0] = uniforms->joint_n_matrices[(int)attribs->joint.x];
-        joint_n_matrices[1] = uniforms->joint_n_matrices[(int)attribs->joint.y];
-        joint_n_matrices[2] = uniforms->joint_n_matrices[(int)attribs->joint.z];
-        joint_n_matrices[3] = uniforms->joint_n_matrices[(int)attribs->joint.w];
+        joint_n_matrices[0] = uniforms->joint_n_matrices[(int)attribs->joint[0]];
+        joint_n_matrices[1] = uniforms->joint_n_matrices[(int)attribs->joint[1]];
+        joint_n_matrices[2] = uniforms->joint_n_matrices[(int)attribs->joint[2]];
+        joint_n_matrices[3] = uniforms->joint_n_matrices[(int)attribs->joint[3]];
 
         skin_n_matrix = mat3_combine(joint_n_matrices, attribs->weight);
         return mat3_mul_mat3(uniforms->normal_matrix, skin_n_matrix);
@@ -93,7 +93,7 @@ static void draw_model(Model* model, framebuffer_t* framebuffer,bool isDrawShado
 {
      Mesh* mesh = model->mesh;
      int num_faces = mesh->getNumFaces();
-     std::vector<Vertex> vertices = mesh->getVertices();
+     const std::vector<Vertex>& vertices = mesh->getVertices();
      Program* program = model->program;
 
      uniforms_blinnphong* uniforms = (uniforms_blinnphong*)program->get_uniforms();
@@ -103,7 +103,7 @@ static void draw_model(Model* model, framebuffer_t* framebuffer,bool isDrawShado
      {
          for (int j = 0; j < 3; j++) //遍历每个顶点
          {
-             Vertex vertex = vertices[i * 3 + j];
+             const Vertex& vertex = vertices[i * 3 + j];
              attribs = (attribs_blinnphong*)program_get_attribs(program, j);
          	 attribs->position = vertex.position;  //由于是指针，直接赋值即可
              attribs->normal = vertex.normal;
@@ -119,7 +119,7 @@ static void draw_model(Model* model, framebuffer_t* framebuffer,bool isDrawShado
 }
 
 
-static vec4_t common_vertex_shader(attribs_blinnphong* attribs,
+static vec4 common_vertex_shader(attribs_blinnphong* attribs,
     varyings_blinnphong* varyings,
     uniforms_blinnphong* uniforms)
 {
@@ -128,24 +128,24 @@ static vec4_t common_vertex_shader(attribs_blinnphong* attribs,
     mat4_t camera_vp_matrix = uniforms->camera_vp_matrix;//相机视图矩阵，将世界空间变换到相机空间
     mat4_t light_vp_matrix = uniforms->light_vp_matrix;//光源视图矩阵，将世界空间变换到光源空间
 
-    vec4_t input_position = vec4_from_vec3(attribs->position, 1);
-    vec4_t world_position = mat4_mul_vec4(model_matrix, input_position);
-    vec4_t clip_position = mat4_mul_vec4(camera_vp_matrix, world_position);//将世界空间变换到相机空间
-    vec4_t depth_position = mat4_mul_vec4(light_vp_matrix, world_position);//将世界空间变换到光源空间
+    vec4 input_position = vec4_from_vec3(attribs->position, 1);
+    vec4 world_position = mat4_mul_vec4(model_matrix, input_position);
+    vec4 clip_position = mat4_mul_vec4(camera_vp_matrix, world_position);//将世界空间变换到相机空间
+    vec4 depth_position = mat4_mul_vec4(light_vp_matrix, world_position);//将世界空间变换到光源空间
     //std::cout<<attribs->tangent.x<<","<<attribs->tangent.y<<","<<attribs->tangent.z<<","<<attribs->tangent.w<<std::endl;
-    vec3_t input_normal = attribs->normal;
-    vec3_t world_normal = mat3_mul_vec3(normal_matrix, input_normal);
+    vec3 input_normal = attribs->normal;
+    vec3 world_normal = mat3_mul_vec3(normal_matrix, input_normal);
     if (uniforms->normal_map.height > 0)
     {
         mat3_t tangent_matrix = mat3_from_mat4(model_matrix);
-        vec3_t input_tangent = vec3_from_vec4(attribs->tangent);
-        vec3_t world_tangent = mat3_mul_vec3(tangent_matrix, input_tangent);
-        vec3_t world_bitangent;
+        vec3 input_tangent = vec3_from_vec4(attribs->tangent);
+        vec3 world_tangent = mat3_mul_vec3(tangent_matrix, input_tangent);
+        vec3 world_bitangent;
 
-        world_normal = vec3_normalize(world_normal);
-        world_tangent = vec3_normalize(world_tangent);
-        world_bitangent = vec3_cross(world_normal, world_tangent);
-        world_bitangent = vec3_mul(world_bitangent, attribs->tangent.w);
+        world_normal = world_normal.normalized();
+        world_tangent = world_tangent.normalized();
+        world_bitangent = cross(world_normal, world_tangent);
+        world_bitangent = world_bitangent * attribs->tangent[3];
 
         varyings->normal = world_normal;
         varyings->world_tangent = world_tangent;
@@ -153,7 +153,7 @@ static vec4_t common_vertex_shader(attribs_blinnphong* attribs,
     }
     else
     {
-        varyings->normal = vec3_normalize(world_normal);
+        varyings->normal = world_normal.normalized();
     }
 
     varyings->world_position = vec3_from_vec4(world_position);
@@ -164,7 +164,7 @@ static vec4_t common_vertex_shader(attribs_blinnphong* attribs,
 }
 
 
-static vec4_t shadow_vertex_shader(attribs_blinnphong* attribs,
+static vec4 shadow_vertex_shader(attribs_blinnphong* attribs,
     varyings_blinnphong* varyings,
     uniforms_blinnphong* uniforms) 
 {
@@ -172,15 +172,15 @@ static vec4_t shadow_vertex_shader(attribs_blinnphong* attribs,
     mat4_t model_matrix = get_model_matrix(attribs, uniforms);
     mat4_t light_vp_matrix = uniforms->light_vp_matrix;
 
-    vec4_t input_position = vec4_from_vec3(attribs->position, 1);
-    vec4_t world_position = mat4_mul_vec4(model_matrix, input_position);
-    vec4_t depth_position = mat4_mul_vec4(light_vp_matrix, world_position);
+    vec4 input_position = vec4_from_vec3(attribs->position, 1);
+    vec4 world_position = mat4_mul_vec4(model_matrix, input_position);
+    vec4 depth_position = mat4_mul_vec4(light_vp_matrix, world_position);
 
     varyings->texcoord = attribs->texcoord;
     return depth_position;
 }
 
-vec4_t blinnphong_vertex_shader(void* attribs_, void* varyings_, void* uniforms_)
+vec4 blinnphong_vertex_shader(void* attribs_, void* varyings_, void* uniforms_)
 {
     auto* attribs = static_cast<attribs_blinnphong*>(attribs_);
     auto* varyings = static_cast<varyings_blinnphong*>(varyings_);
@@ -198,50 +198,50 @@ vec4_t blinnphong_vertex_shader(void* attribs_, void* varyings_, void* uniforms_
    
 }
 
-static vec3_t get_normal_dir(varyings_blinnphong* varyings, uniforms_blinnphong* uniforms, int backface)
+static vec3 get_normal_dir(varyings_blinnphong* varyings, uniforms_blinnphong* uniforms, int backface)
 {
     //添加法线贴图的相关逻辑
-    vec3_t normal_dir = varyings->normal;
+    vec3 normal_dir = varyings->normal;
     if (uniforms->normal_map.height > 0) //用这种方式判断有使用法线贴图
     {
-        vec4_t sample= sample2D(uniforms->normal_map, varyings->texcoord);
-        vec3_t tangent_normal = vec3_new(sample.x * 2 - 1,
-            sample.y * 2 - 1,
-            sample.z * 2 - 1);
+        vec4 sample= sample2D(uniforms->normal_map, varyings->texcoord);
+        vec3 tangent_normal = vec3{ sample[0] * 2 - 1,
+            sample[1] * 2 - 1,
+            sample[2] * 2 - 1 };
         float bump_intensity = 1;
-        vec2_t tangent_normal_xy = vec2_new(tangent_normal.x, tangent_normal.y);
-        tangent_normal_xy = vec2_mul(tangent_normal_xy, bump_intensity);
-        float new_tangent_z = sqrt(1 - tangent_normal_xy.x * tangent_normal_xy.x - tangent_normal_xy.y * tangent_normal_xy.y);
-        tangent_normal = vec3_new(tangent_normal_xy.x, tangent_normal_xy.y, new_tangent_z);
+        vec2 tangent_normal_xy = vec2{ tangent_normal[0], tangent_normal[1] };
+        tangent_normal_xy = tangent_normal_xy * bump_intensity;
+        float new_tangent_z = sqrt(1 - tangent_normal_xy[0] * tangent_normal_xy[0] - tangent_normal_xy[1] * tangent_normal_xy[1]);
+        tangent_normal = vec3{ tangent_normal_xy[0], tangent_normal_xy[1], new_tangent_z };
         mat3_t tbn_matrix = mat3_from_cols(varyings->world_tangent,
             varyings->world_bitangent,
             varyings->normal);
-        vec3_t world_normal = mat3_mul_vec3(tbn_matrix, tangent_normal);
-        normal_dir = vec3_normalize(world_normal);
+        vec3 world_normal = mat3_mul_vec3(tbn_matrix, tangent_normal);
+        normal_dir = world_normal.normalized();
     }
     else
     {
-        normal_dir = vec3_normalize(varyings->normal);
+        normal_dir = varyings->normal.normalized();
 	}
     //vec4_t sample1 = sample2D(uniforms->normal_map, varyings->texcoord);
     //return vec3_from_vec4(sample1);
-    return backface ? vec3_negate(normal_dir) : normal_dir;
+    return backface ? -normal_dir : normal_dir;
 }
 
 static Material_BlinnPhong get_material(varyings_blinnphong* varyings, uniforms_blinnphong* uniforms, int backface)
 {
-    vec2_t texcoord = varyings->texcoord;
-    vec3_t diffuse, specular, normal, emission;
+    vec2 texcoord = varyings->texcoord;
+    vec3 diffuse, specular, normal, emission;
     float alpha, shininess;
 	Material_BlinnPhong material;
     diffuse = vec3_from_vec4(uniforms->basecolor);
-    alpha = uniforms->basecolor.w;
+    alpha = uniforms->basecolor[3];
     
-    vec4_t albedo = sample2D(uniforms->diffuse_map, texcoord);
-    diffuse = vec3_modulate(diffuse, vec3_from_vec4(albedo));
-    alpha *= albedo.w;
+    vec4 albedo = sample2D(uniforms->diffuse_map, texcoord);
+    diffuse = diffuse * vec3_from_vec4(albedo);
+    alpha *= albedo[3];
 
-    vec4_t specular_map = sample2D(uniforms->specular_map, texcoord);
+    vec4 specular_map = sample2D(uniforms->specular_map, texcoord);
     //std::cout<<"specular_map:"<<specular_map.x<<","<<specular_map.y<<","<<specular_map.z<<","<<specular_map.w<<std::endl;
     specular = vec3_from_vec4(specular_map);
     //todo:test uniform specular value
@@ -253,7 +253,7 @@ static Material_BlinnPhong get_material(varyings_blinnphong* varyings, uniforms_
     }*/
     normal = get_normal_dir(varyings, uniforms, backface);
 
-    vec4_t emission_map = sample2D(uniforms->emission_map, texcoord);
+    vec4 emission_map = sample2D(uniforms->emission_map, texcoord);
     emission = vec3_from_vec4(emission_map);
 
     material.diffuse = diffuse;
@@ -265,33 +265,33 @@ static Material_BlinnPhong get_material(varyings_blinnphong* varyings, uniforms_
     return material;
 }
 
-static vec3_t get_view_dir(varyings_blinnphong* varyings, uniforms_blinnphong* uniforms)
+static vec3 get_view_dir(varyings_blinnphong* varyings, uniforms_blinnphong* uniforms)
 {
-	vec3_t view_dir = vec3_sub(uniforms->camera_pos, varyings->world_position);
-	return vec3_normalize(view_dir);
+	vec3 view_dir = uniforms->camera_pos - varyings->world_position;
+    return view_dir.normalized();
 }
 
-static int is_zero_vector(vec3_t v) {
-    return v.x == 0 && v.y == 0 && v.z == 0;
+static int is_zero_vector(vec3 v) {
+    return v[0] == 0 && v[1] == 0 && v[2] == 0;
 }
 
-static vec3_t get_specular(vec3_t light_dir, vec3_t view_dir, Material_BlinnPhong material)
+static vec3 get_specular(vec3 light_dir, vec3 view_dir, Material_BlinnPhong material)
 {
     return material.specular;
     if (!is_zero_vector(material.specular))
     {
-        vec3_t half_dir = vec3_normalize(vec3_add(light_dir, view_dir));
-        float n_dot_h = vec3_dot(material.normal, half_dir);
+        vec3 half_dir = (light_dir +view_dir).normalized();
+        float n_dot_h = dot(material.normal, half_dir);
         if (n_dot_h > 0)
         {
             float strength = (float)pow(n_dot_h, material.shininess);
-            return vec3_mul(material.specular, strength);
+            return material.specular * strength;
         }
-        return vec3_new(0, 0, 0);
+        return vec3{ 0, 0, 0 };
     }
     else
     {
-		return vec3_new(0, 0, 0);
+        return vec3{ 0, 0, 0 };
 	}
    
 }
@@ -302,17 +302,17 @@ static int is_in_shadow(varyings_blinnphong* varyings,
 {
     if (uniforms->shadowmap != nullptr)
     {
-        float sampleU = (varyings->depth_position.x + 1) * 0.5f;
-        float sampleV = (varyings->depth_position.y + 1) * 0.5f;
+        float sampleU = (varyings->depth_position[0] + 1) * 0.5f;
+        float sampleV = (varyings->depth_position[1] + 1) * 0.5f;
         sampleV = 1.0 - sampleV; //sample函数会再做一次翻转，所以这里为了逻辑复用提前翻转一次，实际shadow map做的时候是不用翻转的
 
         //增加bias 避免阴影痤疮
         //float depth_bias = float_max(0.05f * (1 - n_dot_l), 0.005f);
         float depth_bias = float_max(0.01f * (1 - n_dot_l), 0.001f);
-        float closest_depth = sample2D(uniforms->shadowmap, vec2_new(sampleU, sampleV), DEFAULT).x;
+        float closest_depth = sample2D(uniforms->shadowmap, vec2{ sampleU, sampleV }, DEFAULT)[0];
         //uniforms->shadowmap->write_texture_to_file("shadowmap11111.tga");
 
-        float current_depth = varyings->depth_position.z * 0.5 + 0.5;  //depth是-1到1的范围，转换到0到1的范围
+        float current_depth = varyings->depth_position[2] * 0.5 + 0.5;  //depth是-1到1的范围，转换到0到1的范围
         current_depth = current_depth - depth_bias;
         //std::cout<<"current_depth:"<<current_depth<<",closest_depth:"<<closest_depth<< std::endl;
 
@@ -324,24 +324,24 @@ static int is_in_shadow(varyings_blinnphong* varyings,
     }
 }
 
-static vec4_t common_fragment_shader(varyings_blinnphong* varyings,
+static vec4 common_fragment_shader(varyings_blinnphong* varyings,
     uniforms_blinnphong* uniforms,
     int* discard,
     int backface)  
 {
     //sample texture
     Material_BlinnPhong material = get_material(varyings, uniforms, backface);
-    vec3_t color = material.emission;
+    vec3 color = material.emission;
     if (uniforms->ambient_intensity > 0)
     {
-        vec3_t ambient = material.diffuse;  //kd/ka
+        vec3 ambient = material.diffuse;  //kd/ka
         float intensity = uniforms->ambient_intensity; //Ia
-        color = vec3_add(color, vec3_mul(ambient, intensity));
+        color += (ambient * intensity);
     }
     //lambert and blinn_phong
-    vec3_t light_dir = vec3_normalize(uniforms->light_dir); //注意Light方向要归一化
+    vec3 light_dir = uniforms->light_dir.normalized(); //注意Light方向要归一化
     
-    float n_dot_l = vec3_dot(material.normal, light_dir);
+    float n_dot_l = dot(material.normal, light_dir);
     //half lambert
     //n_dot_l = n_dot_l * 0.5 + 0.5;
     if (n_dot_l < 0)
@@ -350,10 +350,10 @@ static vec4_t common_fragment_shader(varyings_blinnphong* varyings,
 	}
     if (!is_in_shadow(varyings, uniforms, n_dot_l))
     {
-        vec3_t view_dir = get_view_dir(varyings, uniforms);
-        vec3_t specular = get_specular(light_dir, view_dir, material);
-        vec3_t diffuse = vec3_mul(material.diffuse, n_dot_l);
-        color = vec3_add(color, vec3_add(diffuse, specular));
+        vec3 view_dir = get_view_dir(varyings, uniforms);
+        vec3 specular = get_specular(light_dir, view_dir, material);
+        vec3 diffuse = material.diffuse * n_dot_l;
+        color += (diffuse + specular);
     }
     //vec3_t test = vec3_new(n_dot_l, n_dot_l, n_dot_l);
     
@@ -362,15 +362,15 @@ static vec4_t common_fragment_shader(varyings_blinnphong* varyings,
     return vec4_from_vec3(color , material.alpha);
 }
 
-static vec4_t shadow_fragment_shader(varyings_blinnphong* varyings,
+static vec4 shadow_fragment_shader(varyings_blinnphong* varyings,
     uniforms_blinnphong* uniforms,
     int* discard,
     int backface)
 {
-    return vec4_new(0, 0, 0, 0);
+    return vec4{ 0, 0, 0, 0 };
 }
 
-vec4_t blinnphong_fragment_shader(void* varyings_, void* uniforms_, int* discard, int backface)
+vec4 blinnphong_fragment_shader(void* varyings_, void* uniforms_, int* discard, int backface)
 {
     varyings_blinnphong* varyings = static_cast<varyings_blinnphong*>(varyings_);
     uniforms_blinnphong* uniforms = static_cast<uniforms_blinnphong*>(uniforms_);

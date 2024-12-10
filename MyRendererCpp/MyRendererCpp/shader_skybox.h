@@ -8,12 +8,12 @@
 
 struct attribs_skybox
 {
-	vec3_t position;
+	vec3 position;
 };
 
 struct varyings_skybox
 {
-	vec3_t direction;
+	vec3 direction;
 };
 
 struct uniforms_skybox
@@ -22,8 +22,8 @@ struct uniforms_skybox
 	std::shared_ptr<CubeMap> skybox;
 };
 
-vec4_t skybox_vertex_shader(void* attribs, void* varyings, void* uniforms);
-vec4_t skybox_fragment_shader(void* varyings, void* uniforms,
+vec4 skybox_vertex_shader(void* attribs, void* varyings, void* uniforms);
+vec4 skybox_fragment_shader(void* varyings, void* uniforms,
 	int* discard, int backface);
 std::shared_ptr<Model> skybox_create_model(std::string skybox_name, int blur_level);
 

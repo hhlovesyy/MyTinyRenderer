@@ -4,8 +4,8 @@
 #include <cfloat>
 #include <vector>
 
-using vertex_shader_t = vec4_t(*)(void* attribs, void* varyings, void* uniforms);//函数指针。返回值为vec4_t，参数为void* attribs, void* varyings, void* uniforms
-using fragment_shader_t = vec4_t(*)(void* varyings, void* uniforms, int* discard, int backface);
+using vertex_shader_t = vec4(*)(void* attribs, void* varyings, void* uniforms);//函数指针。返回值为vec4_t，参数为void* attribs, void* varyings, void* uniforms
+using fragment_shader_t = vec4(*)(void* varyings, void* uniforms, int* discard, int backface);
 
 #define MAX_VARYINGS 10
 class Program {
@@ -27,8 +27,8 @@ public:
 	int sizeof_varyings_;
 	int sizeof_uniforms_;
 
-	vec4_t in_coords[MAX_VARYINGS];
-	vec4_t out_coords[MAX_VARYINGS];
+	vec4 in_coords[MAX_VARYINGS];
+	vec4 out_coords[MAX_VARYINGS];
 
 	vertex_shader_t vertex_shader_;
 	fragment_shader_t fragment_shader_;
@@ -62,19 +62,19 @@ struct bbox_t
 
 /* framebuffer management */
 framebuffer_t* framebuffer_create(int width, int height);
-void framebuffer_clear_color(framebuffer_t* framebuffer, vec4_t color);
+void framebuffer_clear_color(framebuffer_t* framebuffer, vec4 color);
 void framebuffer_clear_depth(framebuffer_t* framebuffer, float depth);
-vec3_t calculate_weights(vec2_t abc[3], vec2_t& p);
-bbox_t find_bounding_box(vec2_t abc[3], int width, int height);
-vec3_t viewport_transform(int width, int height, vec3_t ndc_coord);
-float interpolate_depth(float screen_depths[3], vec3_t weights);
-vec3_t interpolate_varyings_weights(vec3_t& weights, float recip_w[3]);
+vec3 calculate_weights(vec2 abc[3], vec2& p);
+bbox_t find_bounding_box(vec2 abc[3], int width, int height);
+vec3 viewport_transform(int width, int height, vec3 ndc_coord);
+float interpolate_depth(float screen_depths[3], vec3 weights);
+vec3 interpolate_varyings_weights(vec3& weights, float recip_w[3]);
 
 void* program_get_attribs(Program* program, int nth_vertex);
 void interpolate_varyings(
 	void* src_varyings[3], void* dst_varyings,
-	int sizeof_varyings, vec3_t weights, float recip_w[3]);
-void draw_fragment(framebuffer_t* framebuffer, int index, vec4_t& color, Program* program);
+	int sizeof_varyings, vec3 weights, float recip_w[3]);
+void draw_fragment(framebuffer_t* framebuffer, int index, vec4& color, Program* program);
 void draw_fragment_new(framebuffer_t* framebuffer, Program* program,
 	int backface, int index, float depth);
 #endif

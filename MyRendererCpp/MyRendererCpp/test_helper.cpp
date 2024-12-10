@@ -12,16 +12,16 @@ void input_query_cursor(window_t* window, float* xpos, float* ypos)
     *ypos = (float)point.y;
 }
 
-static vec2<float> get_cursor_pos(window_t* window)
+static vec2 get_cursor_pos(window_t* window)
 {
     float xpos, ypos;
     input_query_cursor(window, &xpos, &ypos);
-    return vec2<float>{xpos, ypos};
+    return vec2{xpos, ypos};
 }
 
-static vec2<float> get_pos_delta(vec2<float>& old_pos, vec2<float>& new_pos)
+static vec2 get_pos_delta(vec2& old_pos, vec2& new_pos)
 {
-    vec2<float> delta = new_pos - old_pos;
+    vec2 delta = new_pos - old_pos;
     return delta / WINDOW_HEIGHT;
 }
 
@@ -29,7 +29,7 @@ void update_click(float curr_time, record_t* record)
 {
     float last_time = record->release_time;
     if (last_time && curr_time - last_time > CLICK_DELAY) {
-        vec2<float> pos_delta = record->release_pos - record->press_pos;
+        vec2 pos_delta = record->release_pos - record->press_pos;
         if (pos_delta.length() < 5) {
             record->single_click = 1;
         }
@@ -38,24 +38,24 @@ void update_click(float curr_time, record_t* record)
     if (record->single_click || record->double_click) {
         float click_x = record->release_pos[0] / WINDOW_WIDTH;
         float click_y = record->release_pos[1] / WINDOW_HEIGHT;
-        record->click_pos = vec2<float>{ click_x, 1 - click_y };
+        record->click_pos = vec2{ click_x, 1 - click_y };
     }
 }
 
 void update_camera(window_t* window, Camera* camera,
     record_t* record)
 {
-    vec2<float> cursor_pos = get_cursor_pos(window);
+    vec2 cursor_pos = get_cursor_pos(window);
     if (record->is_orbiting) 
     {
-        vec2<float> pos_delta = get_pos_delta(record->orbit_pos, cursor_pos);
+        vec2 pos_delta = get_pos_delta(record->orbit_pos, cursor_pos);
         record->orbit_delta += pos_delta;
         record->orbit_pos = cursor_pos;
         //std::cout<<record->orbit_delta.x<<" "<<record->orbit_delta.y<<std::endl;
     }
     if (record->is_panning)
     {
-        vec2<float> pos_delta = get_pos_delta(record->pan_pos, cursor_pos);
+        vec2 pos_delta = get_pos_delta(record->pan_pos, cursor_pos);
         record->pan_delta += pos_delta;
         record->pan_pos = cursor_pos;
     }
@@ -83,7 +83,7 @@ void scroll_callback(window_t* window, float offset)
 void button_callback(window_t* window, button_t button, int pressed)
 {
 	record_t* record = (record_t*)window_get_userdata(window);
-	vec2<float> cursor_pos = get_cursor_pos(window);
+	vec2 cursor_pos = get_cursor_pos(window);
     if (button == BUTTON_L)
     {
         float curr_time = platform_get_time();
@@ -97,7 +97,7 @@ void button_callback(window_t* window, button_t button, int pressed)
         else
         {
             float prev_time = record->release_time;
-            vec2<float> pos_delta = get_pos_delta(record->orbit_pos, cursor_pos);
+            vec2 pos_delta = get_pos_delta(record->orbit_pos, cursor_pos);
             record->is_orbiting = 0;
             record->orbit_delta += pos_delta;
             if (prev_time && curr_time - prev_time < CLICK_DELAY) 
@@ -121,7 +121,7 @@ void button_callback(window_t* window, button_t button, int pressed)
         }
         else
         {
-            vec2<float> pos_delta = get_pos_delta(record->pan_pos, cursor_pos);
+            vec2 pos_delta = get_pos_delta(record->pan_pos, cursor_pos);
             record->is_panning = 0;
             record->pan_delta += pos_delta;
         }

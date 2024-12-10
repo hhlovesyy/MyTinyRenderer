@@ -29,32 +29,32 @@ void test_enter_mainloop(tickfunc_t* tickfunc)
 
 void rasterization_triangle(framebuffer_t* framebuffer)
 {
-	vec4_t default_color = { 0, 0, 0, 1 };
+	vec4 default_color = { 0, 0, 0, 1 };
 	framebuffer_clear_color(framebuffer, default_color); //请注意，在每tick绘制之前，先清空一下framebuffer
 	//绘制三角形的主函数
 	int width = framebuffer->width;
 	int height = framebuffer->height;
-	vec2_t abc[3] = { vec2_new(100 + x_delta, 300), vec2_new(200 + x_delta, 600), vec2_new(300 + x_delta, 100) };
+	vec2 abc[3] = { vec2{100.0f + x_delta, 300}, vec2{200.0f + x_delta, 600}, vec2{300.0f + x_delta, 100} };
 	bbox_t bbox = find_bounding_box(abc, width, height);
-	vec4_t color1{ 1,0,0,1 };
-	vec4_t color2{ 0,1,0,1 };
-	vec4_t color3{ 0,0,1,1 };
+	vec4 color1{ 1,0,0,1 };
+	vec4 color2{ 0,1,0,1 };
+	vec4 color3{ 0,0,1,1 };
 
 	for (int i = bbox.min_x; i <= bbox.max_x; i++)
 	{
 		for (int j = bbox.min_y; j <= bbox.max_y; j++)
 		{
-			vec2_t p{ (float)(i + 0.5), (float)(j + 0.5) };
-			vec3_t result = calculate_weights(abc, p);
+			vec2 p{ (float)(i + 0.5), (float)(j + 0.5) };
+			vec3 result = calculate_weights(abc, p);
 			
-			if (result.x > 0 && result.y > 0 && result.z > 0)
+			if (result[0] > 0 && result[1] > 0 && result[2] > 0)
 			{
-				vec4_t color = vec4_new(
-					color1.x * result.x + color2.x * result.y + color3.x * result.z,
-					color1.y * result.x + color2.y * result.y + color3.y * result.z,
-					color1.z * result.x + color2.z * result.y + color3.z * result.z,
+				vec4 color = vec4{
+					color1[0] * result[0] + color2[0] * result[1] + color3[0] * result[2],
+					color1[1] * result[0] + color2[1] * result[1] + color3[1] * result[2],
+					color1[2] * result[0] + color2[2] * result[1] + color3[2] * result[2],
 					1
-				);
+				};
 
 				draw_fragment(framebuffer, j * width + i, color,nullptr);
 			}

@@ -1,19 +1,19 @@
 #include "shader_skybox.h"
 
-vec4_t skybox_vertex_shader(void* attribs_, void* varyings_, void* uniforms_)
+vec4 skybox_vertex_shader(void* attribs_, void* varyings_, void* uniforms_)
 {
     auto* attribs = static_cast<attribs_skybox*>(attribs_);
     auto* varyings = static_cast<varyings_skybox*>(varyings_);
     auto* uniforms = static_cast<uniforms_skybox*>(uniforms_);
-    vec4_t local_pos = vec4_from_vec3(attribs->position, 1);
-    vec4_t clip_pos = mat4_mul_vec4(uniforms->vp_matrix, local_pos);  //转到裁剪空间
-    clip_pos.z = clip_pos.w * (1 - EPSILON); //稍微有个小的bias，防止精度误差
+    vec4 local_pos = vec4_from_vec3(attribs->position, 1);
+    vec4 clip_pos = mat4_mul_vec4(uniforms->vp_matrix, local_pos);  //转到裁剪空间
+    clip_pos[2] = clip_pos[3] * (1 - EPSILON); //稍微有个小的bias，防止精度误差
     //std::cout<<clip_pos.x<<" "<<clip_pos.y<<" "<<clip_pos.z<<" "<<clip_pos.w<<std::endl;
     varyings->direction = attribs->position;
     return clip_pos;
 }
 
-vec4_t skybox_fragment_shader(void* varys, void* unis,
+vec4 skybox_fragment_shader(void* varys, void* unis,
     int* discard, int backface)
 {
     auto* varyings = static_cast<varyings_skybox*>(varys);

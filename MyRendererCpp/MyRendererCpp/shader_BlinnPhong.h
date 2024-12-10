@@ -10,34 +10,34 @@
 
 struct attribs_blinnphong 
 {
-    vec3_t position;
-    vec2_t texcoord;
-    vec3_t normal;
-    vec4_t joint;
-    vec4_t weight;
-    vec4_t tangent;
+    vec3 position;
+    vec2 texcoord;
+    vec3 normal;
+    vec4 joint;
+    vec4 weight;
+    vec4 tangent;
 };
 
 struct varyings_blinnphong 
 {
-    vec3_t world_position;
-    vec3_t depth_position;
-    vec2_t texcoord;
-    vec3_t normal;
-    vec3_t world_tangent;
-    vec3_t world_bitangent;
+    vec3 world_position;
+    vec3 depth_position;
+    vec2 texcoord;
+    vec3 normal;
+    vec3 world_tangent;
+    vec3 world_bitangent;
 };
 
 struct uniforms_blinnphong 
 {
-    vec3_t light_dir;
-    vec3_t camera_pos;
+    vec3 light_dir;
+    vec3 camera_pos;
     mat4_t model_matrix;
     mat3_t normal_matrix;
     mat4_t light_vp_matrix;
     mat4_t camera_vp_matrix;
     
-    vec4_t basecolor;
+    vec4 basecolor;
     Texture diffuse_map;
     Texture specular_map;
     Texture emission_map;
@@ -55,7 +55,7 @@ struct uniforms_blinnphong
 
 struct material_blinnphong 
 {
-    vec4_t basecolor;
+    vec4 basecolor;
     std::string diffuse_map;
     std::string specular_map;
     std::string emission_map;
@@ -68,8 +68,8 @@ struct material_blinnphong
 /* high-level api */
 Model* shader_BlinnPhong_create_model(std::string mesh_path, std::string skeleton_path, mat4_t transform, material_blinnphong& material);
 
-vec4_t blinnphong_vertex_shader(void* attribs_, void* varyings_, void* uniforms_);
+vec4 blinnphong_vertex_shader(void* attribs_, void* varyings_, void* uniforms_);
 
-vec4_t blinnphong_fragment_shader(void* varyings_, void* uniforms_, int* discard, int backface);
+vec4 blinnphong_fragment_shader(void* varyings_, void* uniforms_, int* discard, int backface);
 
 #endif

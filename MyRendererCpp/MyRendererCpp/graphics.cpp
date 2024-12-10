@@ -63,23 +63,23 @@ void* Program::get_uniforms()
 
 
 
-float interpolate_depth(float screen_depths[3], vec3_t weights) 
+float interpolate_depth(float screen_depths[3], vec3 weights) 
 {
-	float depth0 = screen_depths[0] * weights.x;
-	float depth1 = screen_depths[1] * weights.y;
-	float depth2 = screen_depths[2] * weights.z;
+	float depth0 = screen_depths[0] * weights[0];
+	float depth1 = screen_depths[1] * weights[1];
+	float depth2 = screen_depths[2] * weights[2];
 	return depth0 + depth1 + depth2;
 }
 
-bbox_t find_bounding_box(vec2_t abc[3], int width, int height)
+bbox_t find_bounding_box(vec2 abc[3], int width, int height)
 {
-	vec2_t min = vec2_min(vec2_min(abc[0], abc[1]), abc[2]);
-	vec2_t max = vec2_max(vec2_max(abc[0], abc[1]), abc[2]);
+	vec2 min = vec_min(vec_min(abc[0], abc[1]), abc[2]);
+	vec2 max = vec_max(vec_max(abc[0], abc[1]), abc[2]);
 	bbox_t bbox;
-	bbox.min_x = max_integer((int)floor(min.x), 0);
-	bbox.min_y = max_integer((int)floor(min.y), 0);
-	bbox.max_x = min_integer((int)ceil(max.x), width - 1);
-	bbox.max_y = min_integer((int)ceil(max.y), height - 1);
+	bbox.min_x = max_integer((int)floor(min[0]), 0);
+	bbox.min_y = max_integer((int)floor(min[1]), 0);
+	bbox.max_x = min_integer((int)ceil(max[0]), width - 1);
+	bbox.max_y = min_integer((int)ceil(max[1]), height - 1);
 	return bbox;
 }
 
@@ -87,7 +87,7 @@ bbox_t find_bounding_box(vec2_t abc[3], int width, int height)
 [Obselete] 不要调用这个函数！是前几次课时需要的测试函数，现在不走相关逻辑了
 */
 //目前只是简单的将颜色写入到framebuffer中，并做透明度混合
-void draw_fragment(framebuffer_t* framebuffer, int index, vec4_t& color,Program* program)
+void draw_fragment(framebuffer_t* framebuffer, int index, vec4& color,Program* program)
 {
 	//start 增加透明度混合
 	int transparent = 0;
@@ -105,18 +105,18 @@ void draw_fragment(framebuffer_t* framebuffer, int index, vec4_t& color,Program*
 			unsigned char dst_r = framebuffer->color_buffer[index * 4 + 0];
 			unsigned char dst_g = framebuffer->color_buffer[index * 4 + 1];
 			unsigned char dst_b = framebuffer->color_buffer[index * 4 + 2];
-			color.x = color.x * alpha + float_from_uchar(dst_r) * (1 - alpha);
-			color.y = color.y * alpha + float_from_uchar(dst_g) * (1 - alpha);
-			color.z = color.z * alpha + float_from_uchar(dst_b) * (1 - alpha);
+			color[0] = color[0] * alpha + float_from_uchar(dst_r) * (1 - alpha);
+			color[1] = color[1] * alpha + float_from_uchar(dst_g) * (1 - alpha);
+			color[2] = color[2] * alpha + float_from_uchar(dst_b) * (1 - alpha);
 		}
 	}
 	
 	color = vec4_saturate(color);
 	//end
-	framebuffer->color_buffer[index * 4 + 0] = float_to_uchar(color.x);
-	framebuffer->color_buffer[index * 4 + 1] = float_to_uchar(color.y);
-	framebuffer->color_buffer[index * 4 + 2] = float_to_uchar(color.z);
-	framebuffer->color_buffer[index * 4 + 3] = float_to_uchar(color.w);
+	framebuffer->color_buffer[index * 4 + 0] = float_to_uchar(color[0]);
+	framebuffer->color_buffer[index * 4 + 1] = float_to_uchar(color[1]);
+	framebuffer->color_buffer[index * 4 + 2] = float_to_uchar(color[2]);
+	framebuffer->color_buffer[index * 4 + 3] = float_to_uchar(color[3]);
 }
 
 /*
@@ -138,30 +138,30 @@ void draw_fragment(framebuffer_t* framebuffer, int index, vec4_t& color,Program*
  *     weight_B = s
  *     weight_C = t
  */
-vec3_t calculate_weights(vec2_t abc[3], vec2_t& p)
+vec3 calculate_weights(vec2 abc[3], vec2& p)
 {
-	vec2_t a = abc[0];
-	vec2_t b = abc[1];
-	vec2_t c = abc[2];
-	vec2_t ab = vec2_sub(b, a);
-	vec2_t ac = vec2_sub(c, a);
-	vec2_t pa = vec2_sub(a, p);
-	float factor = 1 / (ab.x * ac.y - ab.y * ac.x);
-	float s = (ac.x * pa.y - ac.y * pa.x) * factor;
-	float t = (ab.y * pa.x - ab.x * pa.y) * factor;
-	vec3_t weights = vec3_new(1 - s - t, s, t);
+	vec2 a = abc[0];
+	vec2 b = abc[1];
+	vec2 c = abc[2];
+	vec2 ab = b - a;
+	vec2 ac = c - a;
+	vec2 pa = a - p;
+	float factor = 1 / (ab[0] * ac[1] - ab[1] * ac[0]);
+	float s = (ac[0] * pa[1] - ac[1] * pa[0]) * factor;
+	float t = (ab[1] * pa[0] - ab[0] * pa[1]) * factor;
+	vec3 weights{ 1 - s - t, s, t };
 	return weights;
 }
 
-void framebuffer_clear_color(framebuffer_t* framebuffer, vec4_t color)
+void framebuffer_clear_color(framebuffer_t* framebuffer, vec4 color)
 {
 	int num_pixels = framebuffer->width * framebuffer->height;
 	for (int i = 0; i < num_pixels; i++)
 	{
-		framebuffer->color_buffer[i * 4 + 0] = float_to_uchar(color.x);
-		framebuffer->color_buffer[i * 4 + 1] = float_to_uchar(color.y);
-		framebuffer->color_buffer[i * 4 + 2] = float_to_uchar(color.z);
-		framebuffer->color_buffer[i * 4 + 3] = float_to_uchar(color.w);
+		framebuffer->color_buffer[i * 4 + 0] = float_to_uchar(color[0]);
+		framebuffer->color_buffer[i * 4 + 1] = float_to_uchar(color[1]);
+		framebuffer->color_buffer[i * 4 + 2] = float_to_uchar(color[2]);
+		framebuffer->color_buffer[i * 4 + 3] = float_to_uchar(color[3]);
 	}
 }
 
@@ -178,7 +178,7 @@ void framebuffer_clear_depth(framebuffer_t* framebuffer, float depth)
 framebuffer_t* framebuffer_create(int width, int height)
 {
 	int color_buffer_size = width * height * 4;
-	vec4_t default_color = { 0, 0, 0, 1 };
+	vec4 default_color{ 0, 0, 0, 1 };
 	framebuffer_t* framebuffer;
 
 	assert(width > 0 && height > 0);
@@ -194,21 +194,21 @@ framebuffer_t* framebuffer_create(int width, int height)
  * for viewport transformation, see subsection 2.12.1 of
  * https://www.khronos.org/registry/OpenGL/specs/es/2.0/es_full_spec_2.0.pdf
  */
-vec3_t viewport_transform(int width, int height, vec3_t ndc_coord)
+vec3 viewport_transform(int width, int height, vec3 ndc_coord)
 {
-	float x = (ndc_coord.x + 1) * 0.5f * (float)width;   /* [-1, 1] -> [0, w] */
-	float y = (ndc_coord.y + 1) * 0.5f * (float)height;  /* [-1, 1] -> [0, h] */
-	float z = (ndc_coord.z + 1) * 0.5f;                  /* [-1, 1] -> [0, 1] */
-	return vec3_new(x, y, z);
+	float x = (ndc_coord[0] + 1) * 0.5f * (float)width;   /* [-1, 1] -> [0, w] */
+	float y = (ndc_coord[1] + 1) * 0.5f * (float)height;  /* [-1, 1] -> [0, h] */
+	float z = (ndc_coord[2] + 1) * 0.5f;                  /* [-1, 1] -> [0, 1] */
+	return vec3{ x, y, z };
 }
 
-vec3_t interpolate_varyings_weights(vec3_t& weights, float recip_w[3])
+vec3 interpolate_varyings_weights(vec3& weights, float recip_w[3])
 {
-	float weight0 = recip_w[0] * weights.x;
-	float weight1 = recip_w[1] * weights.y;
-	float weight2 = recip_w[2] * weights.z;
+	float weight0 = recip_w[0] * weights[0];
+	float weight1 = recip_w[1] * weights[1];
+	float weight2 = recip_w[2] * weights[2];
 	float normalizer = 1 / (weight0 + weight1 + weight2);
-	return vec3_t{ weight0 * normalizer, weight1 * normalizer, weight2 * normalizer };
+	return vec3{ weight0 * normalizer, weight1 * normalizer, weight2 * normalizer };
 }
 
 void* program_get_attribs(Program* program, int nth_vertex) 
@@ -227,16 +227,16 @@ void* program_get_attribs(Program* program, int nth_vertex)
  */
 void interpolate_varyings(
 	void* src_varyings[3], void* dst_varyings,
-	int sizeof_varyings, vec3_t weights, float recip_w[3])
+	int sizeof_varyings, vec3 weights, float recip_w[3])
 {
 	int num_floats = sizeof_varyings / sizeof(float);
 	float* src0 = (float*)src_varyings[0];
 	float* src1 = (float*)src_varyings[1];
 	float* src2 = (float*)src_varyings[2];
 	float* dst = (float*)dst_varyings;
-	float weight0 = recip_w[0] * weights.x;
-	float weight1 = recip_w[1] * weights.y;
-	float weight2 = recip_w[2] * weights.z;
+	float weight0 = recip_w[0] * weights[0];
+	float weight1 = recip_w[1] * weights[1];
+	float weight2 = recip_w[2] * weights[2];
 	float normalizer = 1 / (weight0 + weight1 + weight2);
 	int i;
 	for (i = 0; i < num_floats; i++) {
@@ -248,7 +248,7 @@ void interpolate_varyings(
 void draw_fragment_new(framebuffer_t* framebuffer, Program* program,
 	int backface, int index, float depth)
 {
-	vec4_t color;
+	vec4 color;
 	int discard;
 	/* execute fragment shader */
 	discard = 0;
@@ -271,14 +271,14 @@ void draw_fragment_new(framebuffer_t* framebuffer, Program* program,
 			unsigned char dst_r = framebuffer->color_buffer[index * 4 + 0];
 			unsigned char dst_g = framebuffer->color_buffer[index * 4 + 1];
 			unsigned char dst_b = framebuffer->color_buffer[index * 4 + 2];
-			color.x = color.x * alpha + float_from_uchar(dst_r) * (1 - alpha);
-			color.y = color.y * alpha + float_from_uchar(dst_g) * (1 - alpha);
-			color.z = color.z * alpha + float_from_uchar(dst_b) * (1 - alpha);
+			color[0] = color[0] * alpha + float_from_uchar(dst_r) * (1 - alpha);
+			color[1] = color[1] * alpha + float_from_uchar(dst_g) * (1 - alpha);
+			color[2] = color[2] * alpha + float_from_uchar(dst_b) * (1 - alpha);
 		}
 	}
 	/* write color and depth */
-	framebuffer->color_buffer[index * 4 + 0] = float_to_uchar(color.x);
-	framebuffer->color_buffer[index * 4 + 1] = float_to_uchar(color.y);
-	framebuffer->color_buffer[index * 4 + 2] = float_to_uchar(color.z);
+	framebuffer->color_buffer[index * 4 + 0] = float_to_uchar(color[0]);
+	framebuffer->color_buffer[index * 4 + 1] = float_to_uchar(color[1]);
+	framebuffer->color_buffer[index * 4 + 2] = float_to_uchar(color[2]);
 	framebuffer->depth_buffer[index] = depth;
 }

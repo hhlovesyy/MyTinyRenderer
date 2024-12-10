@@ -27,7 +27,7 @@ public:
 class Scene
 {
 public:
-	vec4_t background;
+	vec4 background;
 	/* light intensity */
 	float ambient_intensity;
 	framebuffer_t* shadowmap_buffer;
@@ -43,7 +43,7 @@ public:
 	static float frame_time;
 	static float ambient_intensity;
 
-	static vec3_t light_dir;
+	static vec3 light_dir;
 	//mat4_t light_view_matrix; //关照视角矩阵 用于比如ShadowMap
 
 	static void set_frame_time(float time)
@@ -57,9 +57,9 @@ public:
 	static mat4_t get_light_view_matrix()
 	{
 		//如果光源旋转等，就需要每帧更新，否则不用。这里暂时是每帧更新
-		vec3_t light_pos = light_dir;
-		vec3_t light_target = vec3_new(0, 0, 0);
-		vec3_t light_up = vec3_new(0, 1, 0);
+		vec3 light_pos = light_dir;
+		vec3 light_target{ 0, 0, 0 };
+		vec3 light_up{ 0, 1, 0 };
 		return mat4_lookat(light_pos, light_target, light_up);
 	}
 	static mat4_t get_light_proj_matrix(float half_w, float half_h,

@@ -12,7 +12,7 @@ typedef void tickfunc_t(framebuffer_t* framebuffer);
 
 void space_transform(framebuffer_t* framebuffer)
 {
-	vec4_t default_color = { 0, 0, 0, 1 };
+	vec4 default_color = { 0, 0, 0, 1 };
 	framebuffer_clear_color(framebuffer, default_color); //请注意，在每tick绘制之前，先清空一下framebuffer
 	//绘制三角形的主函数
 	int width = framebuffer->width;
@@ -68,8 +68,8 @@ void space_transform(framebuffer_t* framebuffer)
 		-0.5f,  0.5f, -0.5f,  
 	};
 
-	vec3_t camera_pos = vec3_new(-1, 0, 1.5f);
-	vec3_t target_pos = vec3_new(0, 0, 0);
+	vec3 camera_pos = vec3{ -1, 0, 1.5f };
+	vec3 target_pos = vec3{0, 0, 0};
 	//Camera *camera = new Camera(camera_pos, target_pos, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT);
 	Camera camera(camera_pos, target_pos, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT);
 	mat4_t view_matrix = camera_get_view_matrix(camera);
@@ -78,14 +78,14 @@ void space_transform(framebuffer_t* framebuffer)
 	//每三个顶点赋值给abc_3d,一共绘制12个三角形
 	for (int index = 0; index < 12; index++)
 	{
-		vec3_t abc_3d[3] = { vec3_new(vertices[index * 9], vertices[index * 9 + 1], vertices[index * 9 + 2]),
-			vec3_new(vertices[index * 9 + 3], vertices[index * 9 + 4], vertices[index * 9 + 5]),
-			vec3_new(vertices[index * 9 + 6], vertices[index * 9 + 7], vertices[index * 9 + 8]) };
+		vec3 abc_3d[3] = { vec3{vertices[index * 9], vertices[index * 9 + 1], vertices[index * 9 + 2]},
+			vec3{vertices[index * 9 + 3], vertices[index * 9 + 4], vertices[index * 9 + 5]},
+			vec3{vertices[index * 9 + 6], vertices[index * 9 + 7], vertices[index * 9 + 8]} };
 		
-		vec4_t clip_abc[3];
-		vec3_t ndc_coords[3];
+		vec4 clip_abc[3];
+		vec3 ndc_coords[3];
 
-		vec2_t screen_coords[3];
+		vec2 screen_coords[3];
 		float screen_depths[3];
 
 		float recip_w[3];
@@ -93,12 +93,12 @@ void space_transform(framebuffer_t* framebuffer)
 		for (int i = 0; i < 3; i++)
 		{
 			clip_abc[i] = mat4_mul_vec4(proj_matrix, mat4_mul_vec4(view_matrix, vec4_from_vec3(abc_3d[i], 1)));
-			recip_w[i] = 1 / clip_abc[i].w;
-			vec3_t clip_coord = vec3_from_vec4(clip_abc[i]);
-			ndc_coords[i] = vec3_div(clip_coord, clip_abc[i].w);  //这一步是做透视除法
-			vec3_t window_coord = viewport_transform(width, height, ndc_coords[i]); //这一步是做视口变换
-			screen_coords[i] = vec2_new(window_coord.x, window_coord.y);
-			screen_depths[i] = window_coord.z;
+			recip_w[i] = 1 / clip_abc[i][3];
+			vec3 clip_coord = vec3_from_vec4(clip_abc[i]);
+			ndc_coords[i] = clip_coord / clip_abc[i][3];  //这一步是做透视除法
+			vec3 window_coord = viewport_transform(width, height, ndc_coords[i]); //这一步是做视口变换
+			screen_coords[i] = vec2{ window_coord[0], window_coord[1] };
+			screen_depths[i] = window_coord[2];
 		}
 
 		//vec2_t abc[3] = { vec2_new(100 , 300), vec2_new(200 , 600), vec2_new(300, 100) };
@@ -106,17 +106,17 @@ void space_transform(framebuffer_t* framebuffer)
 		bbox_t bbox = find_bounding_box(screen_coords, width, height);
 		//random 0-1 color
 		//vec4_t color1{ (float)rand() / RAND_MAX, (float)rand() / RAND_MAX, (float)rand() / RAND_MAX, 1 };
-		vec4_t color1{ 1,0,0,1 };
-		vec4_t color2{ 0,1,0,1 };
-		vec4_t color3{ 0,0,1,1 };
+		vec4 color1{ 1,0,0,1 };
+		vec4 color2{ 0,1,0,1 };
+		vec4 color3{ 0,0,1,1 };
 		for (int i = bbox.min_x; i <= bbox.max_x; i++)
 		{
 			for (int j = bbox.min_y; j <= bbox.max_y; j++)
 			{
-				vec2_t p{ (float)(i + 0.5), (float)(j + 0.5) };
-				vec3_t result = calculate_weights(screen_coords, p);
+				vec2 p{ (float)(i + 0.5), (float)(j + 0.5) };
+				vec3 result = calculate_weights(screen_coords, p);
 				
-				if (!(result.x > -EPSILON && result.y > -EPSILON && result.z > -EPSILON)) continue; //考虑一下浮点数精度可能带来的问题
+				if (!(result[0] > -EPSILON && result[1] > -EPSILON && result[2] > -EPSILON)) continue; //考虑一下浮点数精度可能带来的问题
 				float depth = interpolate_depth(screen_depths, result);
 				//Zbuffer test
 				int screen_index = j * width + i;
@@ -128,9 +128,9 @@ void space_transform(framebuffer_t* framebuffer)
 				{
 					continue;
 				}
-				vec3_t new_weights = interpolate_varyings_weights(result, recip_w);
-				vec4_t color =vec4_add(vec4_mul(color1,new_weights.x), vec4_add(vec4_mul(color2, new_weights.y),vec4_mul(color3,new_weights.z)));
-				vec4_t zBufferValue{ zbuffer[screen_index],zbuffer[screen_index], zbuffer[screen_index], zbuffer[screen_index] };
+				vec3 new_weights = interpolate_varyings_weights(result, recip_w);
+				vec4 color = color1 * new_weights[0] + color2 * new_weights[1] + color3 * new_weights[2];
+				vec4 zBufferValue{ zbuffer[screen_index],zbuffer[screen_index], zbuffer[screen_index], zbuffer[screen_index] };
 				//std::cout << zbuffer[screen_index] << std::endl;
 				draw_fragment(framebuffer, j* width + i, color, nullptr);
 		

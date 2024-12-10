@@ -9,7 +9,7 @@ class Scene_Blinn_t
 {
 public:
 	int index;
-	vec4_t basecolor;
+	vec4 basecolor;
 	float shininess;
 	char diffuse_map[LINE_SIZE];
 	char specular_map[LINE_SIZE];
@@ -38,7 +38,7 @@ public:
 class Scene_Light_t
 {
 public:
-	vec3_t background;
+	vec3 background;
 	float ambient;
 	char shadow[LINE_SIZE];//Off表示不产生阴影，On表示产生阴影，也可以定义shadowmap的大小
 	char skybox[LINE_SIZE]; //环境贴图的种类
@@ -57,7 +57,7 @@ static Scene_Blinn_t read_a_blinn_material(FILE* file)
 	
 	items = fscanf(file, " material %d:", &material.index);
 	assert(items == 1);
-	items = fscanf(file, " basecolor: %f %f %f %f", &material.basecolor.x, &material.basecolor.y, &material.basecolor.z, &material.basecolor.w);
+	items = fscanf(file, " basecolor: %f %f %f %f", &material.basecolor[0], &material.basecolor[1], &material.basecolor[2], &material.basecolor[3]);
 	assert(items == 4);
 	items = fscanf(file, " shininess: %f", &material.shininess);
 	assert(items == 1);
@@ -146,9 +146,9 @@ static void read_light(FILE* file, Scene_Light_t& light)
 		return;
 	}
 	items = fscanf(file, " background: %f %f %f",
-		&light.background.x,
-		&light.background.y,
-		&light.background.z);
+		&light.background[0],
+		&light.background[1],
+		&light.background[2]);
 	assert(items == 3);
 	items = fscanf(file, " ambient: %f", &light.ambient);
 	assert(items == 1);
@@ -207,7 +207,7 @@ static int wrap_knob(const char* knob)
 	}
 }
 
-static void scene_create(vec3_t background, std::shared_ptr<Model> skybox, Scene* scene, float ambient,
+static void scene_create(vec3 background, std::shared_ptr<Model> skybox, Scene* scene, float ambient,
 int shadowmap_width, int shadowmap_height)
 {
 	scene->background = vec4_from_vec3(background, 1);
@@ -287,7 +287,7 @@ static Scene* create_blinn_scene(Scene_Light_t& light, std::vector<Scene_Blinn_t
 	int num_models = scene_models.size();
 	std::vector<Model*> models;
 	Scene* scene = new Scene();
-	scene->background = vec4_new(0, 0, 0, 1);
+	scene->background = vec4{ 0, 0, 0, 1 };
 	for (int i = 0; i < num_models; i++)
 	{
 		Scene_Model_t scene_model = scene_models[i];

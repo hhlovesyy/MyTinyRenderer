@@ -33,7 +33,7 @@ void preLoadModel_skeleton_anim()
 
 void skeleton_anim(framebuffer_t* framebuffer, Camera* camera)
 {
-	vec4_t default_color = { 0, 0, 0, 1 };
+	vec4 default_color = { 0, 0, 0, 1 };
 	framebuffer_clear_color(framebuffer, default_color); //请注意，在每tick绘制之前，先清空一下framebuffer
 	framebuffer_clear_depth(framebuffer, FLT_MAX); //请注意，在每tick绘制之前，先清空一下framebuffer
 	//绘制三角形的主函数

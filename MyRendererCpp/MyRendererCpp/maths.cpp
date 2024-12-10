@@ -35,179 +35,60 @@ unsigned char float_to_uchar(float value)
     return (unsigned char)(value * 255);
 }
 
-vec2_t vec2_sub(vec2_t a, vec2_t b) 
-{
-    return vec2_new(a.x - b.x, a.y - b.y);
-}
-
-vec2_t vec2_mul(vec2_t v, float factor)
-{
-    return vec2_new(v.x * factor, v.y * factor);
-}
-
-vec2_t vec2_div(vec2_t v, float divisor)
-{
-    return vec2_mul(v, 1 / divisor);
-}
-
-float vec2_length(vec2_t v) 
-{
-    return (float)sqrt(v.x * v.x + v.y * v.y);
-}
-
-vec3_t vec3_sub(vec3_t a, vec3_t b)
-{
-    return vec3_new(a.x - b.x, a.y - b.y, a.z - b.z);
-}
-
-vec2_t vec2_new(float x, float y)
-{
-    vec2_t v;
-    v.x = x;
-    v.y = y;
-    return v;
-}
-
-
-vec2_t vec2_add(vec2_t a, vec2_t b)
-{
-    return vec2_new(a.x + b.x, a.y + b.y);
-}
-
-vec3_t vec3_new(float x, float y, float z) 
-{
-    vec3_t v;
-    v.x = x;
-    v.y = y;
-    v.z = z;
-    return v;
-}
-
-vec3_t vec3_add(vec3_t a, vec3_t b)
-{
-    return vec3_new(a.x + b.x, a.y + b.y, a.z + b.z);
-}
-
-vec2_t vec2_min(vec2_t a, vec2_t b)
-{
-    float x = float_min(a.x, b.x);
-    float y = float_min(a.y, b.y);
-    return vec2_new(x, y);
-}
-
-vec2_t vec2_max(vec2_t a, vec2_t b)
-{
-    float x = float_max(a.x, b.x);
-    float y = float_max(a.y, b.y);
-    return vec2_new(x, y);
-}
-
-
-vec3_t vec3_min(vec3_t a, vec3_t b) 
-{
-    float x = float_min(a.x, b.x);
-    float y = float_min(a.y, b.y);
-    float z = float_min(a.z, b.z);
-    return vec3_new(x, y, z);
-}
-
-vec3_t vec3_max(vec3_t a, vec3_t b)
-{
-    float x = float_max(a.x, b.x);
-    float y = float_max(a.y, b.y);
-    float z = float_max(a.z, b.z);
-    return vec3_new(x, y, z);
-}
-
-float vec3_dot(vec3_t a, vec3_t b)
-{
-    return a.x * b.x + a.y * b.y + a.z * b.z;
-}
-
-float vec3_length(vec3_t v) 
-{
-    return (float)sqrt(vec3_dot(v, v));
-}
-
-vec3_t vec3_mul(vec3_t v, float factor) 
-{
-    return vec3_new(v.x * factor, v.y * factor, v.z * factor);
-}
-
-vec3_t vec3_div(vec3_t v, float divisor) 
-{
-    return vec3_mul(v, 1 / divisor);
-}
-
-vec3_t vec3_normalize(vec3_t v) 
-{
-    return vec3_div(v, vec3_length(v));
-}
-
-vec3_t vec3_cross(vec3_t a, vec3_t b)
-{
-    float x = a.y * b.z - a.z * b.y;
-    float y = a.z * b.x - a.x * b.z;
-    float z = a.x * b.y - a.y * b.x;
-    return vec3_new(x, y, z);
-}
-
-vec3_t mat3_mul_vec3(mat3_t m, vec3_t v) 
+vec3 mat3_mul_vec3(mat3_t m, vec3 v) 
 {
     float product[3];
     int i;
     for (i = 0; i < 3; i++) 
     {
-        float a = m.m[i][0] * v.x;
-        float b = m.m[i][1] * v.y;
-        float c = m.m[i][2] * v.z;
+        float a = m.m[i][0] * v[0];
+        float b = m.m[i][1] * v[1];
+        float c = m.m[i][2] * v[2];
         product[i] = a + b + c;
     }
-    return vec3_new(product[0], product[1], product[2]);
+    return vec3{ product[0], product[1], product[2] };
 }
 
-vec4_t vec4_new(float x, float y, float z, float w) 
+vec4 vec4_from_vec3(const vec3& v, float w)
 {
-    vec4_t v;
-    v.x = x;
-    v.y = y;
-    v.z = z;
-    v.w = w;
-    return v;
+    vec4 result;
+    result[0] = v[0];
+    result[1] = v[1];
+    result[2] = v[2];
+    result[3] = w;
+    return result;
 }
 
-
-vec4_t vec4_add(vec4_t a, vec4_t b) 
+vec3 vec3_from_vec4(const vec4& v)
 {
-    return vec4_new(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
+    vec3 result;
+    result[0] = v[0];
+    result[1] = v[1];
+    result[2] = v[2];
+    return result;
 }
 
-vec4_t vec4_from_vec3(vec3_t v, float w)
+//叉乘
+vec3 cross(const vec3& a, const vec3& b)
 {
-    return vec4_new(v.x, v.y, v.z, w);
+	vec3 result; // 创建结果向量
+	result[0] = a[1] * b[2] - a[2] * b[1]; // 计算 x 分量
+	result[1] = a[2] * b[0] - a[0] * b[2]; // 计算 y 分量
+	result[2] = a[0] * b[1] - a[1] * b[0]; // 计算 z 分量
+	return result; // 返回结果向量
 }
 
-vec3_t vec3_from_vec4(vec4_t v) 
-{
-    return vec3_new(v.x, v.y, v.z);
-}
-
-vec4_t vec4_mul(vec4_t v, float factor) 
-{
-    return vec4_new(v.x * factor, v.y * factor, v.z * factor, v.w * factor);
-}
-
-vec4_t mat4_mul_vec4(mat4_t m, vec4_t v) {
+vec4 mat4_mul_vec4(mat4_t m, vec4 v) {
     float product[4];
     int i;
     for (i = 0; i < 4; i++) {
-        float a = m.m[i][0] * v.x;
-        float b = m.m[i][1] * v.y;
-        float c = m.m[i][2] * v.z;
-        float d = m.m[i][3] * v.w;
+        float a = m.m[i][0] * v[0];
+        float b = m.m[i][1] * v[1];
+        float c = m.m[i][2] * v[2];
+        float d = m.m[i][3] * v[3];
         product[i] = a + b + c + d;
     }
-    return vec4_new(product[0], product[1], product[2], product[3]);
+    return vec4{ product[0], product[1], product[2], product[3] };
 }
 
 mat4_t mat4_mul_mat4(mat4_t a, mat4_t b) {
@@ -223,15 +104,6 @@ mat4_t mat4_mul_mat4(mat4_t a, mat4_t b) {
     return m;
 }
 
-vec4_t vec4_div(vec4_t v, float divisor)
-{
-    return vec4_mul(v, 1 / divisor);
-}
-
-vec4_t vec4_mul_vec4(vec4_t a, vec4_t b)
-{
-	return vec4_new(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
-}
 
 mat4_t mat4_identity(void)
 {
@@ -336,22 +208,22 @@ mat4_t mat4_rotate_z(float angle)
  */
 mat4_t mat4_rotate(float angle, float vx, float vy, float vz) 
 {
-    vec3_t n = vec3_normalize(vec3_new(vx, vy, vz));
+    vec3 n = vec3{vx, vy, vz}.normalized();
     float c = (float)cos(angle);
     float s = (float)sin(angle);
     mat4_t m = mat4_identity();
 
-    m.m[0][0] = n.x * n.x * (1 - c) + c;
-    m.m[0][1] = n.y * n.x * (1 - c) - s * n.z;
-    m.m[0][2] = n.z * n.x * (1 - c) + s * n.y;
+    m.m[0][0] = n[0] * n[0] * (1 - c) + c;
+    m.m[0][1] = n[1] * n[0] * (1 - c) - s * n[2];
+    m.m[0][2] = n[2] * n[0] * (1 - c) + s * n[1];
 
-    m.m[1][0] = n.x * n.y * (1 - c) + s * n.z;
-    m.m[1][1] = n.y * n.y * (1 - c) + c;
-    m.m[1][2] = n.z * n.y * (1 - c) - s * n.x;
+    m.m[1][0] = n[0] * n[1] * (1 - c) + s * n[2];
+    m.m[1][1] = n[1] * n[1] * (1 - c) + c;
+    m.m[1][2] = n[2] * n[1] * (1 - c) - s * n[0];
 
-    m.m[2][0] = n.x * n.z * (1 - c) - s * n.y;
-    m.m[2][1] = n.y * n.z * (1 - c) + s * n.x;
-    m.m[2][2] = n.z * n.z * (1 - c) + c;
+    m.m[2][0] = n[0] * n[2] * (1 - c) - s * n[1];
+    m.m[2][1] = n[1] * n[2] * (1 - c) + s * n[0];
+    m.m[2][2] = n[2] * n[2] * (1 - c) + c;
 
     return m;
 }
@@ -392,28 +264,28 @@ mat4_t mat4_scale(float sx, float sy, float sz)
  *
  * see http://www.songho.ca/opengl/gl_camera.html
  */
-mat4_t mat4_lookat(vec3_t eye, vec3_t target, vec3_t up) 
+mat4_t mat4_lookat(vec3 eye, vec3 target, vec3 up) 
 {
-    vec3_t z_axis = vec3_normalize(vec3_sub(eye, target));
-    vec3_t x_axis = vec3_normalize(vec3_cross(up, z_axis));
-    vec3_t y_axis = vec3_cross(z_axis, x_axis);
+    vec3 z_axis = (eye - target).normalized();
+    vec3 x_axis = cross(up, z_axis).normalized();
+    vec3 y_axis = cross(z_axis, x_axis);
     mat4_t m = mat4_identity();
 
-    m.m[0][0] = x_axis.x;
-    m.m[0][1] = x_axis.y;
-    m.m[0][2] = x_axis.z;
+    m.m[0][0] = x_axis[0];
+    m.m[0][1] = x_axis[1];
+    m.m[0][2] = x_axis[2];
 
-    m.m[1][0] = y_axis.x;
-    m.m[1][1] = y_axis.y;
-    m.m[1][2] = y_axis.z;
+    m.m[1][0] = y_axis[0];
+    m.m[1][1] = y_axis[1];
+    m.m[1][2] = y_axis[2];
 
-    m.m[2][0] = z_axis.x;
-    m.m[2][1] = z_axis.y;
-    m.m[2][2] = z_axis.z;
+    m.m[2][0] = z_axis[0];
+    m.m[2][1] = z_axis[1];
+    m.m[2][2] = z_axis[2];
 
-    m.m[0][3] = -vec3_dot(x_axis, eye);
-    m.m[1][3] = -vec3_dot(y_axis, eye);
-    m.m[2][3] = -vec3_dot(z_axis, eye);
+    m.m[0][3] = -dot(x_axis, eye);
+    m.m[1][3] = -dot(y_axis, eye);
+    m.m[2][3] = -dot(z_axis, eye);
 
     return m;
 }
@@ -540,51 +412,29 @@ mat4_t mat4_perspective(float fovy, float aspect, float near, float far)
     return m;
 }
 
-vec3_t vec3_lerp(vec3_t a, vec3_t b, float t)
-{
-    float x = float_lerp(a.x, b.x, t);
-    float y = float_lerp(a.y, b.y, t);
-    float z = float_lerp(a.z, b.z, t);
-    return vec3_new(x, y, z);
-}
-
 float float_lerp(float a, float b, float t)
 {
     return a + (b - a) * t;
 }
 
-quat_t quat_new(float x, float y, float z, float w) 
-{
-    quat_t q;
-    q.x = x;
-    q.y = y;
-    q.z = z;
-    q.w = w;
-    return q;
-}
-
-float quat_dot(quat_t a, quat_t b) 
-{
-    return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
-}
 
 /*
  * for spherical linear interpolation, see
  * 3D Math Primer for Graphics and Game Development, 2nd Edition, Chapter 8
  */
-quat_t quat_slerp(quat_t a, quat_t b, float t) 
+quat quat_slerp(quat& a, quat& b, float t) 
 {
-    float cos_angle = quat_dot(a, b);
+    float cos_angle = dot(a, b);
     if (cos_angle < 0) {
-        b = quat_new(-b.x, -b.y, -b.z, -b.w);
+        b = -b;
         cos_angle = -cos_angle;
     }
     if (cos_angle > 1 - EPSILON) {
-        float x = float_lerp(a.x, b.x, t);
-        float y = float_lerp(a.y, b.y, t);
-        float z = float_lerp(a.z, b.z, t);
-        float w = float_lerp(a.w, b.w, t);
-        return quat_new(x, y, z, w);
+        float x = float_lerp(a[0], b[0], t);
+        float y = float_lerp(a[1], b[1], t);
+        float z = float_lerp(a[2], b[2], t);
+        float w = float_lerp(a[3], b[3], t);
+        return quat{x, y, z, w};
     }
     else {
         float angle = (float)acos(cos_angle);
@@ -593,34 +443,34 @@ quat_t quat_slerp(quat_t a, quat_t b, float t)
         float angle_b = t * angle;
         float factor_a = (float)sin(angle_a) / sin_angle;
         float factor_b = (float)sin(angle_b) / sin_angle;
-        float x = factor_a * a.x + factor_b * b.x;
-        float y = factor_a * a.y + factor_b * b.y;
-        float z = factor_a * a.z + factor_b * b.z;
-        float w = factor_a * a.w + factor_b * b.w;
-        return quat_new(x, y, z, w);
+        float x = factor_a * a[0] + factor_b * b[0];
+        float y = factor_a * a[1] + factor_b * b[1];
+        float z = factor_a * a[2] + factor_b * b[2];
+        float w = factor_a * a[3] + factor_b * b[3];
+        return quat{ x, y, z, w };
     }
 }
 
-mat4_t mat4_from_trs(vec3_t t, quat_t r, vec3_t s) 
+mat4_t mat4_from_trs(vec3& t, quat& r, vec3& s) 
 {
-    mat4_t translation = mat4_translate(t.x, t.y, t.z);
+    mat4_t translation = mat4_translate(t[0], t[1], t[2]);
     mat4_t rotation = mat4_from_quat(r);
-    mat4_t scale = mat4_scale(s.x, s.y, s.z);
+    mat4_t scale = mat4_scale(s[0], s[1], s[2]);
     return mat4_mul_mat4(translation, mat4_mul_mat4(rotation, scale));
 }
 
-mat4_t mat4_from_quat(quat_t q)
+mat4_t mat4_from_quat(quat& q)
 {
     mat4_t m = mat4_identity();
-    float xx = q.x * q.x;
-    float xy = q.x * q.y;
-    float xz = q.x * q.z;
-    float xw = q.x * q.w;
-    float yy = q.y * q.y;
-    float yz = q.y * q.z;
-    float yw = q.y * q.w;
-    float zz = q.z * q.z;
-    float zw = q.z * q.w;
+    float xx = q[0] * q[0];
+    float xy = q[0] * q[1];
+    float xz = q[0] * q[2];
+    float xw = q[0] * q[3];
+    float yy = q[1] * q[1];
+    float yz = q[1] * q[2];
+    float yw = q[1] * q[3];
+    float zz = q[2] * q[2];
+    float zw = q[2] * q[3];
 
     m.m[0][0] = 1 - 2 * (yy + zz);
     m.m[0][1] = 2 * (xy - zw);
@@ -694,16 +544,16 @@ mat3_t mat3_from_mat4(mat4_t m) {
     return n;
 }
 
-mat4_t mat4_combine(mat4_t m[4], vec4_t weights_) 
+mat4_t mat4_combine(mat4_t m[4], vec4& weights_) 
 {
     mat4_t combined = { {{0}} };
     float weights[4];
     int i, r, c;
 
-    weights[0] = weights_.x;
-    weights[1] = weights_.y;
-    weights[2] = weights_.z;
-    weights[3] = weights_.w;
+    weights[0] = weights_[0];
+    weights[1] = weights_[1];
+    weights[2] = weights_[2];
+    weights[3] = weights_[3];
 
     for (i = 0; i < 4; i++) {
         float weight = weights[i];
@@ -720,15 +570,15 @@ mat4_t mat4_combine(mat4_t m[4], vec4_t weights_)
     return combined;
 }
 
-mat3_t mat3_combine(mat3_t m[4], vec4_t weights_) {
+mat3_t mat3_combine(mat3_t m[4], vec4& weights_) {
     mat3_t combined = { {{0}} };
     float weights[4];
     int i, r, c;
 
-    weights[0] = weights_.x;
-    weights[1] = weights_.y;
-    weights[2] = weights_.z;
-    weights[3] = weights_.w;
+    weights[0] = weights_[0];
+    weights[1] = weights_[1];
+    weights[2] = weights_[2];
+    weights[3] = weights_[3];
 
     for (i = 0; i < 4; i++) {
         float weight = weights[i];
@@ -758,36 +608,29 @@ mat3_t mat3_mul_mat3(mat3_t a, mat3_t b) {
     return m;
 }
 
-vec3_t vec3_modulate(vec3_t a, vec3_t b) {
-    return vec3_new(a.x * b.x, a.y * b.y, a.z * b.z);
-}
-
-vec3_t vec3_negate(vec3_t v) {
-    return vec3_new(-v.x, -v.y, -v.z);
-}
 float float_saturate(float f) {
     return f < 0 ? 0 : (f > 1 ? 1 : f);
 }
 
-vec4_t vec4_saturate(vec4_t v) {
-    float x = float_saturate(v.x);
-    float y = float_saturate(v.y);
-    float z = float_saturate(v.z);
-    float w = float_saturate(v.w);
-    return vec4_new(x, y, z, w);
+vec4 vec4_saturate(vec4 v) {
+    float x = float_saturate(v[0]);
+    float y = float_saturate(v[1]);
+    float z = float_saturate(v[2]);
+    float w = float_saturate(v[3]);
+    return vec4{ x, y, z, w };
 }
 
-mat3_t mat3_from_cols(vec3_t c0, vec3_t c1, vec3_t c2) {
+mat3_t mat3_from_cols(vec3 c0, vec3 c1, vec3 c2) {
     mat3_t m;
-    m.m[0][0] = c0.x;
-    m.m[1][0] = c0.y;
-    m.m[2][0] = c0.z;
-    m.m[0][1] = c1.x;
-    m.m[1][1] = c1.y;
-    m.m[2][1] = c1.z;
-    m.m[0][2] = c2.x;
-    m.m[1][2] = c2.y;
-    m.m[2][2] = c2.z;
+    m.m[0][0] = c0[0];
+    m.m[1][0] = c0[1];
+    m.m[2][0] = c0[2];
+    m.m[0][1] = c1[0];
+    m.m[1][1] = c1[1];
+    m.m[2][1] = c1[2];
+    m.m[0][2] = c2[0];
+    m.m[1][2] = c2[1];
+    m.m[2][2] = c2[2];
     return m;
 }
 
@@ -807,12 +650,4 @@ float float_aces(float value) {
     float e = 0.14f;
     value = (value * (a * value + b)) / (value * (c * value + d) + e);
     return float_saturate(value);
-}
-
-vec4_t vec4_lerp(vec4_t a, vec4_t b, float t) {
-    float x = float_lerp(a.x, b.x, t);
-    float y = float_lerp(a.y, b.y, t);
-    float z = float_lerp(a.z, b.z, t);
-    float w = float_lerp(a.w, b.w, t);
-    return vec4_new(x, y, z, w);
 }

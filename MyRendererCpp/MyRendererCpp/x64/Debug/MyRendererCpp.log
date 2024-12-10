@@ -114,6 +114,45 @@ D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCp
   (编译源文件“main.cpp”)
   
   maths.cpp
+  mesh.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(174,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+  (编译源文件“mesh.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(175,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+  (编译源文件“mesh.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(176,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+  (编译源文件“mesh.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(177,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+  (编译源文件“mesh.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,33): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
+  (编译源文件“mesh.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,33): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
+  (编译源文件“mesh.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,48): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
+  (编译源文件“mesh.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,48): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
+  (编译源文件“mesh.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,63): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
+  (编译源文件“mesh.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,63): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
+  (编译源文件“mesh.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,78): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
+  (编译源文件“mesh.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,78): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
+  (编译源文件“mesh.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\mesh.cpp(24,21): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+  private.cpp
   rasterization.cpp
 D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(174,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
   (编译源文件“rasterization.cpp”)
@@ -151,45 +190,6 @@ D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCp
 D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,78): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
   (编译源文件“rasterization.cpp”)
   
-  shader_BlinnPhong.cpp
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(174,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-  (编译源文件“shader_BlinnPhong.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(175,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-  (编译源文件“shader_BlinnPhong.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(176,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-  (编译源文件“shader_BlinnPhong.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(177,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-  (编译源文件“shader_BlinnPhong.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,33): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
-  (编译源文件“shader_BlinnPhong.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,33): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
-  (编译源文件“shader_BlinnPhong.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,48): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
-  (编译源文件“shader_BlinnPhong.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,48): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
-  (编译源文件“shader_BlinnPhong.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,63): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
-  (编译源文件“shader_BlinnPhong.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,63): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
-  (编译源文件“shader_BlinnPhong.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,78): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
-  (编译源文件“shader_BlinnPhong.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,78): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
-  (编译源文件“shader_BlinnPhong.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\shader_BlinnPhong.cpp(307,23): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\shader_BlinnPhong.cpp(315,29): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
   scene_helper.cpp
 D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(174,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
   (编译源文件“scene_helper.cpp”)
@@ -230,6 +230,45 @@ D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCp
 D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\scene_helper.cpp(285,20): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
 D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\scene_helper.cpp(286,21): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
 D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\scene_helper.cpp(287,17): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+  shader_BlinnPhong.cpp
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(174,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+  (编译源文件“shader_BlinnPhong.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(175,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+  (编译源文件“shader_BlinnPhong.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(176,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+  (编译源文件“shader_BlinnPhong.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(177,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+  (编译源文件“shader_BlinnPhong.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,33): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
+  (编译源文件“shader_BlinnPhong.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,33): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
+  (编译源文件“shader_BlinnPhong.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,48): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
+  (编译源文件“shader_BlinnPhong.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,48): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
+  (编译源文件“shader_BlinnPhong.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,63): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
+  (编译源文件“shader_BlinnPhong.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,63): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
+  (编译源文件“shader_BlinnPhong.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,78): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
+  (编译源文件“shader_BlinnPhong.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,78): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
+  (编译源文件“shader_BlinnPhong.cpp”)
+  
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\shader_BlinnPhong.cpp(307,23): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\shader_BlinnPhong.cpp(315,29): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
   shader_skybox.cpp
 D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(174,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
   (编译源文件“shader_skybox.cpp”)
@@ -343,45 +382,6 @@ D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCp
   
   test_camera_move.cpp
   test_helper.cpp
-  mesh.cpp
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(174,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-  (编译源文件“mesh.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(175,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-  (编译源文件“mesh.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(176,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-  (编译源文件“mesh.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(177,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
-  (编译源文件“mesh.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,33): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
-  (编译源文件“mesh.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,33): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
-  (编译源文件“mesh.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,48): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
-  (编译源文件“mesh.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,48): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
-  (编译源文件“mesh.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,63): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
-  (编译源文件“mesh.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,63): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
-  (编译源文件“mesh.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,78): warning C4838: 从“float”转换到“uint8_t”需要收缩转换
-  (编译源文件“mesh.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(208,78): warning C4244: “初始化”: 从“float”转换到“uint8_t”，可能丢失数据
-  (编译源文件“mesh.cpp”)
-  
-D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\mesh.cpp(24,21): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
-  private.cpp
   test_maths.cpp
   test_model_input.cpp
 D:\mihoyo\LanguageLearning\cpp\GithubTinyRendererCpp\MyTinyRenderer\MyRendererCpp\MyRendererCpp\texture2D.h(174,11): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据

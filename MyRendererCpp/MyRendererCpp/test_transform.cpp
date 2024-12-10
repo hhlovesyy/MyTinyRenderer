@@ -29,80 +29,68 @@ void test_enter_mainloop2(tickfunc_t* tickfunc)
 
 }
 
-void matrix_translate(vec2_t* abc)
+void matrix_translate(vec2* abc)
 {
 	mat4_t translate = mat4_translate(l2_x_delta_trans, l2_y_delta_trans, 0);
-	vec4_t a = vec4_new(abc[0].x, abc[0].y, 0, 1);
-	vec4_t b = vec4_new(abc[1].x, abc[1].y, 0, 1);
-	vec4_t c = vec4_new(abc[2].x, abc[2].y, 0, 1);
+	vec4 a{ abc[0][0], abc[0][1], 0, 1};
+	vec4 b = vec4{abc[1][0], abc[1][1], 0, 1};
+	vec4 c = vec4{ abc[2][0], abc[2][1], 0, 1 };
 	a = mat4_mul_vec4(translate, a);
 	b = mat4_mul_vec4(translate, b);
 	c = mat4_mul_vec4(translate, c);
-	abc[0] = vec2_new(a.x, a.y);
-	abc[1] = vec2_new(b.x, b.y);
-	abc[2] = vec2_new(c.x, c.y);
+	abc[0] = vec2{ a[0], a[1]};
+	abc[1] = vec2{ b[0], b[1]};
+	abc[2] = vec2{ c[0], c[1]};
 }
 
-void matrix_rotateZ(vec2_t* abc)
+void matrix_rotateZ(vec2* abc)
 {
 	float radian = TO_RADIANS(l2_x_delta_trans);
 	mat4_t rotate = mat4_rotate_z(-radian);
-	vec4_t a = vec4_new(abc[0].x, abc[0].y, 0, 1);
-	vec4_t b = vec4_new(abc[1].x, abc[1].y, 0, 1);
-	vec4_t c = vec4_new(abc[2].x, abc[2].y, 0, 1);
+	vec4 a = vec4{ abc[0][0], abc[0][1], 0, 1};
+	vec4 b = vec4{ abc[1][0], abc[1][1], 0, 1 };
+	vec4 c = vec4{abc[2][0], abc[2][1], 0, 1};
 	a = mat4_mul_vec4(rotate, a);
 	b = mat4_mul_vec4(rotate, b);
 	c = mat4_mul_vec4(rotate, c);
-	abc[0] = vec2_new(a.x, a.y);
-	abc[1] = vec2_new(b.x, b.y);
-	abc[2] = vec2_new(c.x, c.y);
+	abc[0] = vec2{a[0], a[1]};
+	abc[1] = vec2{ b[0], b[1]};
+	abc[2] = vec2{ c[0], c[1] };
 }
 
-void matrix_scale(vec2_t* abc)
-{
-	mat4_t scale = mat4_scale(0.2 + l2_x_delta_trans /100.0f, 0.2 + l2_x_delta_trans / 100.0f, 0.2 + l2_x_delta_trans / 100.0f);
-	vec4_t a = vec4_new(abc[0].x, abc[0].y, 0, 1);
-	vec4_t b = vec4_new(abc[1].x, abc[1].y, 0, 1);
-	vec4_t c = vec4_new(abc[2].x, abc[2].y, 0, 1);
-	a = mat4_mul_vec4(scale, a);
-	b = mat4_mul_vec4(scale, b);
-	c = mat4_mul_vec4(scale, c);
-	abc[0] = vec2_new(a.x, a.y);
-	abc[1] = vec2_new(b.x, b.y);
-	abc[2] = vec2_new(c.x, c.y);
-}
+
 
 void rasterization_triangle2(framebuffer_t* framebuffer)
 {
-	vec4_t default_color = { 0, 0, 0, 1 };
+	vec4 default_color = { 0, 0, 0, 1 };
 	framebuffer_clear_color(framebuffer, default_color); //请注意，在每tick绘制之前，先清空一下framebuffer
 	//绘制三角形的主函数
 	int width = framebuffer->width;
 	int height = framebuffer->height;
-	vec2_t abc[3] = { vec2_new(100 , 300), vec2_new(200 , 600), vec2_new(300, 100) };
+	vec2 abc[3] = { vec2{100 , 300}, vec2{200 , 600}, vec2{300, 100} };
 	//matrix_translate(abc);
 	matrix_rotateZ(abc);
 	//matrix_scale(abc);
 	bbox_t bbox = find_bounding_box(abc, width, height);
-	vec4_t color1{ 1,0,0,1 };
-	vec4_t color2{ 0,1,0,1 };
-	vec4_t color3{ 0,0,1,1 };
+	vec4 color1{ 1,0,0,1 };
+	vec4 color2{ 0,1,0,1 };
+	vec4 color3{ 0,0,1,1 };
 
 	for (int i = bbox.min_x; i <= bbox.max_x; i++)
 	{
 		for (int j = bbox.min_y; j <= bbox.max_y; j++)
 		{
-			vec2_t p{ (float)(i + 0.5), (float)(j + 0.5) };
-			vec3_t result = calculate_weights(abc, p);
+			vec2 p{ (float)(i + 0.5), (float)(j + 0.5) };
+			vec3 result = calculate_weights(abc, p);
 
-			if (result.x > 0 && result.y > 0 && result.z > 0)
+			if (result[0] > 0 && result[1] > 0 && result[2] > 0)
 			{
-				vec4_t color = vec4_new(
-					color1.x * result.x + color2.x * result.y + color3.x * result.z,
-					color1.y * result.x + color2.y * result.y + color3.y * result.z,
-					color1.z * result.x + color2.z * result.y + color3.z * result.z,
+				vec4 color = vec4{
+					color1[0] * result[0] + color2[0] * result[1] + color3[0] * result[2],
+					color1[1] * result[0] + color2[1] * result[1] + color3[1] * result[2],
+					color1[2] * result[0] + color2[2] * result[1] + color3[2] * result[2],
 					1
-				);
+				};
 
 				draw_fragment(framebuffer, j * width + i, color,nullptr);
 			}

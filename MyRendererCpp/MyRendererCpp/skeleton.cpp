@@ -42,9 +42,9 @@ static void read_translations(FILE* file, Joint* joint)
         {
 			items = fscanf(file, " time: %f, value: [%f, %f, %f]",
                 				&joint->translation_times[i],
-                				&joint->translations[i].x,
-                				&joint->translations[i].y,
-                				&joint->translations[i].z);
+                				&joint->translations[i][0],
+                				&joint->translations[i][1],
+                				&joint->translations[i][2]);
 			assert(items == 4);
 		}
     }
@@ -68,10 +68,10 @@ static void read_rotations(FILE* file, Joint* joint)
         {
             items = fscanf(file, " time: %f, value: [%f, %f, %f, %f]",
                 				&joint->rotation_times[i],
-                				&joint->rotations[i].x,
-                				&joint->rotations[i].y,
-                				&joint->rotations[i].z,
-                				&joint->rotations[i].w);
+                				&joint->rotations[i][0],
+                				&joint->rotations[i][1],
+                				&joint->rotations[i][2],
+                				&joint->rotations[i][3]);
 			assert(items == 5);
         }
     }
@@ -92,23 +92,23 @@ static void read_scales(FILE* file, Joint* joint)
 		{
 			items = fscanf(file, " time: %f, value: [%f, %f, %f]",
 												&joint->scale_times[i],
-												&joint->scales[i].x,
-												&joint->scales[i].y,
-												&joint->scales[i].z);
+												&joint->scales[i][0],
+												&joint->scales[i][1],
+												&joint->scales[i][2]);
 			assert(items == 4);
 		}
     }
     UNUSED_VAR(items);
 }
 
-static vec3_t get_translation(Joint* joint, float frame_time)
+static vec3 get_translation(Joint* joint, float frame_time)
 {
     int num_translations = joint->num_translations;
     std::vector<float> translation_times = joint->translation_times;
-    std::vector<vec3_t> translation_values = joint->translations;
+    std::vector<vec3> translation_values = joint->translations;
 
     if (num_translations == 0) {
-        return vec3_new(0, 0, 0);
+        return vec3{ 0, 0, 0 };
     }
     else if (frame_time <= translation_times[0]) {
         return translation_values[0];
@@ -123,24 +123,24 @@ static vec3_t get_translation(Joint* joint, float frame_time)
             float next_time = translation_times[i + 1];
             if (frame_time >= curr_time && frame_time < next_time) {
                 float t = (frame_time - curr_time) / (next_time - curr_time);
-                vec3_t curr_translation = translation_values[i];
-                vec3_t next_translation = translation_values[i + 1];
-                return vec3_lerp(curr_translation, next_translation, t);
+                vec3 curr_translation = translation_values[i];
+                vec3 next_translation = translation_values[i + 1];
+                return lerp(curr_translation, next_translation, t);
             }
         }
         assert(0);
-        return vec3_new(0, 0, 0);
+        return vec3{ 0, 0, 0 };
     }
 }
 
-static quat_t get_rotation(Joint* joint, float frame_time) 
+static quat get_rotation(Joint* joint, float frame_time) 
 {
     int num_rotations = joint->num_rotations;
     std::vector<float> rotation_times = joint->rotation_times;
-    std::vector<quat_t> rotation_values = joint->rotations;
+    std::vector<quat> rotation_values = joint->rotations;
 
     if (num_rotations == 0) {
-        return quat_new(0, 0, 0, 1);
+        return quat{ 0, 0, 0, 1 };
     }
     else if (frame_time <= rotation_times[0]) {
         return rotation_values[0];
@@ -155,24 +155,24 @@ static quat_t get_rotation(Joint* joint, float frame_time)
             float next_time = rotation_times[i + 1];
             if (frame_time >= curr_time && frame_time < next_time) {
                 float t = (frame_time - curr_time) / (next_time - curr_time);
-                quat_t curr_rotation = rotation_values[i];
-                quat_t next_rotation = rotation_values[i + 1];
+                quat curr_rotation = rotation_values[i];
+                quat next_rotation = rotation_values[i + 1];
                 return quat_slerp(curr_rotation, next_rotation, t);
             }
         }
         assert(0);
-        return quat_new(0, 0, 0, 1);
+        return quat{ 0, 0, 0, 1 };
     }
 }
 
-static vec3_t get_scale(Joint* joint, float frame_time) 
+static vec3 get_scale(Joint* joint, float frame_time) 
 {
     int num_scales = joint->num_scales;
     std::vector<float> scale_times = joint->scale_times;
-    std::vector<vec3_t> scale_values = joint->scales;
+    std::vector<vec3> scale_values = joint->scales;
 
     if (num_scales == 0) {
-        return vec3_new(1, 1, 1);
+        return vec3{ 1, 1, 1 };
     }
     else if (frame_time <= scale_times[0]) {
         return scale_values[0];
@@ -187,13 +187,13 @@ static vec3_t get_scale(Joint* joint, float frame_time)
             float next_time = scale_times[i + 1];
             if (frame_time >= curr_time && frame_time < next_time) {
                 float t = (frame_time - curr_time) / (next_time - curr_time);
-                vec3_t curr_scale = scale_values[i];
-                vec3_t next_scale = scale_values[i + 1];
-                return vec3_lerp(curr_scale, next_scale, t);
+                vec3 curr_scale = scale_values[i];
+                vec3 next_scale = scale_values[i + 1];
+                return lerp(curr_scale, next_scale, t);
             }
         }
         assert(0);
-        return vec3_new(1, 1, 1);
+        return vec3{ 1, 1, 1 };
     }
 }
 
@@ -204,9 +204,9 @@ void skeleton_update_joints(Skeleton* skeleton, float frame_time)
         int i;
         for (i = 0; i < skeleton->num_joints; i++) {
             Joint* joint = &skeleton->joints[i];
-            vec3_t translation = get_translation(joint, frame_time);
-            quat_t rotation = get_rotation(joint, frame_time);
-            vec3_t scale = get_scale(joint, frame_time);
+            vec3 translation = get_translation(joint, frame_time);
+            quat rotation = get_rotation(joint, frame_time);
+            vec3 scale = get_scale(joint, frame_time);
             mat4_t joint_matrix;
             mat3_t normal_matrix;
 

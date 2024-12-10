@@ -15,64 +15,27 @@ template<typename T, int dim>
 class vec
 {
 public:
-	vec() { for (int i = 0; i < dim; i++) data[i] = 0; }
-
-    vec(std::initializer_list<T> list)
+    vec() = default;
+    vec(std::initializer_list<T> list) 
     {
-        int i = 0;
-        for (auto& e : list)
-        {
-            data[i] = e;
-            i++;
-        }
+        std::copy(list.begin(), list.end(), data);
     }
 
-    // 拷贝构造函数
-    vec(const vec& v)
-    {
-        for (int i = 0; i < dim; i++)
-        {
-            data[i] = v.data[i];
-        }
-    }
+    vec(const vec&) = default;
+    vec& operator=(const vec&) = default;
+    
+    vec(vec&&) noexcept = default;
+    vec& operator=(vec&&) noexcept = default;
 
-    //// 移动构造函数
-    //vec(vec&& v)
-    //{
-    //    data = v.data;
-    //    v.data = nullptr;
-    //}
-
-    //重载赋值，移动语义
-    /*vec& operator=(vec&& v)
-    {
-        data = v.data;
-        v.data = nullptr;
-        return *this;
-    }*/
-
-    vec& operator=(const vec& v)
-    {
-        for (int i = 0; i < dim; i++)
-        {
-            data[i] = v.data[i];
-        }
-        return *this;
-    }
-
-    //重载+
-    vec operator+(const vec& v)
+    inline vec operator+(const vec& v) const 
     {
         vec res;
-        for (int i = 0; i < dim; i++)
-        {
-            res.data[i] = data[i] + v.data[i];
-        }
+        for (int i = 0; i < dim; ++i) res.data[i] = data[i] + v.data[i];
         return res;
     }
 
     //重载-
-    vec operator-(const vec& v)
+    inline vec operator-(const vec& v) const
 	{
 		vec res;
 		for (int i = 0; i < dim; i++)
@@ -93,6 +56,16 @@ public:
         }
         return res; // 返回结果
     }
+
+    inline vec operator*(const vec& v) const //哈达玛积
+	{  
+		vec res;
+		for (int i = 0; i < dim; i++)
+		{
+			res.data[i] = data[i] * v.data[i];
+		}
+		return res;
+	}
 
     // 重载 / 操作符，支持任意类型的除数
     template<typename U>
@@ -121,6 +94,16 @@ public:
 		return *this;
 	}
 
+    //重载-=
+    vec& operator-=(const vec& v)
+    {
+        for (int i = 0; i < dim; i++)
+		{
+			data[i] -= v.data[i];
+		}
+		return *this;
+    }
+
     vec cross(const vec& v)
     {
         std::cout << "请检查叉乘的维度是否正确！2/3" << std::endl;
@@ -128,14 +111,11 @@ public:
     }
 
     //求解向量的模
-    T length()
+    inline T length() const 
     {
-		T sum = 0;
-		for (int i = 0; i < dim; i++)
-		{
-			sum += data[i] * data[i];
-		}
-		return sqrt(sum);
+        T sum = 0;
+        for (int i = 0; i < dim; ++i) sum += data[i] * data[i];
+        return std::sqrt(sum);
     }
 
     //normalized 函数的实现
@@ -147,11 +127,7 @@ public:
             std::cout << "向量长度为0，无法归一化" << std::endl;
 			return vec();
 		}
-        vec result;
-        for (int i = 0; i < dim; i++)
-        {
-            result.data[i] = data[i] / len;
-        }
+        vec result = *this / len;
         return result;
 	}
 
@@ -174,24 +150,32 @@ public:
         return data[index];
     }
 
-    void print() const
+    //重载负号
+    vec operator-() const
+	{
+		vec result;
+		for (int i = 0; i < dim; i++)
+		{
+			result.data[i] = -data[i];
+		}
+		return result;
+	}
+
+
+    inline void print() const 
     {
-        if (data == nullptr)
-        {
-            std::cout << "data is nullptr" << std::endl;
-            return;
-        }
-        for (int i = 0; i < dim; i++)
-        {
-            std::cout << data[i] << " ";
-        }
-        std::cout << std::endl;
+        for (int i = 0; i < dim; ++i) std::cout << data[i] << " ";
+        std::cout << '\n';
     }
 
-
-protected:
-	T data[dim];
+    T data[dim]{};
 };
+
+//quat = vec<float,4>
+using quat = vec<float, 4>;
+using vec4 = vec<float, 4>;
+using vec3 = vec<float, 3>;
+using vec2 = vec<float, 2>;
 
 //比较两个vec各分量的最小值，然后返回一个新的vec
 template<typename T, int dim>
@@ -217,52 +201,30 @@ vec<T, dim> vec_max(const vec<T, dim>& a, const vec<T, dim>& b)
 	return result; // 返回结果向量
 }
 
-// vec2 类，继承自 vec<T, 2>
-template<typename T>
-class vec2 : public vec<T, 2> {
-public:
-    using vec<T, 2>::vec; // 继承构造函数
+//点乘
+template<typename T, int dim>
+T dot(const vec<T, dim>& a, const vec<T, dim>& b)
+{
+	T result = 0; // 创建结果
+	for (int i = 0; i < dim; ++i) 
+	{
+		result += a.data[i] * b.data[i]; // 累加
+	}
+	return result; // 返回结果
+}
 
-    // 特定于2D的交叉乘积返回标量
-    T cross(const vec2<T>& v) const {
-        return this->data[0] * v.data[1] - this->data[1] * v.data[0];
-    }
+vec3 cross(const vec3& a, const vec3& b);
 
-    // 从 vec<T, 2> 转换构造函数
-    vec2(const vec<T, 2>& v) {
-        this->data[0] = v[0];
-        this->data[1] = v[1];
-    }
-};
+//lerp
+template<typename T, int dim>
+vec<T, dim> lerp(const vec<T, dim>& a, const vec<T, dim>& b, T t)
+{
+	return a * (1 - t) + b * t;
+}
 
-// vec3 类，继承自 vec<T, 3>
-template<typename T>
-class vec3 : public vec<T, 3> {
-public:
-    using vec<T, 3>::vec; // 继承构造函数
+vec4 vec4_from_vec3(const vec3& v, float w);
+vec3 vec3_from_vec4(const vec4& v);
 
-    // 特定于3D的交叉乘积，返回vec3对象
-    vec3<T> cross(const vec3<T>& v) const {
-        vec3<T> result;
-        result[0] = this->data[1] * v.data[2] - this->data[2] * v.data[1];
-        result[1] = this->data[2] * v.data[0] - this->data[0] * v.data[2];
-        result[2] = this->data[0] * v.data[1] - this->data[1] * v.data[0];
-        return result;
-    }
-
-    // 从 vec<T, 3> 转换构造函数
-    vec3(const vec<T, 3>& v) {
-        this->data[0] = v[0];
-        this->data[1] = v[1];
-        this->data[2] = v[2];
-    }
-};
-
-
-typedef struct { float x, y; } vec2_t;
-typedef struct { float x, y, z; } vec3_t;
-typedef struct { float x, y, z, w; } vec4_t;
-typedef struct { float x, y, z, w; } quat_t;
 
 typedef struct { float m[3][3]; } mat3_t;
 typedef struct { float m[4][4]; } mat4_t;
@@ -276,31 +238,6 @@ int min_integer(int a, int b);
 int max_integer(int a, int b);
 float float_from_uchar(unsigned char value);
 unsigned char float_to_uchar(float value);
-vec2_t vec2_sub(vec2_t a, vec2_t b);
-float vec2_length(vec2_t v);
-vec2_t vec2_new(float x, float y);
-vec3_t vec3_new(float x, float y, float z);
-vec2_t vec2_min(vec2_t a, vec2_t b);
-vec2_t vec2_max(vec2_t a, vec2_t b);
-vec2_t vec2_add(vec2_t a, vec2_t b);
-vec2_t vec2_mul(vec2_t v, float factor);
-vec3_t vec3_add(vec3_t a, vec3_t b);
-vec3_t vec3_max(vec3_t a, vec3_t b);
-vec3_t vec3_min(vec3_t a, vec3_t b);
-vec2_t vec2_div(vec2_t v, float divisor);
-vec3_t vec3_sub(vec3_t a, vec3_t b);
-vec3_t vec3_cross(vec3_t a, vec3_t b);
-vec4_t vec4_new(float x, float y, float z, float w);
-vec4_t vec4_from_vec3(vec3_t v, float w);
-vec3_t vec3_from_vec4(vec4_t v);
-
-vec3_t vec3_add(vec3_t a, vec3_t b);
-
-vec4_t vec4_mul(vec4_t v, float factor);
-vec4_t vec4_div(vec4_t v, float divisor);
-
-vec4_t vec4_add(vec4_t a, vec4_t b);
-vec4_t vec4_mul_vec4(vec4_t a, vec4_t b);
 
 mat4_t mat4_identity(void);
 /* transformation matrices */
@@ -312,46 +249,36 @@ mat4_t mat4_rotate_y(float angle);
 mat4_t mat4_rotate_z(float angle);
 mat4_t mat4_scale(float sx, float sy, float sz);
 mat4_t mat4_rotate(float angle, float vx, float vy, float vz);
-vec3_t vec3_normalize(vec3_t v);
-float vec3_dot(vec3_t a, vec3_t b);
-float vec3_length(vec3_t v);
-vec3_t vec3_mul(vec3_t v, float factor);
-vec3_t vec3_div(vec3_t v, float divisor);
-vec3_t mat3_mul_vec3(mat3_t m, vec3_t v);
 
-mat4_t mat4_lookat(vec3_t eye, vec3_t target, vec3_t up);
+
+vec3 mat3_mul_vec3(mat3_t m, vec3 v);
+
+mat4_t mat4_lookat(vec3 eye, vec3 target, vec3 up);
 mat4_t mat4_ortho(float left, float right, float bottom, float top, float near, float far);
 mat4_t mat4_orthographic(float right, float top, float near, float far);
 
 mat4_t mat4_frustum(float left, float right, float bottom, float top,
 	float near, float far);
 mat4_t mat4_perspective(float fovy, float aspect, float near, float far);
-vec4_t mat4_mul_vec4(mat4_t m, vec4_t v);
+vec4 mat4_mul_vec4(mat4_t m, vec4 v);
 mat4_t mat4_mul_mat4(mat4_t a, mat4_t b);
 
-vec3_t vec3_lerp(vec3_t a, vec3_t b, float t);
 float float_lerp(float a, float b, float t);
-quat_t quat_new(float x, float y, float z, float w);
-quat_t quat_slerp(quat_t a, quat_t b, float t);
-float quat_dot(quat_t a, quat_t b);
-mat4_t mat4_from_trs(vec3_t t, quat_t r, vec3_t s);
-mat4_t mat4_from_quat(quat_t q);
+quat quat_slerp(quat& a, quat& b, float t);
+mat4_t mat4_from_trs(vec3& t, quat& r, vec3& s);
+mat4_t mat4_from_quat(quat& q);
 mat3_t mat3_inverse_transpose(mat3_t m);
 static mat3_t mat3_adjoint(mat3_t m);
 static float mat3_determinant(mat3_t m);
 mat3_t mat3_from_mat4(mat4_t m);
-mat4_t mat4_combine(mat4_t m[4], vec4_t weights_);
-mat3_t mat3_combine(mat3_t m[4], vec4_t weights_);
+mat4_t mat4_combine(mat4_t m[4], vec4& weights_);
+mat3_t mat3_combine(mat3_t m[4], vec4& weights_);
 mat3_t mat3_mul_mat3(mat3_t a, mat3_t b);
-vec3_t vec3_modulate(vec3_t a, vec3_t b);
-vec3_t vec3_negate(vec3_t v);
 
-vec4_t vec4_saturate(vec4_t v);
+vec4 vec4_saturate(vec4 v);
 float float_saturate(float f);
-mat3_t mat3_from_cols(vec3_t c0, vec3_t c1, vec3_t c2);
+mat3_t mat3_from_cols(vec3 c0, vec3 c1, vec3 c2);
 
 float float_linear2srgb(float value);
 float float_aces(float value);
-
-vec4_t vec4_lerp(vec4_t a, vec4_t b, float t);
 #endif

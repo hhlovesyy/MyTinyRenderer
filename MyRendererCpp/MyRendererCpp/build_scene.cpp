@@ -131,12 +131,12 @@ void SceneBuilder::sort_models(std::vector<Model*>& models, const mat4_t& view_m
         for (int i = 0; i < num_models; i++)
         {  // 遍历所有模型
             Model* model = models[i];
-            vec3_t center = model->mesh->getCenter();  // 获取模型中心
-            vec4_t local_pos = vec4_from_vec3(center, 1.0f);  // 转换为4D齐次坐标
-            vec4_t world_pos = mat4_mul_vec4(model->transform, local_pos);  // 变换到世界坐标
+            vec3 center = model->mesh->getCenter();  // 获取模型中心
+            vec4 local_pos = vec4_from_vec3(center, 1.0f);  // 转换为4D齐次坐标
+            vec4 world_pos = mat4_mul_vec4(model->transform, local_pos);  // 变换到世界坐标
 
-            vec4_t view_pos = mat4_mul_vec4(view_matrix, world_pos);
-            model->distance = -view_pos.z;  // 计算距离
+            vec4 view_pos = mat4_mul_vec4(view_matrix, world_pos);
+            model->distance = -view_pos[2];  // 计算距离
         }
         Qsort(models,isAscending);  
     }
