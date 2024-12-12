@@ -658,7 +658,14 @@ else if(materialType == METAL)  // 金属材质
 if(materialType == LAMBERT)  // 漫反射材质
 {
     // 计算一个随机散射方向
-    vec3 target = isectInfo.p + isectInfo.normal + random_in_unit_sphere();
+    vec3 scatter_direction = isectInfo.normal + random_in_unit_sphere();
+    //退化情况：random_in_unit_sphere()方向正好和normal方向相反，target可能会出问题，重置为normal方向
+    if(abs(scatter_direction[0])<1e-6 && abs(scatter_direction[1])<1e-6 && abs(scatter_direction[2])<1e-6)
+    {
+        scatter_direction = isectInfo.normal;
+    }
+
+    vec3 target = isectInfo.p + scatter_direction;
 
     wi.origin = isectInfo.p;  // 散射光线的起始位置为交点
     wi.direction = target - isectInfo.p;  // 散射光线的方向
@@ -805,13 +812,13 @@ $$
 
 现实世界中的玻璃, **发生反射的概率会随着入射角而改变**——从一个很狭窄的角度去看玻璃窗（也就是说你的视线方向几乎垂直于玻璃窗的法线方向）, 它会变成一面镜子。如果要完全精确地描述这件事公式是十分痛苦的（参考学习链接：https://zhuanlan.zhihu.com/p/372110183），不过有一个数学上近似的等式, 它是由Christophe Schlick提出的。Schlick 反射率函数如下：
 $$
-F_{\text {Schlick }}\left(n, v, F_{0}\right)=F_{0}+\left(1-F_{0}\right)(1-(n \cdot v))^{5} 
+F_{\text {Schlick }}\left(n, v, F_{0}\right)=F_{0}+\left(1-F_{0}\right)(1-(n \cdot v))^{5}
 $$
 其中的F0与介质的折射率有关，公式计算如下：
 $$
 F_{0}=\left(\frac{\eta_{1}-\eta_{2}}{\eta_{1}+\eta_{2}}\right)^{2}=\left(\frac{\eta-1}{\eta+1}\right)^{2}
 $$
-下面展示了用使用schlick近似方法来实现折射：
+下面展示了用使用schlick近似方法+前面推导的折射方向来实现折射：
 
 ```GLSL
 else if(materialType == DIELECTRIC)  // 介电质（玻璃等）材质
@@ -831,7 +838,7 @@ else if(materialType == DIELECTRIC)  // 介电质（玻璃等）材质
     if (dot(wo.direction, isectInfo.normal) > 0.0f)  // 如果光线从物体内部出射
     {
         outward_normal = -isectInfo.normal;  // 法线方向取反
-        ni_over_nt = rafractionIndex;
+        ni_over_nt = rafractionIndex; //默认空气的折射率为1
 
         cosine = dot(wo.direction, isectInfo.normal) / length(wo.direction);
         cosine = sqrt(1.0f - rafractionIndex * rafractionIndex * (1.0f - cosine * cosine));  // 计算折射角度
@@ -843,7 +850,7 @@ else if(materialType == DIELECTRIC)  // 介电质（玻璃等）材质
         cosine = -dot(wo.direction, isectInfo.normal) / length(wo.direction);
     }
 
-    if (refractVec(wo.direction, outward_normal, ni_over_nt, refracted))  // 尝试计算折射光线
+    if (refractVec(wo.direction, outward_normal, ni_over_nt, refracted))  // 尝试计算折射光线，对应上面推导的折射方向的公式
         reflect_prob = schlick(cosine, rafractionIndex);  // 计算反射概率（使用Schlick近似）
     else
         reflect_prob = 1.0f;  // 如果折射失败，反射概率为1
@@ -863,7 +870,61 @@ else if(materialType == DIELECTRIC)  // 介电质（玻璃等）材质
 }
 ```
 
+一眼看去，似乎代码比较复杂，且考虑了两种情况，这是为什么呢？现在我们就来具体解释一下上述代码的一些细节：
 
+> 【1】先看下面这段代码：
+> ```glsl
+> if (dot(wo.direction, isectInfo.normal) > 0.0f)  // 如果光线从物体内部出射
+> {
+>     outward_normal = -isectInfo.normal;  // 法线方向取反
+>     ni_over_nt = rafractionIndex; //默认空气的折射率为1
+> 
+>     cosine = dot(wo.direction, isectInfo.normal) / length(wo.direction);
+>     cosine = sqrt(1.0f - rafractionIndex * rafractionIndex * (1.0f - cosine * cosine));  // 计算折射角度
+> }
+> else  // 如果光线从物体外部入射
+> {
+>     outward_normal = isectInfo.normal;
+>     ni_over_nt = 1.0f / rafractionIndex;
+>     cosine = -dot(wo.direction, isectInfo.normal) / length(wo.direction);
+> }
+> ```
+>
+> `ni_over_nt`对应的就是上面推导部分的$\frac{\eta_{1}}{\eta_{2}}$，不过有一边默认是空气作为介质，对应的$\eta=1$，所以如果是光线从外部入射，`ni_over_nt`就是正常的$1/\eta$，否则如果是从内部射出去的话，则`ni_over_nt`应该是$\eta$。`outward_normal`这个变量也比较好理解，记录和光线相交的交点的法线方向。接下来就是`cosine`这个变量的说明。
+>
+> 在Schlick近似方法中，公式如下：
+> $$
+> F_{\text {Schlick }}\left(n, v, F_{0}\right)=F_{0}+\left(1-F_{0}\right)(1-(n \cdot v))^{5}
+> $$
+> 这里的Schlick公式对应的代码为：
+>
+> ```glsl
+> float schlick(float cos_theta, float n2)
+> {
+>     const float n1 = 1.0f;  // 空气的折射率
+> 
+>     float r0s = (n1 - n2) / (n1 + n2);  // 计算反射系数 r0
+>     float r0 = r0s * r0s;  // r0 的平方
+> 
+>     // 使用 Schlick 近似公式来计算反射光的贡献
+>     return r0 + (1.0f - r0) * pow((1.0f - cos_theta), 5.0f);
+> }
+> ```
+>
+> 也就是在这个函数中，我们依然固定空气的折射率为1.0，并且采用如下计算$F_0$的式子：
+> $$
+> F_{0}=\left(\frac{\eta_{1}-\eta_{2}}{\eta_{1}+\eta_{2}}\right)^{2}
+> $$
+> 根据上文，本段最开始的`cosine`变量就应该指的是传入Schlick函数的`cos_theta`值，也即$n · v$的值。对于从外部射入而言比较好理解，符合我们的认知。但如果是从内部出射到外部呢？
+>
+> A：此时如果还是计算原来的`cosine`值是不准确的，在这种情况下后面要计算Schlick的cos值就变成**折射光的方向和法线方向的夹角**（这里也用到了光路可逆的特性），也就是前面图当中的$\theta_r$，根据前文推导的公式可以表示为：
+> $$
+> sin^{2}\theta_{r}=(\frac{\eta_{1}}{\eta_{2}})^{2}sin^{2}\theta_{i}=(\frac{\eta_{1}}{\eta_{2}})^{2}(1-cos^{2}\theta_{i}) \\
+> cos\theta_{r} = \sqrt{1 - sin^{2}\theta_{r}}
+> $$
+> 现在读者应该能够理解为何上述代码要分两种情况讨论了（从介质内打到空气中，以及从空气打到介质内），并且为了满足后面的Schlick的计算，$\cos{\theta}$值也要分情况进行讨论。
+>
+> **需要记住的是，Schlick公式计算的是反射率（有多少光线反射？有多少光线折射？），而折射光的方向则是由上面的复杂推导公式所决定的。**
 
 ![image-20241210152231270](lesson12_光线追踪.assets/image-20241210152231270.png)
 
@@ -893,9 +954,209 @@ else if(materialType == DIELECTRIC)  // 介电质（玻璃等）材质
 
 #### 2.4 整体光线追踪的细节补充
 
-在前面的部分中我们介绍了光线打到不同材质物体上之后的反射/折射效果，但读者可能还不太清楚整个光线追踪的过程。在这部分中，我们会对上述没有说明完全的地方进行补充说明，并结合在shadertoy中可以直接运行的代码进行补充讲解。
+在前面的部分中我们介绍了光线打到不同材质物体上之后的反射/折射效果，但读者可能还不太清楚整个光线追踪的过程。在这部分中，我们会对上述没有说明完全的地方进行补充说明，并结合在shadertoy中可以直接运行的代码进行补充讲解。在本节教程的同级目录下有一个可执行的shadertoy文件，可以直接复制进shadertoy里面看效果，注释非常详细。不过这里我们还是把容易疑惑的地方特殊标注一下。
 
-==todo：明天来补充，主要是每次递归弹射的逻辑和每次计算阴影的逻辑，还有杂七杂八的比如相机之类的~==
+对于shadertoy而言，其main函数如下：
+```glsl
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    vec3 lookfrom = vec3(13.0, 2.0, 3.0);  // 相机位置
+    const vec3 lookat = vec3(0.0, 0.0, 0.0);  // 目标位置
+    float distToFocus = 10.0;  // 焦点距离
+    float aperture = 0.1;  // 相机光圈
+    
+    // 如果启用了旋转效果，旋转相机
+    if(ROTATION)
+    {
+        float angle = iTime / 2.0;  // 根据时间计算旋转角度
+    	mat4 rotationMatrix = mat4(cos(angle), 0.0, sin(angle), 0.0,
+                                          0.0, 1.0,        0.0, 0.0,
+                                 -sin(angle),  0.0, cos(angle), 0.0,
+                                         0.0,  0.0,        0.0, 1.0);
+    
+    	lookfrom = vec3(rotationMatrix * vec4(lookfrom, 1.0));  // 更新相机位置
+    }
+    
+    Camera camera;
+    Camera_init(camera, lookfrom, lookat, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(iResolution.x) / float(iResolution.y), aperture, distToFocus);  // 初始化相机
+    randState = fragCoord.xy / iResolution.xy;  // 计算随机种子
+    
+    vec3 col = vec3(0.0, 0.0, 0.0);  // 初始化颜色为黑色
+    for (int s = 0; s < NUMSAMPLES; s++)  // 多次采样，减少噪点，类似反走样的思想
+    {
+        float u = float(fragCoord.x + rand2D() - 0.5) / float(iResolution.x);  // 计算屏幕坐标的u分量
+        float v = float(fragCoord.y + rand2D() - 0.5) / float(iResolution.y);  // 计算屏幕坐标的v分量
+        Ray r = Camera_getRay(camera, u, v);  // 获取相机射出的光线
+        col += radiance(r);  // 根据光线计算辐射（颜色）
+    }
+    col /= float(NUMSAMPLES);  // 计算平均颜色
+    col = vec3( sqrt(col[0]), sqrt(col[1]), sqrt(col[2]) );  // 色彩伽马校正
+
+    fragColor = vec4(col, 1.0);  // 输出最终的像素颜色
+}
+```
+
+其中radiance就是打出的光线着色的颜色，Camera_getRay函数用于生成一条对应origin和direction的光线，即2.1节所讲述的部分。而radiance函数如下：
+
+```glsl
+// 计算光线的辐射（颜色）
+vec3 radiance(Ray ray)
+{
+    IntersectInfo rec;
+
+    vec3 col = vec3(1.0, 1.0, 1.0);  // 初始颜色为白色
+    bool earlyStop = false;
+
+    for(int i = 0; i < MAXDEPTH; i++)  // 最大递归深度
+    {
+        if (intersectScene(ray, 0.0001, MAXFLOAT, rec))  // 如果光线与场景相交,min设置成0.0001是为了防止浮点数精度造成的自相交现象
+        {
+            Ray wi;
+            vec3 attenuation;
+
+            bool wasScattered = Material_color(rec, ray, wi, attenuation);  // 根据材质计算散射
+
+            ray.origin = wi.origin;
+            ray.direction = wi.direction;
+
+            if (wasScattered)  // 如果光线被散射
+                col *= attenuation;  // 更新颜色
+            else  // 如果光线没有散射
+            {
+                col *= vec3(0.0f, 0.0f, 0.0f);  // 颜色为黑色
+                earlyStop = true;
+                break;
+            }
+        }
+        else  // 如果光线没有与任何物体相交
+        {
+            col *= skyColor(ray);  // 使用天空颜色
+            earlyStop = true;
+            break;
+        }
+    }
+    
+    if(!earlyStop) //没有提前退出，达到了MAXDEPTH，返回黑色
+        col *= vec3(0.0f,0.0f,0.0f);
+    return col;  // 返回最终颜色
+}
+```
+
+根据上面的代码，我们来考虑以下的几种情况（假设光线是从相机出发的，即正常的光线追踪）：
+
+- （1）如果光线什么都没打到，intersectScene返回false，则最终颜色就是背景颜色skyColor（可以自行设定）；
+- （2）如果光线一直都在打到东西，也要看打到的东西的材质：
+  - 如果被打中点的材质是漫反射，则wasScattered一定是true，此时更新颜色为albedo的颜色（相当于物体表面呈现albedo的颜色是因为其吸收了一部分光，散射出来的光就是albedo的颜色，所以`col*=attenuation`，`attenuation=albedo`）。
+  - 如果被打中点的材质是镜面反射或者前面提到的fuzzy材质，那么`wasSacttered=dot(wi.direction, isectInfo.normal) > 0.0f`，这就意味着反射的光线方向与法线夹角不呈现锐角，是不合理的结果，此时停止继续散射；
+  - 如果被打中点的材质是走的折射逻辑，参考前文的推导，并且此时的wasScattered也一定是true。
+
+- 如果超过了MAXDEPTH的迭代次数，可以认为“其所处阴影当中”，返回黑色即可（可以想象，如果一束光一直在不断弹射“出不去”，就好像“被卡死在角落里了”，可以视为阴影）。
+
+
+
+##### 2.4.1 单位圆盘内随机生成一点
+
+这个函数为`random_in_unit_disk()`。算法如下：
+
+```glsl
+// 生成单位圆盘内的随机点（用于景深相机效果）
+vec3 random_in_unit_disk()
+{
+    float spx = 2.0 * rand2D() - 1.0;  // 随机 x 坐标
+    float spy = 2.0 * rand2D() - 1.0;  // 随机 y 坐标
+
+    float r, phi;
+
+    // 确定 r 和 phi 的值来保证生成的点在单位圆盘内
+    if (spx > -spy)
+    {
+        if (spx > spy)
+        {
+            r = spx;
+            phi = spy / spx;
+        }
+        else
+        {
+            r = spy;
+            phi = 2.0 - spx / spy;
+        }
+    }
+    else
+    {
+        if (spx < spy)
+        {
+            r = -spx;
+            phi = 4.0f + spy / spx;
+        }
+        else
+        {
+            r = -spy;
+            if (spy != 0.0)
+                phi = 6.0 - spx / spy;
+            else
+                phi = 0.0;
+        }
+    }
+
+    phi *= PI / 4.0;  // 转换为弧度
+
+    return vec3(r * cos(phi), r * sin(phi), 0.0f);  // 返回随机点
+}
+```
+
+这个算法乍一看可能会比较迷惑，以下是对其的解读：
+
+- （1）随机x坐标和y坐标，范围是[-1，1]：
+
+```glsl
+float spx = 2.0 * rand2D() - 1.0;  // 随机 x 坐标
+float spy = 2.0 * rand2D() - 1.0;  // 随机 y 坐标
+```
+
+- （2）接下来，通过条件语句决定如何计算 `r`（距离原点的距离）和 `phi`（相对于 x 轴的角度）的值。这一部分是为了确保所生成的点位于单位圆盘内。
+
+  - 通过比较 `spx` 和 `spy` 的大小关系，将整个平面分成八个象限，并在每个象限中使用不同的方式来计算 `r` 和 `phi`。
+
+  具体地，看下面这张图：
+
+  ![image-20241211155457138](./assets/image-20241211155457138.png)
+
+  绿色的部分对应代码中的`spx > -spy`，紫色的部分则对应代码中的`else`情况，也就是`spx <= -spy`。此时如果还满足`spx>spy`，则是下面红框两部分三角形对应的情况：
+
+  ![image-20241211160642311](./assets/image-20241211160642311.png)
+
+  - 此时`r = spx`一定>0，`phi` 是通过将 `spy` 和 `spx` 的比率转换为角度，以便确定点在极坐标系中的位置。其他象限的情况也是一样的，读者可以在desmos当中尝试一下。
+
+我们用python实现一下上面这个随机采样的算法，绘制10000个点，看看具体的分布：
+
+![image-20241212171053700](./assets/image-20241212171053700.png)
+
+可以看到，随机的效果还是不错的
+
+**当然，这个算法看着比较难以理解（如果不理解的话用接下来的拒绝法也可以），使用拒绝法也是可以的**（这种算法比较好理解），该算法的版本如下：
+
+```c++
+// 生成单位圆盘内的随机点（用于景深相机效果）
+vec3 random_in_unit_disk()
+{
+    for(int i=0;i<10000;i++) //拒绝法，设置最大的迭代次数，防止死循环
+    {
+		vec3 p = vec3(2.0 * rand2D() - 1.0, 2.0 * rand2D() - 1.0, 0.0); //rand2D返回值是[0，1)
+		if (sqrt(length(p)) >= 1.0f) continue;
+		return p;
+	}
+}
+```
+
+同样在python当中，可视化一下拒绝法的效果，同样绘制10000个点，看看效果：
+
+![image-20241212171405165](./assets/image-20241212171405165.png)
+
+可以看到，效果还是不错的。
+
+> 实际测试下来，拒绝法速度比较慢，而且由于会不断地“拒绝”计算出来的结果，导致计算量也会比较大，因此我们在提供的最终代码版本中还是使用本节最开始的算法来做圆盘内随机采样一点。
+
+
 
 
 
