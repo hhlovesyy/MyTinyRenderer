@@ -5,7 +5,7 @@
 
 // 可以更改这些参数以提高质量（但会降低帧率 :-)
 #define MAXDEPTH 	500         // 最大递归深度
-#define NUMSAMPLES 	30         // 每像素采样数
+#define NUMSAMPLES 	50         // 每像素采样数
 #define ROTATION	false      // 是否启用旋转
 
 // 光线结构体
@@ -247,6 +247,7 @@ vec3 random_in_unit_disk()
 }
 
 
+
 // 摄像机结构体定义
 struct Camera
 {
@@ -264,7 +265,7 @@ void Camera_init(out Camera camera, vec3 lookfrom, vec3 lookat, vec3 vup, float 
     camera.lensRadius = aperture / 2.0;  // 设置镜头半径
     
     float theta = vfov * PI / 180.0;  // 将竖直视场角转为弧度
-    float halfHeight = tan(theta / 2.0);  // 计算视野的一半高度
+    float halfHeight = tan(theta / 2.0);  // 计算视野的一半高度.这里我们认为定义被投影点与投影平面的距离是焦距，为1.0,见教程
     float halfWidth = aspect * halfHeight;  // 根据宽高比计算视野的一半宽度
 
     camera.origin = lookfrom;  // 摄像机位置
@@ -315,7 +316,14 @@ bool Material_color(IntersectInfo isectInfo, Ray wo, out Ray wi, out vec3 attenu
     if(materialType == LAMBERT)  // 漫反射材质
     {
         // 计算一个随机散射方向
-        vec3 target = isectInfo.p + isectInfo.normal + random_in_unit_sphere();
+        vec3 scatter_direction = isectInfo.normal + random_in_unit_sphere();
+        //退化情况：random_in_unit_sphere()方向正好和normal方向相反，target可能会出问题，重置为normal方向
+        if(abs(scatter_direction[0])<1e-6 && abs(scatter_direction[1])<1e-6 && abs(scatter_direction[2])<1e-6)
+        {
+            scatter_direction = isectInfo.normal;
+        }
+        
+        vec3 target = isectInfo.p + scatter_direction;
 
         wi.origin = isectInfo.p;  // 散射光线的起始位置为交点
         wi.direction = target - isectInfo.p;  // 散射光线的方向
@@ -355,7 +363,7 @@ bool Material_color(IntersectInfo isectInfo, Ray wo, out Ray wi, out vec3 attenu
         if (dot(wo.direction, isectInfo.normal) > 0.0f)  // 如果光线从物体内部出射
         {
             outward_normal = -isectInfo.normal;  // 法线方向取反
-            ni_over_nt = rafractionIndex;
+            ni_over_nt = rafractionIndex;  //默认空气的折射率为1
            
             cosine = dot(wo.direction, isectInfo.normal) / length(wo.direction);
             cosine = sqrt(1.0f - rafractionIndex * rafractionIndex * (1.0f - cosine * cosine));  // 计算折射角度
@@ -432,10 +440,11 @@ vec3 radiance(Ray ray)
     IntersectInfo rec;
 
     vec3 col = vec3(1.0, 1.0, 1.0);  // 初始颜色为白色
+    bool earlyStop = false;
 
     for(int i = 0; i < MAXDEPTH; i++)  // 最大递归深度
     {
-        if (intersectScene(ray, 0.001, MAXFLOAT, rec))  // 如果光线与场景相交
+        if (intersectScene(ray, 0.0001, MAXFLOAT, rec))  // 如果光线与场景相交,min设置成0.0001是为了防止浮点数精度造成的自相交现象
         {
             Ray wi;
             vec3 attenuation;
@@ -450,16 +459,20 @@ vec3 radiance(Ray ray)
             else  // 如果光线没有散射
             {
                 col *= vec3(0.0f, 0.0f, 0.0f);  // 颜色为黑色
+                earlyStop = true;
                 break;
             }
         }
         else  // 如果光线没有与任何物体相交
         {
             col *= skyColor(ray);  // 使用天空颜色
+            earlyStop = true;
             break;
         }
     }
-
+    
+    if(!earlyStop) //没有提前退出，达到了MAXDEPTH，返回黑色
+        col *= vec3(0.0f,0.0f,0.0f);
     return col;  // 返回最终颜色
 }
 
@@ -493,8 +506,8 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
 
     for (int s = 0; s < NUMSAMPLES; s++)  // 多次采样，减少噪点
     {
-        float u = float(fragCoord.x + rand2D()) / float(iResolution.x);  // 计算屏幕坐标的u分量
-        float v = float(fragCoord.y + rand2D()) / float(iResolution.y);  // 计算屏幕坐标的v分量
+        float u = float(fragCoord.x + rand2D() - 0.5) / float(iResolution.x);  // 计算屏幕坐标的u分量
+        float v = float(fragCoord.y + rand2D() - 0.5) / float(iResolution.y);  // 计算屏幕坐标的v分量
 
         Ray r = Camera_getRay(camera, u, v);  // 获取相机射出的光线
 
