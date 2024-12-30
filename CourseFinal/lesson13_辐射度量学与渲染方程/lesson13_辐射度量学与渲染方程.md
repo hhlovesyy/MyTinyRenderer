@@ -24,9 +24,9 @@
 | -------------------- | --------------- | ------- | ----------------- | ------------------------------------- | ------------------------------ |
 | radiant energy       | 辐射能          | $Q$     | $Joule,J$（焦耳） |                                       | 电磁辐射的能量                 |
 | radiant flux / power | 辐射通量 / 功率 | $\Phi $ | $watts,W$(瓦特)   | $ \LARGE \frac{dQ}{dt}$               | **单位时间**的辐射能量         |
-| irradiance           | 辐照度          | $E$     | $W/m^2$           | $ \LARGE \frac{d \Phi}{d A}$ | 辐射通量相对于**面积**的密度   |
-| radiant intensity    | 辐射强度        | $I$     | $W/sr$            | $\LARGE \frac{d \Phi}{d \omega}$                 | 辐射通量相对于**立体角**的密度 |
-| **radiance** | 辐射率 | $L$ | $W/m^2sr$ | $\LARGE \frac{d^{2} \Phi }{d A d \omega}$ | 辐射通量相对于**面积和立体角**的密度  / 对**单条光线**中电磁辐射的度量 |
+| irradiance           | 辐照度          | $E$     | $W/m^2$           | $ \LARGE \frac{d \Phi}{d A}$ | **单位面积**上的辐射通量 |
+| radiant intensity    | 辐射强度        | $I$     | $W/sr$            | $\LARGE \frac{d \Phi}{d \omega}$                 | **单位立体角**上的辐射通量 |
+| **radiance** | 辐射率 | $L$ | $W/m^2sr$ | $\LARGE \frac{d^{2} \Phi }{d A d \omega}$ | **单位面积**和**单位立体角**上的辐射通量  /<br /> 对**单条光线**中电磁辐射的度量 |
 
 接下来，我们会逐一讲解以上辐射量。
 
@@ -40,13 +40,23 @@
 
 实际上，光源辐射出来的就是辐射能，比如当你打开一个灯泡， 灯泡会发出光，这些光是以电磁辐射的形式传播的能量，这些能量的总量就是辐射能。
 
+如下图，灯泡从开始发光到能量释放完毕结束发光，这个过程中释放的总能量就是辐射能。
+
+<img src="lesson13_辐射度量学与渲染方程.assets/image-20241222132001044.png" alt="image-20241222132001044" style="zoom:50%;" />
+
 
 
 #### 2.1.2 辐射通量 （radiant flux） / 功率（power）
 
 思考：一个灯泡单位时间会释放多少能量呢？
 
-**辐射通量 （radiant flux）**又称为**功率（power）**是单位时间的辐射能（radiant energy），符号为$\Phi $，可表示为$\LARGE \frac{dQ}{dt}$， 单位是$watts,W$(瓦特)。
+**辐射通量 （radiant flux）**又称为**功率（power）**是单位时间的辐射能（radiant energy），符号为$\Phi $，可以通过下式表示：
+$$
+\Phi =\lim_{\Delta t\to 0}\frac{\Delta Q}{\Delta t} =\frac{dQ}{dt}
+$$
+ 单位是焦耳/秒，但是我们一般会使用$watts,W$(瓦特)来作为单位。
+
+
 
 >实际上每个辐射度量学物理量会对应一个光度学物理量，辐射通量 （radiant flux）对应光度学中的光通量（luminous flux），单位是流明（lumen），表示光的亮度。
 >
@@ -54,7 +64,9 @@
 >
 >而辐射度量学就不会考虑人眼的感知，而是直接考虑电磁辐射的强弱。
 
-辐射通量 （radiant flux）是辐射度量学中最基本的单位，而非 辐射能（radiant energy）。假设还是一个灯泡照射照射在桌面上，照的时间越长，桌面越热，辐射能（radiant energy）越大，但我们并不想知道总的辐射能，我们其实希望知道，这个灯泡每秒钟会释放多少焦耳的辐射能，因此我们就引入使用辐射通量 （radiant flux）来表示。这个灯泡的辐射通量 （radiant flux） / 功率（power）为100瓦，表示其每秒钟会释放100焦耳的辐射能（radiant energy）。
+辐射通量 （radiant flux）是辐射度量学中最基本的单位，而非 辐射能（radiant energy）。假设还是一个灯泡照射照射在桌面上，照的时间越长，桌面越热，辐射能（radiant energy）越大，但我们并不想知道总的辐射能，我们其实希望知道，这个灯泡每秒钟会释放多少焦耳的辐射能，因此我们就引入使用辐射通量 （radiant flux）来表示。
+
+​	举个例子，假设这个灯泡的辐射通量 （radiant flux） / 功率（power）为100瓦，表示其每秒钟会释放100焦耳的辐射能（radiant energy）。（前提是假设此灯泡任何时候发射的能量相同）
 
 
 
@@ -64,29 +76,35 @@
 
 > 标题中我们将英文写在前面，因为接下来几个概念大家更习惯用英文来表述，中文可能会引起混淆。
 
-**irradiance（辐照度）** 表示单位面积上的辐射通量，符号为$E$，单位是$W/m^2$（瓦特每平方米）。可以表示为$\LARGE \frac{d \Phi}{d A}$。
-
+**irradiance（辐照度）** 表示**单位面积**上的辐射通量，符号为$E$，单位是$W/m^2$（瓦特每平方米）。可以通过下式表示：
+$$
+E=\lim_{\Delta A\to 0}\frac{\Delta \Phi}{\Delta A} =\frac{d \Phi}{d A}
+$$
 具体来说，irradiance（辐照度）表示的是，电磁辐射入射于物体表面时，每单位面积的辐射通量（radiant flux） / 功率（power）。也可以简单理解为用来描述物体表面接收多少光的能量。
 
-在渲染中，这个单位面积一般是物体的表面, 与入射光线垂直的面积。
+在渲染中，这个单位面积一般是物体的表面。如下图，假设场景中的光源面积是$A$，且这个光源的辐射通量（radiant flux）为$\Phi$ :
 
-![image-20241213153150959](lesson13_辐射度量学与渲染方程.assets/image-20241213153150959.png)
+如下图左侧， 如果这个面积与入射光线垂直，则$A_1 = A$, 在$A_1$内任意点的irradiance（辐照度）$E_1=\LARGE \frac{ \Phi}{ A}$.
+
+如下图左侧， 如果这个面积与入射光线不垂直，则$A_2 = \LARGE\frac{A}{cos\theta}$, 在$A_2$内任意点的irradiance（辐照度）$E_2=\LARGE \frac{ \Phi cos\theta}{ A}$.
+
+![image-20241223152638052](lesson13_辐射度量学与渲染方程.assets/image-20241223152638052.png)
+
+​															图源：[4]
+
+这也很好理解，$A$越倾斜，$A_2$越大，单位面积上的辐射通量（radiant flux）越小，因为光线被分散到更大的面积上了。
 
 
 
-如下图，还是之前例子中的灯泡，这个灯泡的辐射通量/ 功率$\Phi $为60W，这个点光源向四周均匀地辐射能量，对于距离光源中心 $r$ 的球壳上，我们取一小块面积$A$，这个面积上的irradiance（辐照度）$E$就是$\LARGE \frac{d \Phi}{d A}$，也就是$\LARGE \frac{\Phi}{4\pi r^2}=\frac{60}{4\pi r^2}$。$r$越大，irradiance（辐照度）越小。
+如下图，还是之前例子中的灯泡，这个灯泡的辐射通量/ 功率$\Phi $为60W，这个点光源向四周均匀地辐射能量，对于距离光源中心 $r$ 的球壳上，由于灯泡均匀地像四周发散能量，因此对于某个球壳的每个地方的irradiance（辐照度）是一样的，球壳面积为$4\pi r^2$，因此这个球壳上的irradiance（辐照度）的值就是$E\LARGE= \frac{ \Phi}{ A}=\frac{60}{4\pi r^2}$。$r$越大，irradiance（辐照度）越小。
+
+
 
 我们可以简单地想象，我们地手掌放在灯泡旁边，这个时候手掌表面单位面积接收到的光的能量就是irradiance（辐照度），我们的手掌距离灯泡越远，感受到的温暖就越小，因为irradiance（辐照度）变小了。
 
+<img src="lesson13_辐射度量学与渲染方程.assets/285a1bc84b2e9f5c82c519a1941da86.jpg" alt="285a1bc84b2e9f5c82c519a1941da86" style="zoom:25%;" /><img src="lesson13_辐射度量学与渲染方程.assets/e37ab81a17d9d6ac8db2e50408aa72b.jpg" alt="e37ab81a17d9d6ac8db2e50408aa72b" style="zoom: 25%;" />
+
 假设手掌距离灯泡1米，那么irradiance（辐照度）的值就是$\LARGE \frac{60}{4\pi r^2}=\frac{60}{4\pi}$ $≈4.77W/m^2$。这个值就是我们手掌表面单位面积接收到的光的能量。
-
-
-
-![image-20241219111006211](lesson13_辐射度量学与渲染方程.assets/image-20241219111006211.png)
-
-​														https://yangwc.com/2020/04/06/Spectral/
-
-
 
 
 
@@ -94,7 +112,7 @@
 >
 >https://en.wikipedia.org/wiki/Radiant_exitance
 >
->公式与irradiance（辐照度）是一致的。
+>由于公式与irradiance（辐照度）是一致的，因此后续本文不做具体区分。
 
 
 
@@ -102,7 +120,11 @@
 
 思考：灯泡往一个特定方向发射的能量是多少呢？
 
-**radiant intensity（辐射强度）** 表示单位立体角上的辐射通量，符号为$I$，单位是$W/sr$（瓦特每立体角）。可以表示为$\LARGE \frac{d \Phi}{d \omega}$。
+**radiant intensity（辐射强度）** 表示**单位立体角**上的辐射通量，符号为$I$，单位是$W/sr$（瓦特每立体角）。可以通过下式表示：
+$$
+E=\lim_{\Delta \omega\to 0}\frac{\Delta \Phi}{\Delta \omega} =\frac{d \Phi}{d \omega}
+$$
+
 
 这里提到了立体角的概念，那我们来看看什么是立体角：
 
@@ -191,23 +213,25 @@ $$
 
 回到radiant intensity（辐射强度）上，其定义是单位立体角上的辐射通量，可以表示为$I=\LARGE \frac{d \Phi}{d \omega}$。
 
-由于立体角$\mathrm{d} \omega =\sin \theta \mathrm{d} \theta \mathrm{d} \phi $  ,我们发现， 立体角和半径r是没有关系的，同理，radiant intensity（辐射强度）与距离光源远近无关。见下图
+由于立体角$\mathrm{d} \omega =\sin \theta \mathrm{d} \theta \mathrm{d} \phi $  ,我们发现， 立体角和半径r是没有关系的，同理，radiant intensity（辐射强度）与距离光源远近无关。见下图左侧：
 
-![image-20241211105427418](lesson13_辐射度量学与渲染方程.assets/image-20241211105427418.png)
-
-radiant intensity（辐射强度）并没有发生衰减（因为立体角并没有发生变化，图上红绿色那根线），而是irradiance在发生衰减。
+<img src="lesson13_辐射度量学与渲染方程.assets/e2023cdc7c461b08174299604685918.jpg" alt="e2023cdc7c461b08174299604685918" style="zoom:25%;" /><img src="lesson13_辐射度量学与渲染方程.assets/e37ab81a17d9d6ac8db2e50408aa72b.jpg" alt="e37ab81a17d9d6ac8db2e50408aa72b" style="zoom: 25%;" />
 
 
+
+可见，radiant intensity（辐射强度）并没有发生衰减（上图左侧），而 irradiance（辐照度）在发生衰减（上图右侧）。
 
 
 
 如下图，还是之前例子中的灯泡，这个灯泡向四周均匀地辐射能量，即总的发射辐射通量/ 功率$\Phi$，然后单位立体角发射radiant intensity（辐射强度）$I$ .
 
+
+
 因为有:
 $$
 I=\LARGE \frac{d \Phi}{d \omega}
 $$
-所以想要求出单位时间的能量Φ,我们就可以对各个立体角方向的$I$进行积分求解, 这就可以得到一个点光源均匀的往四周辐射能量,对应的任何方向的intensity推导公式如下:
+所以想要求出单位时间的能量，即辐射通量/ 功率$\Phi$, 我们就可以对各个立体角方向的$I$进行积分求解, 这就可以得到一个点光源均匀的往四周辐射能量,对应的任何方向的intensity推导公式如下:
 $$
 \Phi=\int_{S^2}I d\omega=4\pi I (所有立体角的intensity积分起来，能得到功率power)\\  
 I=\frac{\Phi}{4\pi}
@@ -217,13 +241,9 @@ $$
 
 
 
-![image-20241211104053208](lesson13_辐射度量学与渲染方程.assets/image-20241211104053208.png)
-
-
-
 我们再举一个例子，如果这次光源不是均匀发光，而是一个聚光灯，发光集中在某方向，假设在某方向上通过的立体角是0.5 sr，功率是60 W，那么：
 
-$I=\LARGE \frac{d \Phi}{d \omega}$$ =  \frac{60}{0.5}=120W/sr$
+$I=\LARGE \frac{ \Phi}{ \omega}$$ =  \frac{60}{0.5}=120W/sr$
 
 
 
@@ -233,7 +253,7 @@ $I=\LARGE \frac{d \Phi}{d \omega}$$ =  \frac{60}{0.5}=120W/sr$
 
 radiance（辐射率） 是一个很重要的概念，我们在之前的基础光线追踪章节中，提到的从相机或者眼睛出发，穿过每个像素的光线，就可以用radiance（辐射率）来表示。
 
-![image-20241219192322856](lesson13_辐射度量学与渲染方程.assets/image-20241219192322856.png)
+![image-20241222134918633](lesson13_辐射度量学与渲染方程.assets/image-20241222134918633.png)
 
 
 
@@ -249,9 +269,9 @@ radiance（L）可以看作是单位面积的radiant intensity（I）。radiant 
 
 $\large L=\frac{dI}{dA cos \theta}$
 
-![image-20241219193231903](lesson13_辐射度量学与渲染方程.assets/image-20241219193231903.png)
 
 
+![image-20241222135515739](lesson13_辐射度量学与渲染方程.assets/image-20241222135515739.png)
 
 
 
@@ -261,9 +281,9 @@ $\large L=\frac{dI}{dA cos \theta}$
 
 $\large L=\frac{dE}{d\omega cos \theta}$
 
-![image-20241219192322856](lesson13_辐射度量学与渲染方程.assets/image-20241219192322856.png)
 
 
+![image-20241222135538314](lesson13_辐射度量学与渲染方程.assets/image-20241222135538314.png)
 
 反之，如果我们将所有方向的立体角的radiance积分起来，就可以得到irradiance:
 $$
@@ -273,20 +293,112 @@ $$
 $$
 所以，dA收到的所有能量（也就是irrandiance）就是从各个方向进来的能量求和。其实就是**radiance在irradiance的基础上加了一个方向性**。$H^2$指的是单位半球面
 
+![image-20241222140004454](lesson13_辐射度量学与渲染方程.assets/image-20241222140004454.png)
 
-
-
-
-![image-20230416195112331](lesson13_辐射度量学与渲染方程.assets/image-20230416195112331.png)
 
 
 
 
 
 
+## 3 表面反射
+
+我们知道，光打到一个表面上，有可能有一部分会被吸收，有一部分会被反射，我们可以回忆光线追踪的章节，假设是光滑平面，那么光线大概率发生镜面反射，光线会沿着反射方向反射出去。
+
+![image-20241223170334188](lesson13_辐射度量学与渲染方程.assets/image-20241223170334188.png)<img src="lesson13_辐射度量学与渲染方程.assets/image-20241223170345522.png" alt="image-20241223170345522" style="zoom:50%;" />
+
+如果是漫反射材质，比如很多绝缘体（塑料，橡皮,  木头桌子）等等粗糙材质，光线打到表面后，反射光线会向四面八方发射，而不是集中反射到某个区域被我们捕捉到。
+
+![image-20241223170401354](lesson13_辐射度量学与渲染方程.assets/image-20241223170401354.png)                             <img src="lesson13_辐射度量学与渲染方程.assets/image-20241223170411159.png" alt="image-20241223170411159" style="zoom: 50%;" />
+
+那么，假设我们想要知道，某一根光线沿着$\omega_i$方向入射到表面上，经过反射（部分会被吸收，部分可能会反射到各个方向去），沿着$\omega_o$ 方向反射到我们眼睛被我们看见，我们想知道沿着$\omega_o$ 出射的光线能量占了沿着$\omega_i$ 入射的光线能量的多少，这就是BRDF（bidirectional reflectance distribution function，双向反射分布函数）要描述的问题。
+
+### 3.1 BRDF
+
+<img src="lesson13_辐射度量学与渲染方程.assets/image-20241223165834191.png" alt="image-20241223165834191" style="zoom:67%;" />
+
+BRDF（bidirectional reflectance distribution function，双向反射分布函数）描述的是在一对方向$\omega_i$ 和$\omega_o$ 上，沿着$\omega_i$入射的光有多少会朝着$\omega_o$ 反射出来。也就是说，BRDF描述了表面如何把一个方向$\omega_i$收集到的能量，反射到另一个方向$\omega_o$去。符号表示为$f_r(w_i\rightarrow w_o)$。公式表示为：
+$$
+f_r(w_i\rightarrow w_o)=
+\frac{dL_o(\omega_o)}{dE(\omega_i)}=
+\frac{dL_o(\omega_o)}{L_i(\omega_i)cos\theta_id\omega_i}
+$$
+接下来，我们解释一下这个公式。
+
+$L_o(\omega_o)$项：
+
+$L_o(\omega_o)$表示的是表面从$\omega_o$ 出射的总的radiance(辐射率), 包含表面上半球所有方向的入射光线的能量贡献。如下图，假设有多个光源照亮表面p，它们都会影响到从$\omega_o$ 出射的光线的强度/能量。
+
+<img src="lesson13_辐射度量学与渲染方程.assets/image-20241223173757410.png" alt="image-20241223173757410" style="zoom:50%;" />
+
+而我们只需要知道其中从特定方向$\omega_i$来的光线的贡献，因此，使用的是$dL_o(\omega_o)$表示来自特定方向$\omega_i$的入射光贡献的radiance(辐射率)。
+
+$dE(\omega_i)$项：
+
+$E$表示irradiance，是单位面积上的辐射通量，表面p接收到的来自上半球所有方向的入射光线的贡献。
+
+$dE(\omega_i)$表示来自特定方向$\omega_i$的入射光对于表面p的贡献。
+
+因此，不难想到，$dE(\omega_i)=L_i(\omega_i)cos\theta_id\omega_i$。
+
+
+
+这样一来我们就理解了BRDF的公式。
+
+
+
+同时，BRDF有两个重要**性质**：
+
+1、BRDF具有**可逆性（reciprocity ）**，即 $f_r(w_i\rightarrow w_o)=f_r(w_o\rightarrow w_i )$，交换输入和输出的方向并不会改变BRDF.
+
+2、BRDF遵循**能量守恒**定律：光反射的总能量少于等于入射光的能量。这是由于入射光入射到表面后，能量可能会被吸收，反射光的能量不可能超过入射光的能量。对于所有方向$\omega_o $ ， 满足：
+$$
+\int_{\H^{2}(n)}f_r(w_i\rightarrow w_o)cos\theta_i d\omega_i \leq 1
+$$
+$\H^{2}(n)$是指单位半球面，指表面上半球面。
+
+
+
+### 3.2 反射方程与渲染方程
+
+**反射方程**：
+
+最终我们想得到的是$L_o(\omega_o)$项，回顾下，$L_o(\omega_o)$表示的是表面从$\omega_o$ 出射的总的radiance(辐射率), 包含表面上半球所有方向的入射光线的能量贡献。如下图，假设有多个光源照亮表面p，它们都会影响到从$\omega_o$ 出射的光线的强度/能量。
+
+<img src="lesson13_辐射度量学与渲染方程.assets/image-20241223213356944.png" alt="image-20241223213356944" style="zoom: 67%;" />
+
+那么，我们只需要将所有方向的入射光线（所有$\omega_i$）的贡献加起来，就可以得到$L_o(\omega_o)$。
+$$
+L_o(\omega_o)=\sum L_i(\omega_i)f_r(w_i\rightarrow w_o)cos\theta_i 
+$$
+如果我们有特别多乃至无数多个光源，那么我们可以用积分来表示，这就是反射方程的公式：
+$$
+L_o(\omega_o)=\int_{\H^{2}(n)}L_i(\omega_i)f_r(w_i\rightarrow w_o)cos\theta_i d\omega_i
+$$
+
+（$\H^{2}(n)$是指单位半球面，指表面上半球面。）
+
+可以认为，我们把所有输入入射方向的贡献加起来，对于某个出射方向就知道了出射方向的颜色。
+
+值得注意的是，这里的“光源”也可以是其他表面反射过来的光线，不一定指的是真的发光的光源。
+
+
+
+我们还需要进一步考虑物体自身发光的radiance(辐射率)。因此，我们需要将BRDF和自发光radiance结合起来，得到**渲染方程**。
+$$
+L_o(\omega_o)=L_e(\omega_0)+\int_{\H^{2}(n)}L_i(\omega_i)f_r(w_i\rightarrow w_o)cos\theta_i d\omega_i
+$$
+关于渲染方程的解法,在后面会进行介绍.
+
+
+
+现在要从反射方程里面推出更通用的渲染方程
 
 [1]https://en.wikipedia.org/wiki/Radiometry
 
 [2]real-time rendering 4th
 
 [3]https://zh.wikipedia.org/wiki/%E7%94%B5%E7%A3%81%E6%B3%A2
+
+[4] Physically Based Rendering: From Theory To Implementation
+
