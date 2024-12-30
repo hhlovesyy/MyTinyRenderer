@@ -14,7 +14,7 @@ SDF可视化：https://www.shadertoy.com/view/lslXD8
 
 参考视频：https://www.youtube.com/watch?v=PGtv-dBi2wE&list=PLGmrMu-IwbguU_nY2egTFmlg691DN7uE5&index=22
 
-## 1.什么是Ray marching？（==看情况补充一下基本知识储备==）
+## 1.什么是Ray marching？
 
 在前面的光线追踪章节，我们介绍了光追的基本应用，并渲染出了许多球体在场景当中。思考一个问题：现在我们想实现复杂的动态效果，例如我们想实现体积云，如果场景中不只是有球形体积云怎么办？例如我们有圆环、圆柱、圆锥、甚至更加复杂的几何体体积云在场景中，要如何计算求交呢？
 
@@ -636,6 +636,13 @@ $$
 e = length(d,y)
 $$
 
+总之对于这个情况：
+$$
+d=|CP|-r\\
+y=(abs(t-0.5)-0.5) * |AB|\\
+e = \sqrt{d^2 +y^2}
+$$
+
 
 **情况2**
 
@@ -659,7 +666,7 @@ $$
 
 
 
-我们统一一下，这里的trick和box那一节的类似，更新后的$e$如下：
+我们统一一下情况2 与情况3，这里的trick和box那一节的类似，更新后的$e$如下：
 $$
 e=\sqrt{max(d,0)^2+max(y,0)^2}
 $$
@@ -709,8 +716,6 @@ i = min(max(d, y), 0)\\
 \\
 D=i+e
 $$
-
-
 
 
 写成代码如下：
@@ -994,16 +999,27 @@ float dist(vec3 p)
 
 #### （a）差集运算
 
-![image-20241219145309179](./assets/image-20241219145309179.png)
-
 差集的SDF计算公式为$d(B-A)=max(-dA, dB)$
 
 看上图，红色区域对应的是B-A的结果。假设Ray Marching的起点为①表示的点，每次Ray marching计算得到的点是$p$点，方向是红色线的方向：
 
 - 若$p$位于A表面和B表面的外侧（例如①处），根据上面公式，此时$dA>0,dB>0$，因此$dB>-dA$，结果是$dB$；
-- 若$p$位于A表面的内侧，B表面的外侧（例如②处），根据上面公式，此时$dA<0,dB>0$，这是就要看$-dA$和$dB$哪个更大了，例如②的情况显然离B更近，因此下一轮ray marching的距离应该是$dA$，从而会进入B的内部；
+
+<img src="RayMarching与SDF.assets/image-20241227162650442.png" alt="image-20241227162650442" style="zoom:50%;" />
+
+- 若$p$位于A表面的内侧，B表面的外侧（例如②处），根据上面公式，此时$dA<0,dB>0$，这是就要看$-dA$和$dB$哪个更大了，例如②的情况显然离B更近，则$dA$更大，因此下一轮ray marching的距离应该是$dA$，从而会进入B的内部；
+
+<img src="RayMarching与SDF.assets/image-20241227162903052.png" alt="image-20241227162903052" style="zoom:50%;" />
+
 - 若$p$位于A表面的内侧，并且位于B表面的内侧（例如③处），根据上面公式，此时$dA<0,dB<0$，一定有$-dA>dB$，返回的是距离A表面的最近距离；
+
+<img src="RayMarching与SDF.assets/image-20241227163006851.png" alt="image-20241227163006851" style="zoom:50%;" /><img src="RayMarching与SDF.assets/image-20241227163128265.png" alt="image-20241227163128265" style="zoom:50%;" />
+
 - 如果$p$位于A表面的外侧，B表面的内侧，此时$-dA$和$dB$都是负数，取max就相当于看哪个的绝对值更小，一样能得到正确答案（可以自己尝试一下）；
+
+总体示例图如下：
+
+<img src="RayMarching与SDF.assets/image-20241227163218072.png" alt="image-20241227163218072" style="zoom: 67%;" />
 
 根据上面三轮Ray marching，计算出的结果就是B-A的值。不妨在代码中尝试一下，我们在上面的立方体处用SDF做一个球体：
 
@@ -1043,12 +1059,20 @@ float d=max(bd, -sdfSphere);
 
 #### （b）交集运算
 
-![image-20241219151829859](./assets/image-20241219151829859.png)
+
 
 此时dA和dB交集运算后的SDF结果为：max(dA, dB)。考虑三种情况：
 
+<img src="RayMarching与SDF.assets/image-20241227163454605.png" alt="image-20241227163454605" style="zoom:80%;" />
+
 - 如果待计算SDF的点$p$在表面A和表面B的外面，则距离谁更远就Ray march更远的距离，在上例中就是dB的距离；
+
+<img src="RayMarching与SDF.assets/image-20241227163344075.png" alt="image-20241227163344075" style="zoom:50%;" />
+
 - 如果$p$在某个表面内侧，而在另一个表面的外侧，则结果一定是正值的SDF。比如此时$p$在A表面的内侧，但是在B表面的外侧，则会继续朝着B表面步进；
+
+<img src="RayMarching与SDF.assets/image-20241227163412931.png" alt="image-20241227163412931" style="zoom: 67%;" />
+
 - 如果$p$在两个表面的内侧，则也是类似的，可以自行验证。
 
 依然是上面的立方体和球体的例子，如果改成了：
