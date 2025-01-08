@@ -985,7 +985,8 @@ if(rec.material.type == MT_DIALECTRIC)
     if(dot(rIn.d, rec.normal) > 0.0)  //说明光线从内部打出去
     {
         outwardNormal = -rec.normal;
-        niOverNt = rec.material.refIdx; //默认空气的折射率为1
+        niOverNt = rec.material.refId
+            x; //默认空气的折射率为1
         cosine = dot(rIn.d, rec.normal) / length(rIn.d); 
         cosine = sqrt(1.0f - rec.material.refIdx * rec.material.refIdx * (1.0f - cosine * cosine));  // 计算折射角度
     }

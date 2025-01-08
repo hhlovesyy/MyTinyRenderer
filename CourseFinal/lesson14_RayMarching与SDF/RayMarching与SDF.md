@@ -1083,7 +1083,7 @@ float d=max(bd, sdfSphere);
 
 则结果如下：
 
-![image-20241219152325781](./assets/image-20241219152325781.png)
+![image-20241219152325781](./assets/image-20241219152325781.png)+
 
 也就是成功取了交集运算。
 
