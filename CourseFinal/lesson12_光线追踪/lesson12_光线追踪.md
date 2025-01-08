@@ -614,7 +614,7 @@ $$
 > -D&E_1&E_2
 > \end{bmatrix}^T=-D·(E_1×E_2)=E_1·(D×E_2)
 > $$
-> 令$S_2=D×E_2$
+> 令$S_1=D×E_2$
 >
 > 所以就可以推导出:
 > $$
@@ -1033,7 +1033,7 @@ if(rec.material.type == MT_DIALECTRIC)
 >    }
 > else
 > {
->     outwardNormal = rec.normal;
+>     	outwardNormal = rec.normal;
 >        niOverNt = 1.0 / rec.material.refIdx;
 >        cosine = -dot(rIn.d, rec.normal) / length(rIn.d); 
 >    }
