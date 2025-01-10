@@ -262,7 +262,7 @@ float D_Beckmann( float a2, float NoH )
 
 **GGX（Trowbridge-Reitz）分布**
 
-GGX分布又名Trowbridge-Reitz分布，由Trowbridge和Reitz于1788年提出，2007年，Walter等人独立重新发现并并命为GGX分布[10]。GGX分布是游戏和电影中最常用的法线分布函数。
+GGX分布又名Trowbridge-Reitz分布，由Trowbridge和Reitz于1975年提出，2007年，Walter等人独立重新发现并并命为GGX分布[10]。GGX分布是游戏和电影中最常用的法线分布函数。
 
 GGX分布的公式如下：
 
