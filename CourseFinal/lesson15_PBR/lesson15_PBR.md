@@ -18,7 +18,7 @@
 
 日常生活中，无论是看起来相对粗糙还是相对光滑的表面，在微观上，它们大都是由不规则的微小表面构成的，如下图的香蕉皮表面和金属镁表面，在显微镜下的样子。
 
-![image-20250107160619918](lesson15_PBR.assets/image-20250107160619918.png)
+![image-20250108151754338](lesson15_PBR.assets/image-20250108151754338.png)
 
 （a）图源[4]   [7] [8]       香蕉皮表面  					（b）图源[5]     [7] [8]  金属镁表面							
 
@@ -172,7 +172,7 @@ Cook-Torrance镜面反射BRDF由3个函数（D，F，G）和一个标准化因�
 
 复习一下下图：
 
-![image-20250107160619918](lesson15_PBR.assets/image-20250107160619918.png)
+![image-20250108151744589](lesson15_PBR.assets/image-20250108151744589.png)
 
 （a）图源[4]   [7] [8]       香蕉皮表面  					（b）图源[5]     [7] [8]  金属镁表面							
 
@@ -183,6 +183,8 @@ Cook-Torrance镜面反射BRDF由3个函数（D，F，G）和一个标准化因�
 因此我们可以使用粗糙度(Roughness) $\alpha$参数来模拟NDF。
 
 
+
+D(Normal Distribution Function，NDF)  法线分布函数描述的是法线分布的概率。
 
 如果表面是各向同性的（isotropic）【后面补充】，NDF的变量只有一个，即宏表面法线 $n$ 与微表面法线 $m$ 之间的夹角$\theta _m$ 。理想情况下，NDF可以写为关于$\cos \theta _m =  {n}\cdot {m}$ 的表达式 .  然而有时候我们会使用半程向量$h$来表示NDF。
 
@@ -208,7 +210,7 @@ Cook-Torrance镜面反射BRDF由3个函数（D，F，G）和一个标准化因�
 
 
 
-可以认为，只有法线$\mathbf{m}$与半程向量 $\mathbf{h}$ 一致的微平面才能正确地将光线从入射方向$l$反射到出射方向$v$上，其他朝向的表面点对BRDF没有贡献（正负相互抵消）。这个值是通过$D(\mathbf{h})$项给出的。$D(\mathbf{h})$常被直接写作$D(\mathbf{m})$
+可以认为，只有法线$\mathbf{m}$与半程向量 $\mathbf{h}$ 一致的微平面才能正确地将光线从入射方向$l$反射到出射方向$v$上，其他朝向的表面点对BRDF没有贡献（正负相互抵消）。这个值是通过$D(\mathbf{h})$项给出的。$D(\mathbf{h})$常被直接写作$D(\mathbf{m})$。
 
 ![img](lesson15_PBR.assets/20230611105830.png)
 
@@ -222,6 +224,24 @@ Cook-Torrance镜面反射BRDF由3个函数（D，F，G）和一个标准化因�
 
 
 
+对法线分布函数$D(\mathbf{m})$在微表面法线$\mathbf{m}$上积分，可以得到微表面的面积。
+
+将法线分布函数$D(\mathbf{m})$投影到宏表面上，即得到$D(\mathbf{m})(\mathbf{n}\cdot\mathbf{m})$ ，对$D(\mathbf{m})(\mathbf{n}\cdot\mathbf{m})$ 进行积分，可以得到微表面投影到宏表面的面积，也就是宏表面片元（patch）的面积，其被约定为1。
+
+![image-20250108152728001](lesson15_PBR.assets/image-20250108152728001.png)
+
+图源 rtr4  微表面的侧视图。对$D(\mathbf{m})(\mathbf{n} \cdot \mathbf{m})$进行积分，即将微平面区域$D(\mathbf{m})$投影到宏表面平面上，所得到的宏表面面片（patch）的面积为1，其被约定为1。
+$$
+\int_{\mathbf{m} \in \Theta} D(\mathbf{m})(\mathbf{n} \cdot \mathbf{m}) d \mathbf{m}=1
+\tag{1}
+$$
+$\Theta$ : 表示整个球面而非半球。
+
+更一般地，微观表面（microsurface）和宏观表面（macrosurface）在垂直于任何视线方向$\mathbf{v}$的平面上的投影是相等的：
+$$
+\int_{\mathbf{m} \in \Theta} D(\mathbf{m})(\mathbf{v} \cdot \mathbf{m}) d \mathbf{m}=\mathbf{v} \cdot \mathbf{n}
+\tag{2}
+$$
 **Beckmann 分布**
 
 NDF有多种估计方法，第一个微表面模型里使用的表面分布函数是Beckmann NDF（Beckmann 分布），如今仍然广为使用。我们这里讲解的Cook-Torrance BRDF的NDF就是使用这个Beckmann NDF。
@@ -312,15 +332,24 @@ float D_GGX( float a2, float NoH )
 
 ![image-20250108125455032](lesson15_PBR.assets/image-20250108125455032.png)
 
-上面的NDF函数部分中提到，$\mathbf{m}=\mathbf{h}$ 的微表面分布函数
+上面的NDF函数部分中提到，$\mathbf{m}=\mathbf{h}$ 的微表面分布函数由法线分布函数$D(\mathbf{m})$进行建模。对法线分布函数$D(\mathbf{m})$在微表面法线$\mathbf{m}$上积分，可以得到微表面的面积。但是如上图所示，被遮挡的微平面对于BRDF是没有贡献的，因此，我们需要引入G项来保证这样光线无法入射到，或者光线无法出射的微平面被舍弃，不会被计入最后的BRDF.
 
-在微平面中，正确朝向（即m = h）的微平面法线m的统计分布由法线分布函数D（m）进行建模。若将D(m)在整个微平面法线上积分，会得到微表面的面积。但并非所有m = h的微平面都会对microfacet BRDF有所贡献：有些微平面会被光照方向或视图方向遮挡，这些被遮挡的光线在业界主流的微平面理论中被忽略不计。所以需要引入几何项G来对这种现象进行建模，得到最终对microfacet BRDF能产生贡献的法线分布。
+![image-20250108154556374](lesson15_PBR.assets/image-20250108154556374.png)
+
+图源rtr4 对可见微平面的投影区域（粉红色）进行积分，得到宏观表面在垂直于v的平面上的投影面积
+
+接上面的【法线分布函数积分性质】
+$$
+\int_{\in \Theta} G_{1}(\mathbf{m}, \mathbf{v}) D(\mathbf{m})(\mathbf{v} \cdot \mathbf{m})^{+} d \mathbf{m}=\mathbf{v} \cdot \mathbf{n}
+\tag{3}
+$$
+
 
 
 
 - **D**：**(Normal Distribution Function，NDF)**：法线分布函数，估算在受到表面粗糙度的影响下，**取向方向与半程向量一致的微平面的数量比例**。这是用来估算微平面的主要函数。
 - **F：**(Fresnel equation)：菲涅尔方程，描述的是在不同的表面角下表面反射的光线所占的比率。
-- **G**：(Geometry function)：几何函数，描述了微平面自成阴影的属性。当一个平面相对比较粗糙的时候，平面表面上的微平面有可能挡住其他的微平面从而减少表面所反射的光线。
+- **G**：(Geometry function)：几何函数，描述了微平面自成阴影的属性。当一个平面相对比较粗糙的时候，平面表面上的微h0平面有可能挡住其他的微平面从而减少表面所反射的光线。
 
 以上的每一种函数都是用来估算相应的物理参数的，而且可以发现用来实现相应物理机制的每种函数都有不止一种形式。它们有的非常真实，有的则性能高效。可以按照自己的需求任意选择自己想要的函数的实现方法。Epic Games公司的Brian Karis对于这些函数的多种近似实现方式进行了大量的研究。这里将采用Epic Games在Unreal Engine 4中所使用的函数，其中**D使用Trowbridge-Reitz GGX**，**F使用Fresnel-Schlick近似法(Approximation)**，而**G使用Smith's Schlick-GGX**。
 
