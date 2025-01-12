@@ -1,8 +1,20 @@
 # IBL——实时渲染
 
-参考链接：https://learnopengl-cn.github.io/07%20PBR/03%20IBL/01%20Diffuse%20irradiance/
 
-https://zhuanlan.zhihu.com/p/66518450
+
+![image-20250111204923774](assets/image-20250111204923774.png)
+
+图1 图源[4] 同样的物体在不同环境光下的渲染表现
+
+![img](assets/as6Qnmk.gif)
+
+图2 图源[5]
+
+<img src="assets/image-20250111205910919.png" alt="image-20250111205910919" style="zoom: 67%;" />
+
+图3 图源[5]  环境立方体贴图 (Cubemap) 
+
+
 
 有的时候，我们需要实现**基于图像的光照(Image based lighting, IBL)**，这是一类光照技术的集合，光源并不只是视为从几个方向来的直接光源，而是将周围的环境整体视为一个大的光源。IBL 通常使用（取自现实世界或从3D场景生成的）环境立方体贴图 (Cubemap) ，我们可以将立方体贴图的每个像素视为光源，在渲染方程中直接使用它。这种方式可以有效地捕捉环境的全局光照和氛围，使物体**更好地融入**其环境。
 
@@ -41,7 +53,7 @@ vec3 radiance =  texture(_cubemapEnvironment, w_i).rgb;
 $$
 L_o\left(p, \omega_o\right)=\int_{\Omega}\left(k_d \frac{c}{\pi}+k_s \frac{D F G}{4\left(\omega_o \cdot n\right)\left(\omega_i \cdot n\right)}\right) L_i\left(p, \omega_i\right) n \cdot \omega_i d \omega_i
 $$
-我们可以认为在Cook-Torrance BRDF下，BRDF的漫反射项和镜面反射项是可以拆开的，可以将上述积分分为两部分：
+复习一下PBR章节提到的，我们可以认为在Cook-Torrance BRDF下，BRDF的漫反射项和镜面反射项是可以拆开的，可以将上述积分分为两部分：
 $$
 L_o\left(p, \omega_o\right)=\int_{\Omega}\left(k_d \frac{c}{\pi}\right) L_i\left(p, \omega_i\right) n \cdot \omega_i d \omega_i + \int_{\Omega}\left(k_s \frac{D F G}{4\left(\omega_o \cdot n\right)\left(\omega_i \cdot n\right)}\right) L_i\left(p, \omega_i\right) n \cdot \omega_i d \omega_i
 $$
@@ -55,39 +67,42 @@ $$
 $$
 L_o\left(p, \omega_o\right)=\frac{c}{\pi}\int_{\Omega}k_d L_i\left(p, \omega_i\right) n \cdot \omega_i d \omega_i
 $$
-注意：严格来说，$k_d$并不是常数项，因为在PBR章节中，我们介绍了$k_d$的计算公式应该是：
+注意：严格来说，$k_d$并不是常数项，$k_d$的计算公式应该是：
 $$
 k_d = (1-F(v · h))(1-metalness)
 $$
 
-> 上式的意思是，菲涅尔项$F$是和视线方向$v$以及半程向量$h$方向有关（这也是近似，可以参考这篇：https://en.wikipedia.org/wiki/Schlick%27s_approximation），其中$h$是和视线方向$v$以及入射光方向$\omega_i$的半程向量。
+> 上式的意思是，菲涅尔项$F$是和视线方向$v$以及半程向量$h$方向有关（这也是近似，可以参考：[9]https://en.wikipedia.org/wiki/Schlick%27s_approximation），其中$h$是和视线方向$v$以及入射光方向$\omega_i$的半程向量。
 
 为了方便，我们可以对$k_d$进行近似处理，简化如下：
 $$
 k_d \approx (1-F_{roughness}(n · \omega_o))(1-metalness) \triangleq k_d^*
 $$
-其中有：
+其中$F_{roughness}$公式如下：
 $$
 F_{roughness} = F_0 + (\Lambda - F_0)(1-n · \omega_o)^5 \\
 \Lambda = max\{1-roughness, F_0\}
 $$
-其实就是相比于原来的Schlick近似，用$\Lambda$代替了$1$。此时漫反射项终于可以把$k_d^*$项提取出来了：
+其实就是相比于原来的Schlick近似，用$\Lambda$代替了$1$。由于近似后的$k_d$项（我们写作$k_d^*$项）并不包含$\omega_i$ ，因此此时漫反射项终于可以把$k_d^*$项提取出来了：
 $$
 L_o\left(p, \omega_o\right) \approx k_d^*\frac{c}{\pi}\int_{\Omega}L_i\left(p, \omega_i\right) n \cdot \omega_i d \omega_i
 $$
-在实时渲染中，出现这种$\approx$问题都不大，**速度是非常关键的，要做到实时性**。
+在实时渲染中，出现这种$\approx$（近似）问题都不大，**速度是非常关键的，要做到实时性**。
 
 在Cubemap章节包括本节中，我们都是假定待着色点$p$位于环境贴图的中心。预计算的部分是：
 $$
 \int_{\Omega}L_i\left(p, \omega_i\right) n \cdot \omega_i d \omega_i
 $$
-此时上述积分就是只依赖于法线方向$n$的积分（$n$可以决定上半球积分的朝向）。有了这些知识，我们就可以计算或预计算一个新的立方体贴图，它在每个采样方向——也就是纹素中存储漫反射积分的结果，这些结果是通过卷积计算出来的。先看一张预计算之后的结果（下图来自LearnOpenGL）：
+此时上述积分就是只依赖于法线方向$n$的积分（$n$可以决定上半球积分的朝向）。有了这些知识，我们就可以计算或预计算一个新的立方体贴图，它在每个采样方向——也就是纹素中存储漫反射积分的结果，这些结果是通过卷积计算出来的。先看一张预计算之后的结果（下图来自[5]）：
 
 ![image-20250106161711961](./assets/image-20250106161711961.png)
 
-看上去，就像是对Cubemap做了”滤波“操作，使得结果变模糊了。具体的预计算方式之前有提到，即为蒙特卡洛积分，对半球进行均匀采样（注意我们把$\frac{1}{\pi}$放入到了蒙特卡洛积分求解当中，这样在实时计算IBL的时候就不需要再做除以$\pi$的操作了）：
+看上去，就像是对Cubemap做了”滤波“操作，使得结果变模糊了。具体的预计算方式在路径追踪章节有讲解过，即为蒙特卡洛积分，对半球进行均匀采样（注意我们把$\frac{1}{\pi}$放入到了蒙特卡洛积分求解当中，这样在实时计算IBL的时候就不需要再做除以$\pi$的操作了）：
 $$
-\begin{aligned} \frac{1}{\pi} \int_{\Omega} L_i\left(p, \omega_i\right) n \cdot \omega_i \mathrm{~d} \omega_i & =\frac{1}{\pi} \int_0^{2 \pi} \int_0^{\frac{\pi}{2}} L_i\left(p, \omega_i\right) \cos \theta \sin \theta \mathrm{~d} \theta \mathrm{~d} \phi \\ & \approx \frac{1}{\pi} \frac{1}{N_1 N_2} \sum_i^{N_1} \sum_j^{N_2} \frac{L_i\left(p, \phi_j, \theta_i\right) \cos \left(\theta_i\right) \sin \left(\theta_i\right)}{p\left(\theta_i, \phi_j\right)} \\ & =\frac{1}{\pi} \frac{1}{N_1 N_2} \sum_i^{N_1} \sum_j^{N_2} \frac{L_i\left(p, \phi_j, \theta_i\right) \cos \left(\theta_i\right) \sin \left(\theta_i\right)}{\frac{1}{2 \pi * 0.5 \pi}} \\ & =\pi \frac{1}{N_1 N_2} \sum_i^{N_1} \sum_j^{N_2} L_i\left(p, \phi_j, \theta_i\right) \cos \left(\theta_i\right) \sin \left(\theta_i\right)\end{aligned}
+\begin{aligned} \frac{1}{\pi} \int_{\Omega} L_i\left(p, \omega_i\right) n \cdot \omega_i \mathrm{~d} \omega_i & =
+\frac{1}{\pi} \int_0^{2 \pi} \int_0^{\frac{\pi}{2}} L_i\left(p, \omega_i\right) \cos \theta \sin \theta \mathrm{~d} \theta \mathrm{~d} \phi \\ & \approx \frac{1}{\pi} \frac{1}{N_1 N_2} \sum_i^{N_1} \sum_j^{N_2} \frac{L_i\left(p, \phi_j, \theta_i\right) \cos \left(\theta_i\right) \sin \left(\theta_i\right)}{pdf\left(\theta_i, \phi_j\right)} \\ & =
+\frac{1}{\pi} \frac{1}{N_1 N_2} \sum_i^{N_1} \sum_j^{N_2} \frac{L_i\left(p, \phi_j, \theta_i\right) \cos \left(\theta_i\right) \sin \left(\theta_i\right)}{\frac{1}{2 \pi * 0.5 \pi}} \\ & =
+\pi \frac{1}{N_1 N_2} \sum_i^{N_1} \sum_j^{N_2} L_i\left(p, \phi_j, \theta_i\right) \cos \left(\theta_i\right) \sin \left(\theta_i\right)\end{aligned}
 $$
 其实还可以进行重要性采样，使用以余弦为权重的半球采样：
 $$
@@ -165,15 +180,15 @@ $$
 
 其中权重函数$W(\omega_i) = n · \omega_i$。
 
-> Split sum方法的原论文：https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
+> Split sum方法的原论文：[3]https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
 
-具体的推导比较复杂，可以参考这篇文章：https://zhuanlan.zhihu.com/p/66518450。这里直接把推导过程粘贴过来：
+具体的推导比较复杂，可以参考这篇文章：[2]https://zhuanlan.zhihu.com/p/66518450。这里直接把推导过程粘贴过来：
 
 ![image-20250106170827120](./assets/image-20250106170827120.png)
 
-> 补充资料：基于法线分布函数NDF的重要性采样公式（对应上图红框框起来的①部分）的推导：https://zhuanlan.zhihu.com/p/78146875。这一部分的基础原理在蒙特卡洛路径追踪部分的重要性采样原理中已经进行介绍，由于篇幅原因就不写NDF的GGX分布重要性采样公式推导了，这篇链接里可以查看推导过程。也可以看这篇：https://www.mathematik.uni-marburg.de/~thormae/lectures/graphics1/code/ImportanceSampling/importance_sampling_notes.pdf
+> 补充资料：基于法线分布函数NDF的重要性采样公式（对应上图红框框起来的①部分）的推导：[10]https://zhuanlan.zhihu.com/p/78146875。这一部分的基础原理在蒙特卡洛路径追踪部分的重要性采样原理中已经进行介绍，由于篇幅原因就不写NDF的GGX分布重要性采样公式推导了，这篇链接里可以查看推导过程。也可以看这篇：[11]https://www.mathematik.uni-marburg.de/~thormae/lectures/graphics1/code/ImportanceSampling/importance_sampling_notes.pdf]
 
-继续回到Split Sum方法的推导当中，我们来看上面最后推导的式子，Unity认为$F$项的影响不大，因此约掉了$F$项。可以这么理解（==存疑，后面确认一下==）：
+继续回到Split Sum方法的推导当中，我们来看上面最后推导的式子，Unity认为$F$项的影响不大，因此约掉了$F$项。可以这么理解：
 
 - （1）对于比较光滑的情况，主要是镜面反射，此时$\omega_h$接近于法线方向$n$，此时的Fresnel项基本是定值（相当于里面有一个$cos\theta$接近于1），可以上下约掉；
 - （2）对于非光滑的情况，$L$本来也是粗略估计，这种近似本身影响也不大；
@@ -186,7 +201,7 @@ $$
 
 ![image-20250106204020551](./assets/image-20250106204020551.png)
 
-​							（示意图来自Google的开源渲染器Filament的官方文档：https://google.github.io/filament/Filament.html）
+​							（示意图来自[6]Google的开源渲染器Filament的官方文档：[6]https://google.github.io/filament/Filament.html）
 
 其BRDF：$f(\omega_o,\omega_i)$大致会在$R=reflect(-\omega_o,n)$附近有值，可以姑且假设从不同方向入射，这个probe的形状变化不大，有$f(\omega_o,\omega_i(n),n) \approx f(\omega_o,\omega_i(R),R)$。
 
@@ -194,29 +209,36 @@ $$
 
 ![image-20250106204317359](./assets/image-20250106204317359.png)
 
-> 注：该图来自：https://zhuanlan.zhihu.com/p/66518450
+> 注：该图来自：[2]https://zhuanlan.zhihu.com/p/66518450
 
 此时就有：
-
-![image-20250106204522851](./assets/image-20250106204522851.png)
-
+$$
+L_c(\omega_o)=\frac{\int_{\Omega(\mathbf{n})}f_s(\omega_i,\omega_o)L_i(\omega_i)n\cdot\omega_i\mathrm{d}\omega_i}{\int_{\Omega(\mathbf{n})}f_s(\omega_i,\omega_o)n\cdot\omega_i\mathrm{d}\omega_i}\approx\frac{\int_{\Omega(\mathbf{R})}f_s(\omega_i,\mathbf{R})L_i(\omega_i)\mathbf{R}\cdot\omega_i\mathrm{d}\omega_i}{\int_{\Omega(\mathbf{R})}f_s(\omega_i,\mathbf{R})\mathbf{R}\cdot\omega_i\mathrm{d}\omega_i}\triangleq L_c^*(\mathbf{R})
+$$
 也就是说，为了加快计算的速度，可以暴力地认为**$R=n=\omega_o$**。之所以可以做这样的假设可以从上图看出来，BRDF的probe形状是类似的。对于之前的化简结果应用上面的近似处理，可以约掉点乘的部分：
-
-<img src="./assets/image-20250106205153759.png" alt="image-20250106205153759" style="zoom:80%;" />
-
-回顾虚幻提出的Split Sum方法的表达式左半部分，可以发现虚幻用的权重函数$W(\omega_i)=n · \omega_i$就跟上式的$G_1$项是等价的。==虚幻之所以会认为这样更好可能是因为刚好两者的变化趋势和值域等性质是类似的（存疑，没看出来）==。此时，针对Specular项，我们可以拿出其$L$项：
-
-![image-20250106210054142](./assets/image-20250106210054142.png)
-
+$$
+\begin{equation}\label{eq1}
+L_c^*(\mathbf{R})\approx\frac{\sum_k^NL(\omega_i^{(k)})G_1(\omega_i^{(k)})}{\sum_k^NG_1(\omega_i^{(k)})} 
+\end{equation} \tag{1}
+$$
+回顾虚幻提出的Split Sum方法的表达式左半部分，可以发现虚幻用的权重函数$W(\omega_i)=n · \omega_i$就跟上式的$G_1$项是等价的。虚幻之所以会认为这样更好可能是因为刚好两者的变化趋势和值域等性质是类似的。此时，针对Specular项，我们可以拿出其$L$项：
+$$
+\int_\Omega f_s(\omega_i,\omega_o)L_i\:(\omega_i)\:n\cdot\omega_i\mathrm{d}\omega_i=L_c^*(\mathbf{R})\int_\Omega f_s(\omega_i,\omega_o)n\cdot\omega_id\omega_i
+$$
 经过了比较复杂的推导，在Split sum方法中终于算是把$L$项提出来了，而这一项就是接下来要提到的pre-filter environment map。
+
+
 
 
 
 ## 1.pre-filter environment map
 
 回忆一下我们计算的L项：
-
-![image-20250106211333329](./assets/image-20250106211333329.png)
+$$
+L_c^*(\mathbf{R})\approx\frac{\sum_k^NL_i(\omega_i^{(k)})(n\cdot\omega_i^{(k)})}{\sum_k^N(n\cdot\omega_i^{(k)})}
+ \tag{2}
+$$
+相对于公式（1），公式（2）使用的是虚幻的近似，使用权重函数$W(\omega_i)=n · \omega_i$暂代$G_1$项。不过我们依旧需要考虑$G$项中的粗糙度$\alpha$，因此可以认为$L_c^*(R)$依旧受到变量粗糙度$\alpha$的影响。
 
 在之前的推导中，我们完全忽略了$n$和$\omega_o$的方向，只考虑了反射光方向$R$。其实这样做会引入误差，在寒霜引擎的著名论文中有对应的介绍：
 
@@ -224,13 +246,13 @@ $$
 
 最明显的现象就是在掠射角看表面时没法得到拖长的反射，效果是不够准确的，但在实时渲染中可以接受。
 
-> 参考文章：https://seblagarde.wordpress.com/wp-content/uploads/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
+> 参考文章：[7]https://seblagarde.wordpress.com/wp-content/uploads/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
 
 针对我们要预计算的$L_c^*(R)$项，其有两个未知量，分别为$R$和粗糙度$\alpha$。对于一个特定的粗糙度，变量就只剩$R$ ，因此我们可以像 irrandiance map 那样，预计算得到一个 cubemap。取粗糙度的序列为0，0.25，0.5，0.75，1.0，从而得到5个Cubemap，这样在实时渲染的时候就可以依据粗糙度$\alpha$和这五张预渲染的cubemap做三线性插值。
 
 有时，这个预计算结果需要进行更新。因此如何快速对其更新也是一个问题。这个预计算关键的就是计算积分。为了加速收敛，我们可以用重要性采样，但还是需要不少的样本。Krivanek的 Pre-filtered importance sampling 可以减少样本数量，收敛提升明显，只引入了一小些偏差。
 
-> 参考链接：https://dcgi.felk.cvut.cz/publications/2008/krivanek-cgf-rts
+> 参考链接：[12]https://dcgi.felk.cvut.cz/publications/2008/krivanek-cgf-rts
 >
 > 示意图：
 >
@@ -244,7 +266,7 @@ $$
 
 ### （1）重要代码
 
-这一部分的重要的片元着色器代码如下：
+这一部分的重要的片元着色器代码如下：（接下来会继续讲解代码中的部分内容，暂时看不懂代码的读者可以先继续看接下来的内容）
 
 ```glsl
 #version 330 core
@@ -371,9 +393,9 @@ void main()
 
 ![image-20250107222249126](./assets/image-20250107222249126.png)
 
-直观来看，明显右侧的采样结果”更好“。如何用数学来衡量这件事呢？为了更好地衡量一个采样序列的质量，数学家创造了**Discrepancy/差异值** 的概念， 来确定一系列n维采样点的质量。我们的目标就是寻找合适的算法,，产生**低差异采样序列/Low Discrepancy Sequence**。
+直观来看，明显右侧的采样结果”更好“，看起来分布更均匀，取值很相近的点更少。如何用数学来衡量这件事呢？为了更好地衡量一个采样序列的质量，数学家创造了**Discrepancy/差异值** 的概念， 来确定一系列n维采样点的质量。我们的目标就是寻找合适的算法,，产生**低差异采样序列/Low Discrepancy Sequence**。
 
-> 更具体地关于差异的定义和低差异序列可以参考这篇文章：https://zhuanlan.zhihu.com/p/343666731
+> 更具体地关于差异的定义和低差异序列可以参考这篇文章：[13]https://zhuanlan.zhihu.com/p/343666731
 
 回到IBL的话题，在工业界，Hammersley低差异序列是比较常用的一个采样序列，其作用就在于生成更好的采样结果，函数实现就是上面代码中的那个函数，更多的内容在本节里就不再展开了。
 
@@ -538,6 +560,23 @@ void main()
 读者可以校对一下，会发现推导过程和代码是完全对应的上的。
 
 
+
+
+
+综上，实现IBL的过程中我们需要预计算的推导公式和图如下：
+$$
+\LARGE{}
+L_o\left(p, \omega_o\right)=\int_{\Omega}\left(k_d \frac{c}{\pi}+k_s \frac{D F G}{4\left(\omega_o \cdot n\right)\left(\omega_i \cdot n\right)}\right) L_i\left(p, \omega_i\right) n \cdot \omega_i d \omega_i
+
+\\\LARGE{}
+=\int_{\Omega}\left(k_d \frac{c}{\pi}\right) L_i\left(p, \omega_i\right) n \cdot \omega_i d \omega_i + \int_{\Omega}\left(k_s \frac{D F G}{4\left(\omega_o \cdot n\right)\left(\omega_i \cdot n\right)}\right) L_i\left(p, \omega_i\right) n \cdot \omega_i d \omega_i
+
+\\\LARGE{}
+\approx k_d^*\frac{c}{\pi}\int_{\Omega}L_i\left(p, \omega_i\right) n \cdot \omega_i d \omega_i + \int_\Omega f_s(\omega_i, \omega_o) L_i(\omega) n ·\omega_i d\omega_i
+$$
+![image-20250112145300800](assets/image-20250112145300800.png)
+
+部分图源：[8]
 
 # 三、总体流程说明
 
@@ -1084,5 +1123,36 @@ void main()
 
 ```
 
-注：这里也可以参考虚幻官方的实现：https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
+注：这里也可以参考虚幻官方的实现：[3] https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
 
+
+
+
+
+参考：
+
+[1] https://learnopengl-cn.github.io/07%20PBR/03%20IBL/01%20Diffuse%20irradiance/
+
+[2] https://zhuanlan.zhihu.com/p/66518450
+
+[3] https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
+
+[4] Debevec, Paul. ["Image-Based Lighting"](http://ict.usc.edu/pubs/Image-Based Lighting.pdf) (PDF). *[USC Institute for Creative Technologies](https://en.wikipedia.org/wiki/Institute_for_Creative_Technologies)*. [University of Southern California](https://en.wikipedia.org/wiki/University_of_Southern_California). Retrieved 21 February 2016.
+
+[5]https://www.indiedb.com/features/using-image-based-lighting-ibl
+
+[6]https://google.github.io/filament/Filament.html
+
+[7]https://seblagarde.wordpress.com/wp-content/uploads/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
+
+[8]https://wiki.jmonkeyengine.org/docs/3.4/tutorials/how-to/articles/pbr/pbr_part3.html
+
+[9]https://en.wikipedia.org/wiki/Schlick%27s_approximation
+
+[10]https://zhuanlan.zhihu.com/p/78146875
+
+[11]https://www.mathematik.uni-marburg.de/~thormae/lectures/graphics1/code/ImportanceSampling/importance_sampling_notes.pdf
+
+[12]https://dcgi.felk.cvut.cz/publications/2008/krivanek-cgf-rts
+
+[13]https://zhuanlan.zhihu.com/p/343666731
