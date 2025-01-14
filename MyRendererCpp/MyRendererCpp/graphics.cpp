@@ -84,12 +84,12 @@ bbox_t find_bounding_box(vec2 abc[3], int width, int height)
 }
 
 /*
-[Obselete] ²»Òªµ÷ÓÃÕâ¸öº¯Êı£¡ÊÇÇ°¼¸´Î¿ÎÊ±ĞèÒªµÄ²âÊÔº¯Êı£¬ÏÖÔÚ²»×ßÏà¹ØÂß¼­ÁË
+[Obselete] ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½Î¿ï¿½Ê±ï¿½ï¿½Òªï¿½Ä²ï¿½ï¿½Ôºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½ï¿½ï¿½
 */
-//Ä¿Ç°Ö»ÊÇ¼òµ¥µÄ½«ÑÕÉ«Ğ´Èëµ½framebufferÖĞ£¬²¢×öÍ¸Ã÷¶È»ìºÏ
+//Ä¿Ç°Ö»ï¿½Ç¼òµ¥µÄ½ï¿½ï¿½ï¿½É«Ğ´ï¿½ëµ½framebufferï¿½Ğ£ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ï¿½ï¿½È»ï¿½ï¿½
 void draw_fragment(framebuffer_t* framebuffer, int index, vec4& color,Program* program)
 {
-	//start Ôö¼ÓÍ¸Ã÷¶È»ìºÏ
+	//start ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ï¿½ï¿½È»ï¿½ï¿½
 	int transparent = 0;
 	if (program != nullptr)
 	{
@@ -184,7 +184,7 @@ framebuffer_t* framebuffer_create(int width, int height)
 	assert(width > 0 && height > 0);
 	framebuffer = new framebuffer_t(width, height, color_buffer_size);
 
-	//¸øÕâ¸öframebufferµÄÃ¿¸öÏñËØµã¶¼Ìî³äÄ¬ÈÏÑÕÉ«
+	//ï¿½ï¿½ï¿½ï¿½ï¿½framebufferï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½Øµã¶¼ï¿½ï¿½ï¿½Ä¬ï¿½ï¿½ï¿½ï¿½É«
 	framebuffer_clear_color(framebuffer, default_color);
 
 	return framebuffer;
@@ -234,10 +234,11 @@ void interpolate_varyings(
 	float* src1 = (float*)src_varyings[1];
 	float* src2 = (float*)src_varyings[2];
 	float* dst = (float*)dst_varyings;
-	float weight0 = recip_w[0] * weights[0];
+	//weightså¯¹åº”Î±'ï¼ŒÎ²'ï¼ŒÎ³'ï¼Œæ˜¯å±å¹•ç©ºé—´çš„é‡å¿ƒåæ ‡ï¼Œrecip_wæ˜¯wå€¼ï¼Œä¹Ÿå°±æ˜¯è£å‰ªç©ºé—´é€è§†é™¤æ³•å‰çš„zaï¼Œzbï¼Œzc
+	float weight0 = recip_w[0] * weights[0]; 
 	float weight1 = recip_w[1] * weights[1];
 	float weight2 = recip_w[2] * weights[2];
-	float normalizer = 1 / (weight0 + weight1 + weight2);
+	float normalizer = 1 / (weight0 + weight1 + weight2); //è£å‰ªç©ºé—´çš„Z
 	int i;
 	for (i = 0; i < num_floats; i++) {
 		float sum = src0[i] * weight0 + src1[i] * weight1 + src2[i] * weight2;

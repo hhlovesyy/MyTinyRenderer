@@ -1681,7 +1681,7 @@ else
 
 #### 建立投影前后重心坐标的关系 
 
- $\alpha'$, $\beta'$, $\gamma'$是屏幕空间的P点在屏幕空间三角形ABC中计算得到的重心坐标，符合：
+不妨令 $\alpha'$, $\beta'$, $\gamma'$是屏幕空间的P点在屏幕空间三角形ABC中计算得到的重心坐标，符合：
 $$
 \begin{equation}
     1 = \alpha' + \beta' + \gamma'
@@ -1693,7 +1693,7 @@ $$
    	\frac{Z}{Z} = \frac{Z_A}{Z_A} \alpha' + \frac{Z_B}{Z_B}  \beta' + \frac{Z_C}{Z_C}  \gamma'
 \end{equation}
 $$
-其中，$Z$ 是屏幕空间的点 $P$ 所对应的投影前的点的正确深度值，是我们求解的目标值。$Z_A$, $Z_B$, $Z_C$ 是空间中 $A$, $B$, $C$ 三个顶点的深度值。
+其中，$Z$ 是屏幕空间的点 $P$ 所对应的投影前的点的（裁剪空间，未做透视除法）正确深度值（暂时未知，要先求这个），在计算任意属性插值的过程中，我们需要这个值。$Z_A$, $Z_B$, $Z_C$ 是裁剪空间中 $A$, $B$, $C$ 三个顶点的深度值（这些值已知，此时的$Z_A$, $Z_B$, $Z_C$是没有做透视除法的，由于我们存储了对应的裁剪空间的$w$值，而透视除法之后$z$会变成1，所以其实透视除法前的$w=z$，在代码中我们会提前存储$w_a$,$w_b$,$w_c$,也就是透视除法前的$Z_A$, $Z_B$, $Z_C$）。
 
 接下来，对上述公式两边同时乘以  $Z$, 得：：
 $$
@@ -1711,6 +1711,10 @@ $$
 $$
 \alpha = \frac{Z}{Z_A} \alpha', \quad \beta = \frac{Z}{Z_B} \beta', \quad \gamma = \frac{Z}{Z_C} \gamma'\cdots \cdots \cdots \tag{3}
 $$
+其中$\alpha,\beta,\gamma$是未作透视除法前的裁剪空间重心坐标，也即我们对任意属性做插值时的重心坐标（深度的插值为特例，马上会说）。
+
+
+
 #### 导出透视修正后的深度插值公式
 
 我们可以将公式（3）带入 $1 = \alpha + \beta + \gamma$，重新排列为：
@@ -1722,31 +1726,43 @@ $$
 最后，对等式（4）两边同时乘以$ \frac{1}{Z} $ ，可以得到最终的透视修正深度插值公式：
 $$
 \begin{equation}
-    \frac{1}{Z} = \alpha' \frac{1}{Z_A} + \beta' \frac{1}{Z_B} + \gamma' \frac{1}{Z_C}
+    \frac{1}{Z} = \alpha' \frac{1}{Z_A} + \beta' \frac{1}{Z_B} + \gamma' \frac{1}{Z_C} \tag{5}
 \end{equation}
 $$
-至此，我们通过投影后的屏幕空间三角形内点 $P'$ 的 $\alpha'$, $\beta'$, $\gamma'$，计算出投影前三角形内点 $P$ 的深度值$Z$。
+至此，我们通过投影后的屏幕空间三角形内点 $P'$ 的 $\alpha'$, $\beta'$, $\gamma'$，计算出投影前三角形内点 $P$ 的深度值$Z$。这里我们才可以得出$Z$的值，从而根据上面的公式（3）计算出要求解的真正的插值任意属性的重心坐标（深度插值为特例）。
 
 
 
 #### 任意属性插值
 
-不止是深度，我们希望包括颜色，法线等在内的其他属性也能够得到正确的插值结果。我们用$ ( I_A, I_B, I_C )$ 表示三角形三个顶点的属性值。
+我们希望包括颜色，法线等在内的很多属性能够得到正确的插值结果。我们用$ ( I_A, I_B, I_C )$ 表示三角形三个顶点的属性值。
 
 ##### 插值公式
 
 目标点的属性 $ I$  可以通过以下公式计算： $ I = \alpha I_A + \beta I_B + \gamma I_C $
 
-这里的$ \alpha, \beta, \gamma $ 是该点在正确空间的三角形内的重心坐标，它们的和为1。
+这里的$ \alpha, \beta, \gamma $ 是该点在正确空间的三角形内的重心坐标，也就是公式（3）中求解的重心坐标。为了得到公式（3）中的重心坐标，需要公式（5）求解出裁剪空间未作透视除法的$Z$值。
 
 将公式（3）带入 $ I = \alpha I_A + \beta I_B + \gamma I_C $，我们得到：
 $$
   I =  ( \frac{Z}{Z_A}\alpha')I_A +  (\frac{Z}{Z_B}\beta')I_B + (\frac{Z}{Z_C}\gamma')I_C 
 $$
-整理一下 ：
+整理一下 （$Z$的求解在上文公式（5））：
 $$
 I = Z \cdot \left( \alpha' \frac{I_A}{Z_A} + \beta' \frac{I_B}{Z_B} + \gamma' \frac{I_C}{Z_C} \right)
 $$
+
+
+
+#### 深度插值
+
+在渲染器中，虽然我们已经计算出了裁剪空间的$Z$值，但实际上在渲染中做深度测试（深度测试在后面的章节中有更具体的介绍）时并不是这个$Z$值。我们依旧需要存储屏幕空间的（透视除法后的）$Z_{screen}$值。这个值求解如下：
+$$
+Z_{screen} = \alpha' Z^{screen}_A + \beta' Z^{screen}_B + \gamma' Z^{screen}_C
+$$
+此时的$\alpha',\beta',\gamma',Z^{screen}_A,Z^{screen}_B,Z^{screen}_c$都在屏幕空间下，并且都经历了透视除法的过程，所以对于屏幕空间我们想要计算的深度来说直接线性插值即可。
+
+读者可以阅读https://registry.khronos.org/OpenGL/specs/gl/glspec46.core.pdf  OpenGL白皮书的第14.6章节，与我们所介绍的内容是一致的。
 
 
 
@@ -1755,6 +1771,14 @@ $$
 也就是说，针对深度，我们可以这样插值：
 
 ```c++
+float interpolate_depth(float screen_depths[3], vec3 weights) 
+{
+	float depth0 = screen_depths[0] * weights[0];
+	float depth1 = screen_depths[1] * weights[1];
+	float depth2 = screen_depths[2] * weights[2];
+	return depth0 + depth1 + depth2;
+}
+
 for (int i = 0; i < 3; i++)
 {
 	clip_abc[i] = mat4_mul_vec4(proj_matrix, mat4_mul_vec4(view_matrix, vec4_from_vec3(abc_3d[i], 1)));
@@ -1796,16 +1820,19 @@ for (int i = 0; i < 3; i++)
 }
 vec3_t interpolate_varyings(vec3_t& weights, float recip_w[3])  //weights是屏幕空间求解出来的重心坐标，recip_w存储的是齐次坐标的w项
 {
+    //weights对应α'，β'，γ'，是屏幕空间的重心坐标，recip_w是w值，也就是裁剪空间透视除法前的za，zb，zc
 	float weight0 = recip_w[0] * weights.x;
 	float weight1 = recip_w[1] * weights.y;
 	float weight2 = recip_w[2] * weights.z;
-	float normalizer = 1 / (weight0 + weight1 + weight2);
+	float normalizer = 1 / (weight0 + weight1 + weight2);  //裁剪空间的Z
 	return vec3_t{ weight0 * normalizer, weight1 * normalizer, weight2 * normalizer };
 }
 vec4_t color =vec4_add(vec4_mul(color1,new_weights.x), vec4_add(vec4_mul(color2, new_weights.y),vec4_mul(color3,new_weights.z)));  //这里代码写的比较丑，其实就是求出新的重心坐标权重，然后对三个顶点的color做加权平均
 ```
 
 做了相关的改动之后，`test_space_transform.cpp`包含了或许正确的重心坐标插值公式，读者可以去对应仓库的提交记录进行查看。
+
+也可以参考这篇：https://www.zhihu.com/question/332096916/answer/2408545417?utm_medium=social&utm_psn=1862455903695020033&utm_source=qq
 
 ------
 
