@@ -1,20 +1,10 @@
 # lesson15_PBR
 
-前面我们讲了
-
-接下来的部分会涉及到前面讲解的渲染方程等部分
+PBR即Physically Based Shading，基于物理的渲染，我们前面讲解了渲染方程，是基于真实世界的原理，这节中我们将基于渲染方程实现基于物理的渲染，比起前面的”基础光照“的章节，我们将实现基于现实世界中物理原理的更真实的渲染。
 
 
 
-前面的引言后面补充，直接开始吧
-
-
-
-或者名字也可以直接改为Cook-Torrance BRDF
-
-
-
-#### 微表面（**Microfacet**）模型
+## 微表面（**Microfacet**）模型
 
 日常生活中，无论是看起来相对粗糙还是相对光滑的表面，在微观上，它们大都是由不规则的微小表面构成的，如下图的香蕉皮表面和金属镁表面，在显微镜下的样子。
 
@@ -38,13 +28,11 @@
 
 
 
-因此，材质的粗糙程度可以通过微表面的法线分布情况来体现.下面的Cook-Torrance BRDF中镜面反射项的NDF会更细致地讨论这点。
+因此，材质的粗糙程度可以通过微表面的法线分布情况来体现.下面的基于微表面理论的 BRDF模型中镜面反射项的NDF会更细致地讨论这点。
 
 
 
-
-
-## Cook-Torrance BRDF（后面改 因为不只讲Cook-Torrance了）
+## 基于微表面理论的 BRDF模型
 
 介绍：
 
@@ -64,9 +52,9 @@ $k_d$ : 漫反射系数.  （后面的ibl章节有更详细介绍）
 
  $f_{specular}$ : 镜面反射部分.
 
-$k_d$  漫反射系数在后面的ibl章节有详细介绍，而接下来我们会讲解Cook-Torrance BRDF的 $f_{lambert}$ 漫反射部分和 $f_{specular}$ 镜面反射部分.
+$k_d$  漫反射系数在后面的ibl章节有详细介绍，而接下来我们会讲解表基于微表面理论的 BRDF模型的 $f_{lambert}$ 漫反射部分和 $f_{specular}$ 镜面反射部分.
 
-#### 漫反射部分 
+### 漫反射部分 
 
  $f_{lambert}$ 漫反射部分叫做Lambertian Diffuse。 类似于我们之前提到的漫反射着色，是一个恒定的算式：
 $$
@@ -152,7 +140,7 @@ $$
 
 
 
-#### 镜面反射部分
+### 镜面反射部分
 
 $$
 \large f_{specular} = \frac{DFG}{4(\omega_o·n)(\omega_i·n)}
@@ -164,7 +152,7 @@ Cook-Torrance镜面反射BRDF由3个函数（D，F，G）和一个标准化因�
 
 
 
-##### （1）D(Normal Distribution Function，NDF)  法线分布函数
+#### （1）D (Normal Distribution Function，NDF)  法线分布函数
 
 法线分布函数（normal distribution function，NDF）是上面的微表面（**Microfacet**）模型提到的法线分布函数。Cook-Torrance镜面反射BRDF中我们将使用D来表示方程中的NDF项。
 
@@ -206,6 +194,8 @@ D(Normal Distribution Function，NDF)  法线分布函数描述的是法线分�
 
 
 
+###### 基于微表面模型的法线分布函数（normal distribution function，NDF）
+
 法线分布函数（normal distribution function，NDF）近似地表示了法线$n$与半程向量$h$取向一致的微平面的比例。
 
 
@@ -242,7 +232,7 @@ $$
 \int_{\mathbf{m} \in \Theta} D(\mathbf{m})(\mathbf{v} \cdot \mathbf{m}) d \mathbf{m}=\mathbf{v} \cdot \mathbf{n}
 \tag{2}
 $$
-**Beckmann 分布**
+###### **Beckmann 分布**
 
 NDF有多种估计方法，第一个微表面模型里使用的表面分布函数是Beckmann NDF（Beckmann 分布），如今仍然广为使用。我们这里讲解的Cook-Torrance BRDF的NDF就是使用这个Beckmann NDF。
 
@@ -280,7 +270,7 @@ float D_Beckmann( float a2, float NoH )
 
 
 
-**GGX（Trowbridge-Reitz）分布**
+###### **GGX（Trowbridge-Reitz）分布**
 
 GGX分布又名Trowbridge-Reitz分布，由Trowbridge和Reitz于1975年提出，2007年，Walter等人独立重新发现并并命为GGX分布[10]。GGX分布是游戏和电影中最常用的法线分布函数。
 
@@ -322,7 +312,7 @@ float D_GGX( float a2, float NoH )
 
 综上，我们可以输入 {微表面粗糙度$\alpha$ + 宏表面法线方向$\mathbf{n}$ + 微表面法线方向$\mathbf{m}$ } 或者 {微表面粗糙度$\alpha$ + 宏表面法线方向$\mathbf{n}$ + 半程向量$\mathbf{h}$ } 来得到D(Normal Distribution Function，NDF) 法线分布函数； 
 
-##### （2）G（Geometry Function）几何函数
+#### （2）G（Geometry Function）几何函数
 
 我们考虑以下情况，情况1如下图：微表面遮挡住了光源方向$\mathbf{l}$来的入射光，产生阴影（Shadowing）。那么产生阴影的微平面对BRDF没有贡献。
 
@@ -334,15 +324,141 @@ float D_GGX( float a2, float NoH )
 
 上面的NDF函数部分中提到，$\mathbf{m}=\mathbf{h}$ 的微表面分布函数由法线分布函数$D(\mathbf{m})$进行建模。对法线分布函数$D(\mathbf{m})$在微表面法线$\mathbf{m}$上积分，可以得到微表面的面积。但是如上图所示，被遮挡的微平面对于BRDF是没有贡献的，因此，我们需要引入G项来保证这样光线无法入射到，或者光线无法出射的微平面被舍弃，不会被计入最后的BRDF.
 
+我们再看一个场景，如下图右侧子图所示，有很多微表面的投影互相重叠，但实际上，我们并不关心不能被我们的相机所看到的那些微表面，如下图我们只关心粉色箭号所指向的距离相机最近的那个微表面。因此我们需要引入G项来保证这样的微表面被舍弃。
+
+<img src="assets/image-20250113151431270.png" alt="image-20250113151431270" style="zoom:50%;" />
+
+图编辑自[2]Real-Time Rendering 4th
+
 ![image-20250108154556374](lesson15_PBR.assets/image-20250108154556374.png)
 
-图源rtr4 对可见微平面的投影区域（粉红色）进行积分，得到宏观表面在垂直于v的平面上的投影面积
+图源[2]Real-Time Rendering 4th    对可见微平面的投影区域（粉红色）进行积分，得到宏观表面在垂直于v的平面上的投影面积
 
-接上面的【法线分布函数积分性质】
+我们定义遮挡函数（masking function）$G_{1}(\mathbf{m}, \mathbf{v})$，是沿着视线方向$\mathbf{v}$ ，具有法线$\mathbf{m}$的可见的微表面的比例。
+
+<img src="assets/image-20250113152436612.png" alt="image-20250113152436612" style="zoom:50%;" />
+
+接上面的 法线分布函数的”基于微表面模型的法线分布函数“部分提到的内容, 
+
+微观表面（microsurface）和宏观表面（macrosurface）在垂直于任何视线方向$\mathbf{v}$的平面上的投影是相等的：
+$$
+\int_{\mathbf{m} \in \Theta} D(\mathbf{m})(\mathbf{v} \cdot \mathbf{m}) d \mathbf{m}=\mathbf{v} \cdot \mathbf{n}
+\tag{2}
+$$
+将$G_{1}(\mathbf{m}, \mathbf{v}) D(\mathbf{m})(\mathbf{v} \cdot \mathbf{m})^{+}$在球面上进行积分并投影到垂直于视线$v$的平面上，得到宏观表面在垂直于v的平面上的投影面积，即上图右侧标注黑色线条的$cos\theta_{o}$。
 $$
 \int_{\in \Theta} G_{1}(\mathbf{m}, \mathbf{v}) D(\mathbf{m})(\mathbf{v} \cdot \mathbf{m})^{+} d \mathbf{m}=\mathbf{v} \cdot \mathbf{n}
 \tag{3}
 $$
+
+但是仅仅有公式（3）并不能唯一的确定$G_{1}(\mathbf{m}, \mathbf{v})$项到底是什么样的函数，不同的法线分布函数$D(\mathbf{m})$可能会有不同的$G_{1}(\mathbf{m}, \mathbf{v})$。原因是法线分布函数$D(\mathbf{m})$仅仅是描述了微表面的法线分布情况，即多少个微表面的法线指向了$\mathbf{m}$方向，但并没有具体说明微表面的形状，具体这些法线是如何排布的。
+
+如下图所示，具有相同法线分布但具有不同轮廓（profiles）的微表面也导致不同的BRDF。
+
+下图中法线分布函数$D(\mathbf{m})$是一致的，但是排布方式是不同的，右侧微表面的遮挡情况更严重，二者的BRDF会有一定的不同。
+
+<img src="assets/v2-74fd18e9eddafc6ea18cd43852ee073d_1440w.jpg" alt="img" style="zoom: 67%;" />
+
+​							图源[13]Heitz, Eric. "Understanding the masking-shadowing function in microfacet-based BRDFs."
+
+因此，要确定G项，除了公式（3）的约束，我们还需要选择合适的微表面轮廓（microsurface profile）。
+
+目前已经有多种形式的$G_{1}$函数，但是只有**Smith遮蔽函数（Smith masking function）**和Cook-Torrance使用的**V腔遮蔽函数（V-cavity masking function）**是基于物理的，这个结论由Heitz在[13]Heitz, Eric. "Understanding the masking-shadowing function in microfacet-based BRDFs."中证明得到。
+
+其中Heitz还证明了Smith遮蔽函数（Smith masking function）更符合真实世界的反射现象，如下图：
+
+<img src="assets/v2-13e64081024b7006b835e143751fa0ac_r.jpg" alt="img" style="zoom:50%;" />
+
+​					图源[13]Heitz, Eric. "Understanding the masking-shadowing function in microfacet-based BRDFs."
+
+
+
+Smith$G_{1}$函数的公式如下：
+$$
+G_{1}(\mathbf{m}, \mathbf{v})=\frac{\chi^{+}(\mathbf{m} \cdot \mathbf{v})}{1+\Lambda(\mathbf{v})}
+\tag{4}
+$$
+
+
+我们回忆一下之前提到的，产生阴影的微表面和被遮蔽的微表面一样，都对BRDF没有贡献。因此，我们定义：
+$$
+G_{2}(\mathbf{l}, \mathbf{v}, \mathbf{m})=G_{1}(\mathbf{v}, \mathbf{m}) G_{1}(\mathbf{l}, \mathbf{m}).
+$$
+<img src="assets/image-20250113163339417.png" alt="image-20250113163339417" style="zoom:50%;" />
+
+
+
+（4）中每个法线分布函数NDF的$\Lambda$（lambda）函数都不一样，我们针对法线分布函数部分讲到的两个法线分布讲一下它们对应的$\Lambda$（lambda）函数。
+
+##### Beckmann法线分布的$\Lambda$函数
+
+$$
+\Lambda(a)=\frac{\operatorname{erf}(a)-1}{2}+\frac{1}{2 a \sqrt{\pi}} \exp \left(-a^{2}\right)
+\tag{5}
+$$
+
+其中：
+
+$a$ ： $a=\frac{\mathbf{n} \cdot \mathbf{s}}{\alpha \sqrt{1-(\mathbf{n} \cdot \mathbf{s})^{2}}}= \frac{1}{\alpha\\tan \theta} $	
+
+$\operatorname{erf}$ ：误差函数（error function），$erf(x)= \frac{2}{\sqrt{\pi}}\int_{0}^{x}e^{-x^{2}}dx$
+
+公式（5）的计算开销很大，因为其包含了误差函数$erf(x)= \frac{2}{\sqrt{\pi}}\int_{0}^{x}e^{-x^{2}}dx$ ， 因此Walter 等人[10] 提出了如下的精确的近似计算代替:
+$$
+\Lambda(a) \approx\left\{\begin{array}{ll}\frac{1-1.259 a+0.396 a^{2}}{3.535 a+2.181 a^{2}}, & \text { where } a<1.6, \\ 0, & \text { where } a \geq 1.6 .\end{array}\right.
+\tag{6}
+$$
+
+
+
+##### GGX法线分布的$\Lambda$函数
+
+GGX分布具有形状不变性，其Smith$G_{1}$的$  \Lambda $函数相对比较简单：
+
+$$
+\Lambda(a)=\frac{-1+\sqrt{1+\frac{1}{a^{2}}}}{2}
+\tag{7}
+$$
+
+其中：
+
+$a$ ： $a=\frac{\mathbf{n} \cdot \mathbf{s}}{\alpha \sqrt{1-(\mathbf{n} \cdot \mathbf{s})^{2}}} $  实际上，公式（7）的$a$只会以$a^2$的形式出现，即$a^2= \frac{(\mathbf{n} \cdot \mathbf{s})^2}{\alpha^2 (1-(\mathbf{n} \cdot \mathbf{s})^2)}$，这对于计算是很方便的，因为我们避免了a的平方根计算。
+
+
+
+##### GGX-Smith 几何函数的发展
+
+###### Disney实现的GGX-Smith 几何函数
+
+Disney将粗糙度进行重映射，将α 从[0,1]重映射到[0.5, 1] ，使得粗糙度的变化可以更平滑，对美术人员更友好：
+$$
+\alpha = (0.5 + roughness/2)^2
+$$
+
+Disney实现的GGX-Smith 几何函数如下：
+
+
+$$
+G_1(\mathbf{v})=\dfrac{2(\mathbf{n}\cdot\mathbf{v})}{(\mathbf{n}\cdot\mathbf{v})+\sqrt{\alpha^2+(1-\alpha^2)(\mathbf{n}\cdot\mathbf{v})^2}}
+\\
+G(\mathbf l,\mathbf v,\mathbf h)=G_1(\mathbf l)G_1(\mathbf v)
+$$
+
+###### UE4实现的GGX-Smith 几何函数
+
+UE4参考了Disney将粗糙度进行重映射：
+$$
+ \alpha = (0.5 + roughness/2)^2
+$$
+定义$\LARGE k=\frac{\alpha}{2}$，UE4基于Schlick近似, 实现的GGX-Smith 几何函数如下：
+$$
+G_1(\mathbf{v})=\dfrac{\mathbf{n}\cdot\mathbf{v}}{(\mathbf{n}\cdot\mathbf{v})(1-k)+k}
+\\
+G(\mathbf l,\mathbf v,\mathbf h)=G_1(\mathbf l)G_1(\mathbf v)
+$$
+
+
+
 
 
 
@@ -371,6 +487,126 @@ $$
 
 
 
+#### （3）F（ Fresnel ）菲涅尔反射
+
+我们在“光线追踪”章节中提到过一部分菲涅尔方程，用于折射时判断有多少光线发生了折射，有多少光线发生了反射，同样的，在PBR中我们也会使用菲涅尔反射率（Fresnel reflectance）来计算被反射的光的比例。
+
+我们回顾一下，光打到表面可能发生反射，也可能发生折射，这个比例是由菲涅尔反射率（Fresnel reflectance）$F$ 来决定的。
+
+<img src="assets/image-20250114164438774.png" alt="image-20250114164438774" style="zoom: 67%;" />
+
+上图中，$\theta_i$是入射角，$\theta_r$是折射角，$\eta_1$是入射介质的折射率，$\eta_2$是折射介质的折射率。
+
+回忆一下在现实世界中，我们直视玻璃，可以透过玻璃看到后面的东西，但是当我们从很斜的视角侧面看玻璃时，我们会看到玻璃的反射光。
+
+这里可以放一个玻璃图片
+
+同样的，如下图，我们从很斜的视角侧面看木头时，我们会看到木头的反射光。
+
+这里放那个木头和书图片
+
+
+
+了解了例子之后我，我i们也能比较理解菲涅尔反射率（Fresnel reflectance）$F$ 具有的以下特征：
+
+1) 当入射角$\theta_{i}=0^{\circ}$时 ， 光线垂直于表面，这个特殊值$F_0$，我们可以认为它是表面物质的镜面颜色。
+
+2) 当入射角$\theta_{i}=90^{\circ}$时 ， 光线平行于表面，$F=1$，即白色。
+
+如下图，对于不同的材质，我们可以看到当$\theta_{i}$较小的时候，随着入射角$\theta_{i}$不断增大，这些材质的菲涅尔反射率$F$ 基本没有太大变化；而在接近$\theta_{i}=90^{\circ}$时 ，$F$ 会迅速增长为1.
+
+![image-20250114211221725](assets/image-20250114211221725.png)
+
+图源[2] Real-Time Rendering 4th
+
+上图代表玻璃、铜、铝（从左到右）的菲涅尔反射率（Fresnel reflectance）$F$ 的变换。
+
+第一行图中横轴是波长，纵轴是入射角$\theta_{i}$，竖轴是$F$， 
+
+第二行图图中横轴是入射角$\theta_{i}$，竖轴是$F$。不同的线条代表在不同入射角$\theta_{i}$下，$F$转换为 RGB 颜色通道的曲线。
+
+第二行图图中横轴是波长，竖轴是$F$。底下展示了菲涅尔反射的 RGB 颜色。
+
+
+
+精确地推导出菲涅尔方程的公式计算较为复杂， 其中需要的变量也较难采集，因此
+
+在实际应用中，我们通常使用Schlick近似法（Schlick's approximation）来计算菲涅尔反射率（Fresnel reflectance）$F$，公式如下：
+$$
+F(\mathbf{n}, \mathbf{l}) \approx F_{0}+\left(1-F_{0}\right)\left(1-(\mathbf{n} \cdot \mathbf{l})^{+}\right)^{5} 
+\tag{8}
+$$
+上式中：
+
+$F_0$ ：上面提到的入射角$\theta_{i}=0^{\circ}$时的菲涅尔反射率（Fresnel reflectance）$F$  
+
+ $\mathbf{n}$ 代表法线，$\mathbf{l}$ 代表视线，如下图：
+
+<img src="assets/image-20250115152016707.png" alt="image-20250115152016707" style="zoom:50%;" />
+
+我们注意到，当$\theta_{i}=0^{\circ}$时 ， 光线垂直于表面，公式结果为$F=F_0$;
+
+当入射角$\theta_{i}=90^{\circ}$时 ， 光线平行于表面，公式结果为$F=1$，即白色。
+
+没错，这个公式实际上就是在$F_0$和白色之间进行RGB插值。
+
+
+
+如下图，虚线表示Schlick近似法的菲涅耳反射率 $F$，实线表示精确计算的菲涅耳反射率 $F$。可以看到，Schlick近似法的计算结果与精确计算结果非常接近。
+
+![image-20250115152823414](assets/image-20250115152823414.png)
+
+图源[2] Real-Time Rendering 4th
+
+
+
+公式8所需要的$F_0$既可以直接参考现实中相关材质的$F_0$值，也可以使用折射率来算：
+$$
+F_{0}=\left(\frac{n-1}{n+1}\right)^{2}
+$$
+$n$ : $n =\frac{\eta_2}{\eta_1}$ ，这个情况下通常是指从空气入射到物体，而空气折射率近似为$\eta_1=1$,  此时近似 $n =\eta_2$  ， $n$表示物体的折射率。
+
+
+
+接下来我们来看看现实世界中测量出来的各种物体的$F_0$值：
+
+##### 电介质/绝缘体
+
+现实生活中的橡皮，皮肤，头发， 牙齿，纤维，石头，塑料，玻璃等都是电解质，或者叫做绝缘体。比较特殊的是水，纯水是绝缘体不导电的，而日常生活中的水之所以可以导电是因为它由各种杂质。
+
+如下图所示,皮肤，头发， 牙齿，纤维，石头，塑料，玻璃等物体的$F_0$都很小，大概在0.04左右。而且R,G,B基本都是差不多的值，因此只给出一个维度。
+
+![image-20250115165104162](assets/image-20250115165104162.png)
+
+图源[2] Real-Time Rendering 4th  各种电介质/绝缘体的$F_0$值。
+
+当我们需要某种电介质/绝缘体材质的$F_0$时，可以直接查表得到，或者近似的认为是0.04。
+
+
+
+##### 金属/导体
+
+现实中金属/导体更容易出现反射现象，反射出各种各样的颜色。金属的$F_0$相对都比较高，大于0.5。 而且R,G,B 相差较大，这也解释了金属物体会反射出各种颜色。
+
+![image-20250115165542058](assets/image-20250115165542058.png)
+
+图源[2] Real-Time Rendering 4th  各种金属/导体的$F_0$值。
+
+
+
+因此，在我们在外界定义这个材质的时候，需要给出这个材质是金属/导体还是电介质/绝缘体，在很多引擎中，会引入**金属度(Metalness)**的参数（见很多引擎的金属工作流（metallic workflow））。金属度描述的是一个材质是金属还是非金属。
+
+上面的”电介质/绝缘体“介绍到电介质/绝缘体可近似认为是0.04。而如果是金属，就需要用R，G，B来描述其表面的色彩。可以这样实现（OpenGL）：
+
+```GLSL
+vec3 F0 = vec3(0.04);
+F0 = mix(F0, surfaceColor.rgb, metalness);//根据 metalness 在 F0 和 surfaceColor.rgb（表面颜色的RGB值）间进行线性插值
+```
+
+
+
+
+
 参考：
 
 [1] Cook, Robert L., and Kenneth E. Torrance. "A reflectance model for computer graphics." *ACM Transactions on Graphics (ToG)* 1.1 (1982): 7-24.
@@ -379,28 +615,20 @@ $$
 
 [3] https://learnopengl.com/PBR/Theory
 
-
-
-
-
-
-
-
-
 [4]https://xueqiu.com/6218450268/137632670
-
-
 
 [5]https://www.bilibili.com/video/BV1gt421u7Go/?spm_id_from=333.337.search-card.all.click&vd_source=f2def4aba42c7ed69fc648e1a2029c7b
 
-
-
-[6]pbrt
+[6] [Physically Based Rendering: From Theory to Implementation](https://www.pbrt.org/) 4th
 
 [8]https://www.shadertoy.com/view/4sSfzK PBR可视化
 
 [9]https://zhuanlan.zhihu.com/p/69380665
 
-[10]Walter et al. 2007, "Microfacet models for refraction through rough surfaces"
+[10]Walter et al. 2007, "Microfacet models for refraction through rough surfaces"  (https://www.graphics.cornell.edu/~bjw/microfacetbsdf.pdf)
 
 [11]Naty Hoffman, Recent Advances in Physically Based Shading, SIGGRAPH 2016
+
+[12]https://zhuanlan.zhihu.com/p/81708753
+
+[13]Heitz, Eric. "Understanding the masking-shadowing function in microfacet-based BRDFs." *Journal of Computer Graphics Techniques* 3.2 (2014): 32-91. (https://inria.hal.science/hal-01024289v1/document)
