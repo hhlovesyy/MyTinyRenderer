@@ -84,11 +84,7 @@
 
 ![image-20250221162706542](assets/image-20250221162706542.png)
 
-<img src="assets/w700d1q75cms.jpg" alt="漫威电影特效前后对比，蜘蛛侠没有战甲，红骷髅拿的是蜂窝煤？" style="zoom:50%;" />
-
-<img src="assets/image-20250221161924539.png" alt="image-20250221161924539" style="zoom:50%;" />
-
-<img src="assets/image-20250221162014766.png" alt="image-20250221162014766" style="zoom:50%;" />
+<img src="assets/w700d1q75cms.jpg" alt="漫威电影特效前后对比，蜘蛛侠没有战甲，红骷髅拿的是蜂窝煤？" style="zoom:50%;" /><img src="assets/image-20250221161924539.png" alt="image-20250221161924539" style="zoom:50%;" /><img src="assets/image-20250221162014766.png" alt="image-20250221162014766" style="zoom:50%;" />
 
 <img src="assets/image-20250221162331820.png" alt="image-20250221162331820" style="zoom:50%;" />
 
@@ -143,7 +139,7 @@ VR和AR领域同样离不开图形学。
 
 # 二、图形学的研究内容
 
-看完了上述的一些图形学的应用场景，读者可能会思考图形学有哪些研究内容呢？这一部分，我们会介绍图形学中的主要研究课题，并给出一些例子和本系列教程会涵盖的内容：
+看完了上述的一些图形学的应用场景，读者可能会思考图形学有哪些研究内容呢？这一部分，我们会介绍图形学中的部分研究课题，并分别给出每个课题的几个例子, 更多内容在本系列教程后续会继续完善：
 
 ## 1.渲染
 
@@ -157,27 +153,29 @@ VR和AR领域同样离不开图形学。
 - 路径追踪
 - 实时渲染的各种技术
 
+<img src="assets/0c0bff706db7da4ffdb5d4297efc5468.png" alt="0c0bff706db7da4ffdb5d4297efc5468" style="zoom: 67%;" />
 
+​													上图为一个轻量级引擎的渲染效果
 
 ## 2.几何
 
+几何研究的是如何在计算机中表示和处理物体的形状和结构。
 
+* 多边形网格
+* 曲线与曲面
+* 几何变换
 
-## 3.物理
+<img src="assets/b96f256933b23d0ee0edd8daf1f12f2c_720.png" alt="b96f256933b23d0ee0edd8daf1f12f2c_720" style="zoom:50%;" />
 
+## 3.物理/模拟仿真
 
-
-## 4.模拟仿真
-
-物理模拟
-
-流体模拟
+* 流体模拟
 
 ![image-20250221164416353](assets/image-20250221164416353.png)
 
 来自游戏《崩坏 星穹铁道》 https://www.bilibili.com/video/BV1EF411X7PF/?share_source=copy_web&vd_source=067de257d5f13e60e5b36da1a0ec151e
 
-布料模拟
+* 布料模拟
 
 ![img](assets/pcloth.png)
 
@@ -185,12 +183,36 @@ http://min-tang.github.io/home/PCloth/
 
 
 
-## 5.动画
+## 4.动画
 
+动画也是计算机图形学中的一个重要领域. 
 
+* 关键帧动画
+* 骨骼动画
 
-## 6.人工智能
+<img src="assets/df21c939016ed7bda22f0068ea68a1dd.png" alt="df21c939016ed7bda22f0068ea68a1dd" style="zoom:50%;" />
 
+* 动作捕捉
+
+<img src="assets/image-20250222003712309.png" alt="image-20250222003712309" style="zoom: 50%;" />
+
+## 5.人工智能
+
+计算机与人工智能结合的情景越来越多，尤其是在生成式3D内容（3D AIGC）方面。
+
+* 3D 模型生成
+  
+  * 下图为gaussian splatting
+  
+  <img src="assets/ef4660417c21209c8fbe0cea86cb9416.png" alt="ef4660417c21209c8fbe0cea86cb9416" style="zoom:50%;" />
+  
+  * Nerf
+  
+* 自动动画生成
+
+* 超分辨率
+
+  * DLSS
 
 
 
