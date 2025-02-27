@@ -261,3 +261,18 @@ for (int i = bbox.min_x; i <= bbox.max_x; i++)
 }
 ```
 
+
+
+
+
+
+
+参考书目：
+
+Fundamentals-of-Computer-Graphics
+
+Real-Time Rendering
+
+Unity Shader 入门精要
+
+

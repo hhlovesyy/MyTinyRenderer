@@ -16,7 +16,7 @@
 
 <img src="lesson1_三角形的光栅化.assets/image-20240919172219463.png" alt="image-20240919172219463" style="zoom:67%;" />
 
-（此时画一个图 一个网格+三角形，有多个过程/gif，一行一行问，不断打勾打叉，来渲染三角形）
+如下图视频过程：
 
 <video src="../../../../../_LabProj/tuxingxueKechengCG/t3b1b/manim/results/rasterization.mp4"></video>
 
@@ -117,9 +117,23 @@ $$
 
 
 
+<img src="assets/image-20250227110840263.png" alt="image-20250227110840263" style="zoom:50%;" />
 
+至此,我们发现,当我们只知道A,B,C和P的坐标,就可以顺利通过上面的矩阵运算，算出P的重心坐标$\begin{bmatrix} 1-u-v,u , v \end{bmatrix} $,即$\begin{bmatrix} w,u , v \end{bmatrix} $
 
-至此,我们发现,当我们只知道A,B,C和P的坐标,就顺利算出P的重心坐标$\begin{bmatrix} 1-u-v,u , v \end{bmatrix} $,通过判断u,v是否>0,我们就可以判断P是否在三角形内.
+- 如果$u > 0$、$v > 0$且$w > 0$，点P在三角形ABC内部。
+- 如果$u = 0$、$v = 0$或$w = 0$，点P在三角形的边上。
+- 如果$u < 0$、$v < 0$或$w < 0$，点P在三角形外部。
+
+实际上，判断点在三角形内部还有很多别的做法，在判断像素点是否在三角形内的时候，我们之所以想选择重心坐标法，是因为在后续渲染流程中，我们需要拿到重心坐标的信息，来对点进行属性的插值。例如，我们知道ABC三点的颜色，却不知道点P的颜色，这时候，使用重心坐标就可以插值算出点P的颜色了：（同理，后面的很多值，如深度，法线信息等等都需要借助重心坐标来计算）。
+
+例如：已知$A,B,C$的颜色   $Color_A, Color_B, Color_C$ ，求$P$的颜色  $Color_P $
+
+则  $Color_P=w*Color_A+u*Color_B+v*Color_C $
+
+如下图所示：
+
+![image-20241107170919430](assets/image-20241107170919430.png)
 
 ## 2.光栅化
 
