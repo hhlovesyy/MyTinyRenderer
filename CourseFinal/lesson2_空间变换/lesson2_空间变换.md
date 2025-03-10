@@ -655,6 +655,8 @@ $$
 
 
 
+>矩阵变换本质部分的可视化具体可以参考[2] 3Blue1Brown 系列视频 
+
 ## 1.模型空间->世界空间
 
 <img src="assets/image-20250227121511317.png" alt="image-20250227121511317" style="zoom: 67%;" />
@@ -1881,4 +1883,6 @@ Unity Shader 入门精要
 
 参考链接：
 
-https://www.zhihu.com/question/332096916/answer/2408545417?utm_medium=social&utm_psn=1862455903695020033&utm_source=qq
+[1] https://www.zhihu.com/question/332096916/answer/2408545417?utm_medium=social&utm_psn=1862455903695020033&utm_source=qq
+
+[2] https://www.bilibili.com/video/BV1Ss41167dG/?share_source=copy_web&vd_source=067de257d5f13e60e5b36da1a0ec151e

@@ -269,7 +269,7 @@ static vec3_t get_specular(vec3_t light_dir, vec3_t view_dir, Material_BlinnPhon
 ​	综合上文所述的内容，可以得到如下的数学公式：
 $$
 L = 
-L_a + L_d + L_s = k_aI_a + k_d(I/r^2)max(0, \vec{n} · \vec{l}) + L_s = k_s (I/r^2) max(0, \vec{n}·\vec{h})^\alpha
+L_a + L_d + L_s = k_aI_a + k_d(I/r^2)max(0, \vec{n} · \vec{l}) +  k_s (I/r^2) max(0, \vec{n}·\vec{h})^\alpha
 $$
 ​	这就是大名鼎鼎的Blinn-Phong光照经验模型了，主要包含环境光，漫反射项和镜面反射项。将以上三部分实现在渲染器中，并相加到一起，可以得到下图的结果：
 

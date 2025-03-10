@@ -1,6 +1,6 @@
 # lesson12_光线追踪
 
-
+本章节对应代码 https://www.shadertoy.com/view/WcsXRH 。
 
 ### 1. 引言
 
@@ -542,7 +542,7 @@ $$
 
 
 
-至此,我们发现,当我们只知道A,B,C和P的坐标,就顺利算出P的重心坐标$\begin{bmatrix} 1-u-v,u , v \end{bmatrix} $,通过判断u,v是否>0,我们就可以判断P是否在三角形内.
+至此,我们发现,当我们只知道A,B,C和P的坐标,就顺利算出P的重心坐标$\begin{bmatrix} 1-u-v,u , v \end{bmatrix} $,如果$u > 0$、$v > 0$且$w=1-u-v > 0$，点P在三角形ABC内部。
 
 
 
@@ -552,7 +552,7 @@ $$
 
 该算法的推导可以参考下列博客:
 
-[(8条消息) Möller-Trumbore算法-射线三角形相交算法_zhanxi1992的博客-CSDN博客](https://blog.csdn.net/zhanxi1992/article/details/109903792)
+[Möller-Trumbore算法-射线三角形相交算法](https://blog.csdn.net/zhanxi1992/article/details/109903792)
 
 推导过程如下:
 
@@ -961,7 +961,7 @@ $$
 >
 > <img src="./assets/1280px-Total_internal_reflection_of_Chelonia_mydas.jpg" alt="undefined" style="zoom:80%;" />
 
-
+我们可以使用一个近似方法来计算有多少光线会反射，有多少光线会折射：
 
 ##### Schlick近似方法
 
@@ -977,6 +977,8 @@ $$
 $$
 F_{0}=\left(\frac{\eta_{1}-\eta_{2}}{\eta_{1}+\eta_{2}}\right)^{2}=\left(\frac{\eta-1}{\eta+1}\right)^{2}
 $$
+（在“PBR”章节中我们更为细致地讲解了这个知识）
+
 下面展示了用使用schlick近似方法+前面推导的折射方向来实现折射：
 
 ```GLSL
@@ -1108,7 +1110,7 @@ if(rec.material.type == MT_DIALECTRIC)
 
 #### 2.4 整体光线追踪的细节补充
 
-在前面的部分中我们介绍了光线打到不同材质物体上之后的反射/折射效果，这里我们复习一下整体的过程。在这部分中，我们会对上述没有说明完全的地方进行补充说明。在本节教程的同级目录下有两个可执行的shadertoy文件，可以直接复制进shadertoy里面看效果，注释非常详细（本文里面的代码对应路径下的Final文件夹，另一个源码也可以执行，读者可以对比学习）。
+在前面的部分中我们介绍了光线打到不同材质物体上之后的反射/折射效果，这里我们复习一下整体的过程。在这部分中，我们会对上述没有说明完全的地方进行补充说明。在本节教程的同级目录下有两个可执行的shadertoy文件，可以直接复制进shadertoy里面看效果，注释非常详细（本文里面的代码对应路径下的Final文件夹，另一个源码也可以执行，读者可以对比学习），或者直接打开 https://www.shadertoy.com/view/WcsXRH 这个链接查看效果。
 
 对于shadertoy而言，其main函数如下：
 ```glsl
@@ -1313,6 +1315,8 @@ vec2 randomInUnitDisk(inout float seed)
 
 #### 2.4.2 反走样
 
+（在“反走样”章节有详细介绍。）
+
 如果我们一个像素只打出一根光线，会得到下面的结果：
 
 ![image-20241213194759048](./assets/image-20241213194759048.png)
@@ -1483,6 +1487,10 @@ gamma校正后的结果如下：
 
 
 
+本章节对应代码 https://www.shadertoy.com/view/WcsXRH，可拖拽查看，读者可以根据自己需要更改测试。
+
+（教程部分图对应代码https://www.shadertoy.com/view/3flXRH）
+
 参考文章：
 
 [1] Real-Time Rendering 4th
@@ -1492,3 +1500,5 @@ gamma校正后的结果如下：
 [3]De Greve, Bram. "Reflections and refractions in ray tracing." *Retrived Oct* 16 (2006): 2014. https://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf
 
 [4]https://www.shadertoy.com/view/lssBD7
+
+[5]https://www.shadertoy.com/view/tddSz4
